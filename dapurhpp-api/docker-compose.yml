@@ -1,0 +1,17 @@
+version: '3.9'
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: dapurhpp_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass123
+      MYSQL_DATABASE: dapurhpp
+      MYSQL_USER: dapurhpp_user
+      MYSQL_PASSWORD: dapurhpp123
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+volumes:
+  mysql_data:
