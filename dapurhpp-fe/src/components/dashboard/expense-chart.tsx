@@ -1,0 +1,105 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
+import { api } from "@/lib/axios";
+
+interface ExpenseDataItem {
+  nama: string;
+  value: number;
+  color: string;
+  pct: number;
+}
+
+const COLORS = ["#FF8A00", "#F4D03F", "#06D6A0", "#2E294E", "#00B4D8", "#606C38"];
+
+const fmt = (v: number | undefined) => "Rp " + (v ?? 0).toLocaleString("id-ID");
+
+export function ExpenseChart() {
+  const [data, setData] = useState<ExpenseDataItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchExpense() {
+      try {
+        const res = await api.get<ExpenseDataItem[]>("/laporan/distribusi-hpp");
+        // Tambahkan warna jika belum ada dari backend
+        const withColors = res.data.map((d, i) => ({
+          ...d,
+          color: d.color ?? COLORS[i % COLORS.length],
+        }));
+        setData(withColors);
+      } catch (err) {
+        console.error("Gagal fetch distribusi HPP:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchExpense();
+  }, []);
+
+  const total = data.reduce((acc, d) => acc + d.value, 0);
+
+  return (
+    <div className="bg-white rounded-[24px] border border-[#E8D5C4] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
+      <h3 className="font-[var(--font-playfair)] font-bold text-lg text-[#2A1711] mb-6">
+        Distribusi Pengeluaran (HPP)
+      </h3>
+      <div className="flex flex-col md:flex-row items-center gap-6">
+        <div className="relative flex-shrink-0" style={{ width: 180, height: 180 }}>
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0">
+            <span className="text-[11px] text-[#8A7362]">Total</span>
+            <span className="text-sm font-bold font-[var(--font-roboto-mono)] text-[#2A1711]">{fmt(total)}</span>
+          </div>
+
+          <div className="relative z-10 w-full h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={data}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={55}
+                  outerRadius={80}
+                  dataKey="value"
+                  strokeWidth={0}
+                >
+                  {data.map((d, i) => (
+                    <Cell key={i} fill={d.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(v: unknown) => fmt(typeof v === 'number' ? v : undefined)}
+                  wrapperStyle={{ zIndex: 100 }}
+                  contentStyle={{
+                    backgroundColor: "#fff",
+                    borderRadius: "12px",
+                    border: "1px solid #E8D5C4",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    padding: "8px 12px",
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="flex-1 space-y-2.5 w-full">
+          {data.map((d, i) => (
+            <div key={i} className="flex items-center gap-3 text-sm">
+              <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
+              <span className="flex-1 text-[#564334] font-[var(--font-be-vietnam)]">{d.nama}</span>
+              <span className="font-[var(--font-roboto-mono)] text-[#2A1711] text-xs">{fmt(d.value)}</span>
+              <span className="text-[#8A7362] text-xs w-12 text-right">{d.pct.toFixed(1)}%</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      {loading && (
+        <div className="flex items-center justify-center h-[180px] text-[#8A7362]">
+          Memuat grafik...
+        </div>
+      )}
+    </div>
+  );
+}

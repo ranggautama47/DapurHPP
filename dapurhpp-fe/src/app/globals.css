@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    @apply h-full;
+  }
+
+  body {
+    @apply min-h-full flex flex-col bg-[#FFF8F6] text-[#2A1711] text-base leading-[1.5];
+  }
+
+  * {
+    @apply border-[#DDC1AE];
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-8 py-3.5
+      bg-[#FF8A00] text-white
+      font-semibold text-base leading-[1.5]
+      rounded-[9999px]
+      transition-all duration-200 ease-out
+      hover:bg-[#E67E00] hover:shadow-[0_4px_12px_rgba(255,138,0,0.3)]
+      active:scale-[0.98]
+      focus:outline-none focus:ring-2 focus:ring-[#FF8A00] focus:ring-offset-2 focus:ring-offset-white
+      disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-8 py-3.5
+      bg-white text-[#FF8A00] border-2 border-[#FF8A00]
+      font-semibold text-base leading-[1.5]
+      rounded-[9999px]
+      transition-all duration-200 ease-out
+      hover:bg-[#FFF4ED] hover:shadow-[0_4px_12px_rgba(255,138,0,0.15)]
+      active:scale-[0.98]
+      focus:outline-none focus:ring-2 focus:ring-[#FF8A00] focus:ring-offset-2 focus:ring-offset-white
+      disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3.5
+      bg-white border-2 border-[#E8D5C4]
+      text-base text-[#2A1711]
+      rounded-[1rem]
+      transition-all duration-200 ease-out
+      placeholder:text-[#9D8B7D]
+      hover:border-[#DDC1AE]
+      focus:outline-none focus:border-[#FF8A00] focus:ring-2 focus:ring-[#FF8A00]/20
+      disabled:bg-[#F5F0EB] disabled:cursor-not-allowed;
+  }
+
+  .input-label {
+    @apply block mb-2 font-bold text-[0.75rem] leading-[1rem]
+      uppercase tracking-[0.05em] text-[#2A1711];
+  }
+
+  .form-card {
+    @apply bg-white rounded-[2rem] p-8 sm:p-10 lg:p-12
+      shadow-[0_12px_40px_rgba(78,52,46,0.15)]
+      border border-[#F5F0EB];
+  }
+
+  .badge-omzet {
+    @apply inline-flex items-center gap-1.5 px-4 py-2
+      bg-[#FFF4ED] text-[#FF8A00]
+      font-semibold text-sm leading-[1.5]
+      rounded-[1rem]
+      shadow-[0_8px_30px_rgba(109,76,65,0.08)]
+      tabular-nums;
+  }
+
+  .hero-title {
+    @apply font-bold text-[#2A1711]
+      text-[2rem] md:text-[2.5rem] lg:text-[2rem] leading-[2.5rem] md:leading-[2.5rem];
+  }
+
+  .form-title {
+    @apply font-bold text-[#2A1711]
+      text-[1.75rem] leading-[2.25rem];
+  }
+
+  .nav-link {
+    @apply text-sm text-[#2A1711]
+      transition-colors duration-200 hover:text-[#FF8A00];
+  }
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
