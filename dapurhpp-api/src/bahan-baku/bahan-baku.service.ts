@@ -30,7 +30,11 @@ export class BahanBakuService {
         userId,
         nama: dto.nama,
         satuan: dto.satuan,
+        kategori: dto.kategori,
         hargaTerakhir: dto.hargaTerakhir ?? 0,
+        fotoUrl: dto.fotoUrl ?? null,
+        stok: dto.stok ?? 0,
+        stokMinimal: dto.stokMinimal ?? 0,
       },
     });
   }
@@ -44,8 +48,56 @@ export class BahanBakuService {
       data: {
         ...(dto.nama !== undefined && { nama: dto.nama }),
         ...(dto.satuan !== undefined && { satuan: dto.satuan }),
+        ...(dto.kategori !== undefined && { kategori: dto.kategori }),
         ...(dto.hargaTerakhir !== undefined && { hargaTerakhir: dto.hargaTerakhir }),
+        ...(dto.fotoUrl !== undefined && { fotoUrl: dto.fotoUrl }),
+        ...(dto.stok !== undefined && { stok: dto.stok }),
+        ...(dto.stokMinimal !== undefined && { stokMinimal: dto.stokMinimal }),
       },
+    });
+  }
+
+  async getRiwayatHarga(bahanId: number, userId: number) {
+    await this.findOne(bahanId, userId);
+
+    const riwayat = await this.prisma.detailBelanja.findMany({
+      where: {
+        bahanBakuId: bahanId,
+        belanja: { userId },
+      },
+      include: {
+        belanja: { select: { tanggal: true } },
+      },
+      orderBy: { belanja: { tanggal: 'asc' } },
+    });
+
+    const grouped = new Map<string, { label: string; harga: number; tanggal: Date }>();
+
+    for (const item of riwayat) {
+      const date = item.belanja.tanggal;
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const label = date.toLocaleDateString('id-ID', { month: 'short' });
+
+      grouped.set(key, {
+        label,
+        harga: Number(item.hargaSatuan),
+        tanggal: date,
+      });
+    }
+
+    const result = Array.from(grouped.values())
+      .sort((a, b) => a.tanggal.getTime() - b.tanggal.getTime())
+      .slice(-6)
+      .map(({ label, harga }) => ({ label, harga }));
+
+    return result;
+  }
+
+  async updateFotoUrl(id: number, userId: number, fotoUrl: string | null) {
+    await this.findOne(id, userId);
+    return this.prisma.bahanBaku.update({
+      where: { id },
+      data: { fotoUrl },
     });
   }
 

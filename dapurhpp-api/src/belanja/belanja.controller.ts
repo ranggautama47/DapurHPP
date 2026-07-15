@@ -24,11 +24,16 @@ export class BelanjaController {
   constructor(private readonly belanjaService: BelanjaService) {}
 
   @Get()
-  findAll(
+  findAll(@Request() req: any, @Query() query: BelanjaQueryDto) {
+    return this.belanjaService.findAll(req.user.id, query);
+  }
+
+  @Get('ringkasan')
+  getRingkasan(
     @Request() req: any,
-    @Query() query: BelanjaQueryDto,
+    @Query('tanggal') tanggal?: string,
   ) {
-    return this.belanjaService.findAll(req.user.id, query.tanggal);
+    return this.belanjaService.getRingkasan(req.user.id, tanggal);
   }
 
   @Post()

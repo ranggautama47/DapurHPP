@@ -36,6 +36,7 @@ export class ResepService {
       return {
         id: resep.id,
         nama: resep.nama,
+        catatan: resep.catatan,
         estimasiHasil: resep.estimasiHasil,
         hargaJual: resep.hargaJual,
         fotoUrl: resep.fotoUrl,
@@ -78,6 +79,7 @@ export class ResepService {
     return {
       id: resep.id,
       nama: resep.nama,
+      catatan: resep.catatan,
       estimasiHasil: resep.estimasiHasil,
       hargaJual: resep.hargaJual,
       fotoUrl: resep.fotoUrl,
@@ -94,6 +96,7 @@ export class ResepService {
         bahanBaku: {
           nama: detail.bahanBaku.nama,
           hargaTerakhir: detail.bahanBaku.hargaTerakhir,
+          satuan: detail.bahanBaku.satuan,
         },
         subtotal:
           Number(detail.jumlah) * Number(detail.bahanBaku.hargaTerakhir),
@@ -125,6 +128,7 @@ export class ResepService {
         estimasiHasil: dto.estimasiHasil,
         hargaJual: dto.hargaJual ?? 0,
         fotoUrl: null,
+        catatan: dto.catatan ?? null,
         detailResep: {
           create: dto.detailResep.map((detail) => ({
             bahanBakuId: detail.bahanBakuId,
@@ -147,6 +151,7 @@ export class ResepService {
     if (dto.estimasiHasil !== undefined)
       resepData.estimasiHasil = dto.estimasiHasil;
     if (dto.hargaJual !== undefined) resepData.hargaJual = dto.hargaJual;
+    if (dto.catatan !== undefined) resepData.catatan = dto.catatan;
 
     if (dto.detailResep !== undefined) {
       // Validasi ownership bahanBaku
@@ -165,20 +170,27 @@ export class ResepService {
         );
       }
 
-      // Replace strategy: hapus lama, buat baru
+      // Atomic transaction: delete old → update resep + create new
       await this.prisma.$transaction([
         this.prisma.detailResep.deleteMany({
           where: { resepId: id },
         }),
+        this.prisma.resep.update({
+          where: { id },
+          data: {
+            ...resepData,
+            detailResep: {
+              create: dto.detailResep.map((detail) => ({
+                bahanBakuId: detail.bahanBakuId,
+                jumlah: detail.jumlah,
+                satuan: detail.satuan,
+              })),
+            },
+          },
+        }),
       ]);
 
-      resepData.detailResep = {
-        create: dto.detailResep.map((detail) => ({
-          bahanBakuId: detail.bahanBakuId,
-          jumlah: detail.jumlah,
-          satuan: detail.satuan,
-        })),
-      };
+      return this.findOne(id, userId);
     }
 
     await this.prisma.resep.update({
@@ -198,5 +210,13 @@ export class ResepService {
     });
 
     return { message: 'Resep berhasil dihapus' };
+  }
+
+  async updateFotoUrl(id: number, userId: number, fotoUrl: string | null) {
+    await this.findOne(id, userId);
+    return this.prisma.resep.update({
+      where: { id },
+      data: { fotoUrl },
+    });
   }
 }
