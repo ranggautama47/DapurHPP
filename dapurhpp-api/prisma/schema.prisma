@@ -34,17 +34,21 @@ model User {
 }
 
 model BahanBaku {
-  id            Int       @id @default(autoincrement()) @db.UnsignedInt
-  userId        Int       @db.UnsignedInt @map("user_id")
-  nama          String    @db.VarChar(100)
+  id            Int             @id @default(autoincrement()) @db.UnsignedInt
+  userId        Int             @db.UnsignedInt @map("user_id")
+  nama          String          @db.VarChar(100)
   satuan        Satuan
-  hargaTerakhir Decimal   @default(0) @db.Decimal(12, 2) @map("harga_terakhir")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-  deletedAt     DateTime? @map("deleted_at") // soft delete
+  kategori      KategoriBahan   @default(LAINNYA)
+  fotoUrl       String?         @db.VarChar(255) @map("foto_url")  // ← TAMBAH INI
+  hargaTerakhir Decimal         @default(0) @db.Decimal(12, 2) @map("harga_terakhir")
+  stok          Decimal         @default(0) @db.Decimal(10, 3) @map("stok")
+  stokMinimal   Decimal         @default(0) @db.Decimal(10, 3) @map("stok_minimal")
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  deletedAt     DateTime?       @map("deleted_at")
 
-  user         User           @relation(fields: [userId], references: [id])
-  detailResep  DetailResep[]
+  user          User            @relation(fields: [userId], references: [id])
+  detailResep   DetailResep[]
   detailBelanja DetailBelanja[]
 
   @@unique([userId, nama])
@@ -75,11 +79,12 @@ model Resep {
   userId         Int       @db.UnsignedInt @map("user_id")
   nama           String    @db.VarChar(100)
   fotoUrl        String?   @db.VarChar(255) @map("foto_url")
-  estimasiHasil  Int       @db.UnsignedInt @map("estimasi_hasil") // pcs per batch
+  estimasiHasil  Int       @db.UnsignedInt @map("estimasi_hasil")
   hargaJual      Decimal   @default(0) @db.Decimal(12, 2) @map("harga_jual")
+  catatan        String?   @db.Text
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
-  deletedAt      DateTime? @map("deleted_at") // soft delete
+  deletedAt      DateTime? @map("deleted_at")
 
   user        User          @relation(fields: [userId], references: [id])
   detailResep DetailResep[]
@@ -159,10 +164,27 @@ model Produksi {
   user      User       @relation(fields: [userId], references: [id])
   resep     Resep      @relation(fields: [resepId], references: [id])
   penjualan Penjualan[]
+  detailProduksi DetailProduksi[]
 
   @@index([userId, tanggal])
   @@index([resepId])
   @@map("produksi")
+}
+
+model DetailProduksi {
+  id            Int      @id @default(autoincrement()) @db.UnsignedInt
+  produksiId    Int      @db.UnsignedInt @map("produksi_id")
+  bahanBakuId   Int      @db.UnsignedInt @map("bahan_baku_id")
+  nama          String   @db.VarChar(191)              // snapshot nama, jangan relasi live
+  jumlah        Decimal  @db.Decimal(10, 2)
+  satuan        Satuan
+  hargaTerakhir Decimal  @db.Decimal(12, 2) @map("harga_terakhir") // snapshot harga saat itu
+  total         Decimal  @db.Decimal(12, 2)             // jumlah × hargaTerakhir
+
+  produksi Produksi @relation(fields: [produksiId], references: [id], onDelete: Cascade)
+
+  @@index([produksiId])
+  @@map("detail_produksi")
 }
 
 model Penjualan {
@@ -223,4 +245,13 @@ enum StatusProduksi {
 enum StatusPenjualan {
   OPEN
   CLOSED
+}
+
+enum KategoriBahan {
+  TEPUNG
+  MINYAK
+  SAYURAN
+  BUMBU
+  DAGING
+  LAINNYA
 }
