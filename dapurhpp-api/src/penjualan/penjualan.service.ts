@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePenjualanDto } from './dto/create-penjualan.dto';
 import { UpdatePenjualanDto } from './dto/update-penjualan.dto';
@@ -8,24 +12,30 @@ export class PenjualanService {
   constructor(private readonly prisma: PrismaService) {}
 
   findAll(userId: number, tanggal?: string) {
-    return this.prisma.penjualan.findMany({
-      where: {
-        userId,
-        ...(tanggal && { tanggal: new Date(tanggal) }),
-      },
-      include: {
-        produksi: {
-          select: {
-            resepId: true,
-            hasilNyata: true,
-            status: true,
+    return this.prisma.penjualan
+      .findMany({
+        where: { userId, ...(tanggal && { tanggal: new Date(tanggal) }) },
+        include: {
+          produksi: {
+            select: {
+              id: true,
+              hppPerPcs: true,
+              hasilNyata: true,
+              status: true,
+              resep: { select: { nama: true } },
+            },
           },
         },
-      },
-      orderBy: {
-        tanggal: 'desc',
-      },
-    });
+        orderBy: { tanggal: 'desc' },
+      })
+      .then((list) =>
+        list.map((p) => ({
+          ...p,
+          laba:
+            Number(p.totalPendapatan) -
+            p.terjual * Number(p.produksi.hppPerPcs),
+        })),
+      );
   }
 
   async findOne(id: number, userId: number) {
@@ -52,7 +62,9 @@ export class PenjualanService {
 
     // 2. Validate production status: must be SELESAI
     if (produksi.status !== 'SELESAI') {
-      throw new BadRequestException('Produksi harus berstatus SELESAI sebelum bisa dijual');
+      throw new BadRequestException(
+        'Produksi harus berstatus SELESAI sebelum bisa dijual',
+      );
     }
 
     // 3. Calculate available stock
@@ -65,7 +77,9 @@ export class PenjualanService {
 
     // 4. Validate enough stock
     if (dto.terjual > stokTersedia) {
-      throw new BadRequestException(`Stok tidak cukup. Tersedia: ${stokTersedia}`);
+      throw new BadRequestException(
+        `Stok tidak cukup. Tersedia: ${stokTersedia}`,
+      );
     }
 
     // 5. Calculate remaining and totalPendapatan
@@ -95,7 +109,9 @@ export class PenjualanService {
 
     // 2. Validate status: CLOSED cannot be modified
     if (penjualan.status === 'CLOSED') {
-      throw new BadRequestException('Penjualan yang sudah CLOSED tidak bisa diubah');
+      throw new BadRequestException(
+        'Penjualan yang sudah CLOSED tidak bisa diubah',
+      );
     }
 
     // 3. Recalculate if sales quantity or price changes
@@ -116,10 +132,12 @@ export class PenjualanService {
       const stokTersedia = penjualan.produksi.hasilNyata - totalTerjualLain;
 
       if (terjualBaru > stokTersedia) {
-        throw new BadRequestException(`Stok tidak cukup. Tersedia: ${stokTersedia}`);
+        throw new BadRequestException(
+          `Stok tidak cukup. Tersedia: ${stokTersedia}`,
+        );
       }
 
-      totalPendapatan = terjualBaru * hargaJualBaru as any;
+      totalPendapatan = (terjualBaru * hargaJualBaru) as any;
       sisa = stokTersedia - terjualBaru;
     }
 

@@ -16,7 +16,8 @@ export class ProduksiService {
       include: {
         resep: {
           select: {
-            nama: true,
+             nama: true, 
+             fotoUrl: true
           },
         },
       },
@@ -34,9 +35,11 @@ export class ProduksiService {
           select: {
             nama: true,
             estimasiHasil: true,
+            fotoUrl: true
           },
         },
         penjualan: true,
+        detailProduksi: true,
       },
     });
     if (!item) {
@@ -48,41 +51,43 @@ export class ProduksiService {
   async create(userId: number, dto: CreateProduksiDto) {
     // 1. Find resep owned by user
     const resep = await this.prisma.resep.findFirst({
-      where: { id: dto.resepId, userId, deletedAt: null },
-      include: {
-        detailResep: {
-          include: {
-            bahanBaku: true,
-          },
-        },
-      },
-    });
-    if (!resep) {
-      throw new NotFoundException('Resep tidak ditemukan');
-    }
+    where: { id: dto.resepId, userId, deletedAt: null },
+    include: { detailResep: { include: { bahanBaku: true } } },
+  });
+  if (!resep) throw new NotFoundException('Resep tidak ditemukan');
 
     // 2. Calculate HPP snapshot
     const totalBahan = resep.detailResep.reduce((sum, d) => {
-      return sum + Number(d.jumlah) * Number(d.bahanBaku.hargaTerakhir);
-    }, 0);
+    return sum + Number(d.jumlah) * Number(d.bahanBaku.hargaTerakhir);
+  }, 0);
     
     const hppPerPcs = resep.estimasiHasil > 0 ? totalBahan / resep.estimasiHasil : 0;
     const totalModal = hppPerPcs * dto.hasilNyata;
 
     // 3. Create produksi record
     const newProduksi = await this.prisma.produksi.create({
-      data: {
-        userId,
-        resepId: dto.resepId,
-        tanggal: new Date(dto.tanggal),
-        estimasiHasil: resep.estimasiHasil,
-        hasilNyata: dto.hasilNyata,
-        hppPerPcs,
-        hargaJualSaatProduksi: resep.hargaJual,
-        totalModal,
-        status: 'DRAFT',
+    data: {
+      userId,
+      resepId: dto.resepId,
+      tanggal: new Date(dto.tanggal),
+      estimasiHasil: resep.estimasiHasil,
+      hasilNyata: dto.hasilNyata,
+      hppPerPcs,
+      hargaJualSaatProduksi: resep.hargaJual,
+      totalModal,
+      status: 'DRAFT',
+      detailProduksi: {
+        create: resep.detailResep.map((d) => ({
+          bahanBakuId: d.bahanBakuId,
+          nama: d.bahanBaku.nama,
+          jumlah: d.jumlah,
+          satuan: d.satuan,
+          hargaTerakhir: d.bahanBaku.hargaTerakhir,
+          total: Number(d.jumlah) * Number(d.bahanBaku.hargaTerakhir),
+        })),
       },
-    });
+    },
+  });
 
     // 4. Return complete record
     return this.findOne(newProduksi.id, userId);

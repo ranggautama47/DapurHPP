@@ -14,8 +14,10 @@ export class LaporanController {
   constructor(private readonly laporanService: LaporanService) {}
 
   @Get('ringkasan')
-  async getRingkasan(@Request() req: any) {
-    return this.laporanService.getRingkasan(req.user.id);
+  async getRingkasan(@Request() req: any, @Query('days') days?: string) {
+    const parsedDays = days ? parseInt(days, 10) : 7;
+    const safeDays = [7, 30, 90, 180].includes(parsedDays) ? parsedDays : 7;
+    return this.laporanService.getRingkasan(req.user.id, safeDays);
   }
 
   @Get('grafik-laba')
