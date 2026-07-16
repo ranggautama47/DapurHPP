@@ -14,6 +14,16 @@
   }
 }
 
+/* globals.css */
+@keyframes stripe-slide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-16px); }
+}
+
+.animate-stripe {
+  animation: stripe-slide 1s linear infinite;
+}
+
 @layer components {
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 px-8 py-3.5

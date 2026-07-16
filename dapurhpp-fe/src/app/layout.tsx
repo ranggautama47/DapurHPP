@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Be_Vietnam_Pro, Roboto_Mono } from "next/font/google";
 import "./globals.css";
+import { LoadingProvider } from "@/components/provider/loading-provider";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -32,7 +33,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className={`${playfair.variable} ${beVietnam.variable} ${robotoMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#FFF8F6]">{children}</body>
+      <body className="min-h-full flex flex-col bg-[#FFF8F6]">
+        <LoadingProvider>
+          {children}
+        </LoadingProvider>
+      </body>
     </html>
   );
 }
