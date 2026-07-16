@@ -44,8 +44,8 @@ export function StatsCards() {
         setCards([
           {
             label: "Pendapatan",
-            value: `Rp ${d.pendapatan.toLocaleString()}`,
-            change: d.pendapatanChange,
+            value: `Rp ${(d.pendapatan ?? 0).toLocaleString()}`,
+            change: d.pendapatanChange ?? "+0%",
             positive: true,
             icon: TrendingUp,
             iconBg: "#D0F4DE",
@@ -53,8 +53,8 @@ export function StatsCards() {
           },
           {
             label: "Modal (HPP)",
-            value: `Rp ${d.modal.toLocaleString()}`,
-            change: d.modalChange,
+            value: `Rp ${(d.modal ?? 0).toLocaleString()}`,
+            change: d.modalChange ?? "+0%",
             positive: false,
             icon: ShoppingBag,
             iconBg: "#FFE9E4",
@@ -62,8 +62,8 @@ export function StatsCards() {
           },
           {
             label: "Penjualan",
-            value: `Rp ${d.penjualan.toLocaleString()}`,
-            change: d.penjualanChange,
+            value: `Rp ${(d.penjualan ?? 0).toLocaleString()}`,
+            change: d.penjualanChange ?? "+0%",
             positive: true,
             icon: ShoppingCart,
             iconBg: "#FFE9E4",
@@ -71,8 +71,8 @@ export function StatsCards() {
           },
           {
             label: "Margin Keuntungan",
-            value: `${d.marginKeuntungan.toLocaleString('id-ID', { minimumFractionDigits: 2 })}%`,
-            change: d.marginChange,
+            value: `${(d.marginKeuntungan ?? 0).toLocaleString('id-ID', { minimumFractionDigits: 2 })}%`,
+            change: d.marginChange ?? "+0%",
             positive: true,
             icon: PieChart,
             iconBg: "#E8E8F4",

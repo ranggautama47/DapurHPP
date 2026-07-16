@@ -64,7 +64,9 @@ export function TopProducts() {
                 </div>
               </div>
               <div className="text-xs font-medium">
-                {product.change.startsWith("-") ? (
+                {product.change == null ? (
+                  <span className="text-[#9CA3AF]">—</span>
+                ) : String(product.change).startsWith("-") ? (
                   <span className="text-[#EF4444]">{product.change}</span>
                 ) : (
                   <span className="text-[#10B981]">+{product.change}</span>

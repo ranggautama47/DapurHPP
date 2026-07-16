@@ -90,7 +90,7 @@ export function ProfitChart() {
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#8A7362" }} axisLine={false} tickLine={false} dy={10} />
               <YAxis tickFormatter={formatRp} tick={{ fontSize: 11, fill: "#8A7362" }} axisLine={false} tickLine={false} width={70} />
               <Tooltip
-                formatter={(value: number) => ["Rp " + value.toLocaleString("id-ID"), "Laba"]}
+                formatter={(value: any) => ["Rp " + (value ?? 0).toLocaleString("id-ID"), "Laba"]}
                 contentStyle={{ borderRadius: 12, border: "1px solid #E8D5C4", fontSize: 12 }}
               />
               <Area type="monotone" dataKey="laba" stroke="#FF8A00" strokeWidth={2.5}

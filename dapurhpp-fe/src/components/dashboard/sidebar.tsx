@@ -83,6 +83,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
                   src="/iconDapurHpp.png"
                   alt="Logo DapurHPP"
                   fill
+                  sizes="180px"
                   priority
                   className="object-contain object-left"
                   draggable={false}
@@ -94,6 +95,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
                   src="/iconDapurHpp.png"
                   alt="Logo DapurHPP"
                   fill
+                  sizes="36px"
                   priority
                   className="object-contain"
                   draggable={false}
