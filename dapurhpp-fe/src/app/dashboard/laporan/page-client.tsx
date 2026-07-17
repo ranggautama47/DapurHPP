@@ -67,21 +67,8 @@ export default function LaporanPageClient() {
       setGrafik(grafikRes.data);
       setDistribusi(distribusiRes.data);
 
-      // Fetch counts untuk Ringkasan Operasional — endpoint /produksi, /penjualan,
-      // /belanja, /pengeluaran-lain gak semua dukung filter range tanggal yang sama,
-      // jadi ambil semua lalu filter tanggal di FE biar konsisten sama periode terpilih
+      // Fetch counts for operasional
       try {
-        const batasAwal = new Date();
-        batasAwal.setDate(batasAwal.getDate() - days);
-        batasAwal.setHours(0, 0, 0, 0);
-        const batasAkhir = new Date();
-        batasAkhir.setHours(23, 59, 59, 999);
-
-        const dalamPeriode = (tanggal: string) => {
-          const t = new Date(tanggal);
-          return t >= batasAwal && t <= batasAkhir;
-        };
-
         const [produksiRes, penjualanRes, belanjaRes, pengeluaranRes] = await Promise.all([
           api.get<any[]>("/produksi"),
           api.get<any[]>("/penjualan"),
@@ -89,10 +76,10 @@ export default function LaporanPageClient() {
           api.get<any[]>("/pengeluaran-lain"),
         ]);
         setOperasionalCounts({
-          totalProduksi: produksiRes.data.filter((p) => dalamPeriode(p.tanggal)).length,
-          totalPenjualan: penjualanRes.data.filter((p) => dalamPeriode(p.tanggal)).length,
-          totalBelanja: belanjaRes.data.filter((p) => dalamPeriode(p.tanggal)).length,
-          totalPengeluaranLain: pengeluaranRes.data.filter((p) => dalamPeriode(p.tanggal)).length,
+          totalProduksi: produksiRes.data.length,
+          totalPenjualan: penjualanRes.data.length,
+          totalBelanja: belanjaRes.data.length,
+          totalPengeluaranLain: pengeluaranRes.data.length,
         });
       } catch {
         setOperasionalCounts({
@@ -206,7 +193,7 @@ export default function LaporanPageClient() {
         onDateChange={handleDateChange}
         onApplyCustom={handleApplyCustom}
         isCustomApplied={
-          filter.period === "custom" && !!filter.tanggalMulai && !!filter.tanggalAkhir
+          filter.period !== "custom" || !filter.tanggalMulai || !filter.tanggalAkhir
         }
       />
 
