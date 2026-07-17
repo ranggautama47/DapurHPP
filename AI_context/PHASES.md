@@ -129,12 +129,12 @@ Backend
 
 Frontend
 
-    [ ] Tab Produksi — list per tanggal, status badge (DRAFT/SELESAI/BATAL)
-    [ ] Form tambah produksi — pilih resep, input hasilNyata, preview HPP snapshot
-    [ ] Detail produksi — breakdown HPP, tombol selesaikan/batalkan
-    [ ] Tab Penjualan — list per tanggal, total pendapatan + laba
-    [ ] Form tambah penjualan — pilih produksi (status SELESAI), input terjual + harga jual
-    [ ] Summary: total pendapatan, total HPP, laba
+    [X] Tab Produksi — list per tanggal, status badge (DRAFT/SELESAI/BATAL)
+    [X] Form tambah produksi — pilih resep, input hasilNyata, preview HPP snapshot
+    [X] Detail produksi — breakdown HPP, tombol selesaikan/batalkan
+    [X] Tab Penjualan — list per tanggal, total pendapatan + laba
+    [X] Form tambah penjualan — pilih produksi (status SELESAI), input terjual + harga jual
+    [X] Summary: total pendapatan, total HPP, laba
 
 PHASE 6 — Pengeluaran Lain
 
