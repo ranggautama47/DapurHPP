@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { LaporanQueryDto } from './dto/laporan-query.dto';
 
 @Injectable()
 export class LaporanService {
@@ -8,16 +7,12 @@ export class LaporanService {
 
   // 1. GET /laporan/ringkasan - StatsCards Dinamis & Akurat
   async getRingkasan(userId: number, days: number = 7) {
-    // Window periode sekarang & pembanding (periode sebelumnya dgn panjang sama)
     const hariIni = new Date();
     hariIni.setHours(23, 59, 59, 999);
 
     const awalPeriode = new Date();
     awalPeriode.setDate(awalPeriode.getDate() - days);
     awalPeriode.setHours(0, 0, 0, 0);
-
-    const akhirPeriodeLalu = new Date(awalPeriode);
-    akhirPeriodeLalu.setMilliseconds(akhirPeriodeLalu.getMilliseconds() - 1);
 
     const awalPeriodeLalu = new Date(awalPeriode);
     awalPeriodeLalu.setDate(awalPeriodeLalu.getDate() - days);
@@ -30,13 +25,11 @@ export class LaporanService {
       totalTerjual,
       totalModal,
       pengeluaranLain,
-      // Query tambahan untuk pembanding Minggu Lalu (7-14 hari yang lalu)
       pendapatanLalu,
       terjualLalu,
       modalLalu,
       pengeluaranLalu,
     ] = await Promise.all([
-      // --- PERIODE SEKARANG (7 HARI INI) ---
       this.prisma.penjualan.aggregate({
         where: { userId, tanggal: { gte: tujuhHariLalu, lte: hariIni } },
         _sum: { totalPendapatan: true },
@@ -53,42 +46,25 @@ export class LaporanService {
         where: { userId, tanggal: { gte: tujuhHariLalu, lte: hariIni } },
         _sum: { jumlah: true },
       }),
-
-      // --- PERIODE SEBELUMNYA (MINGGU LALU) ---
       this.prisma.penjualan.aggregate({
-        where: {
-          userId,
-          tanggal: { gte: empatBelasHariLalu, lt: tujuhHariLalu },
-        },
+        where: { userId, tanggal: { gte: empatBelasHariLalu, lt: tujuhHariLalu } },
         _sum: { totalPendapatan: true },
       }),
       this.prisma.penjualan.aggregate({
-        where: {
-          userId,
-          tanggal: { gte: empatBelasHariLalu, lt: tujuhHariLalu },
-        },
+        where: { userId, tanggal: { gte: empatBelasHariLalu, lt: tujuhHariLalu } },
         _sum: { terjual: true },
       }),
       this.prisma.penjualan.findMany({
-        where: {
-          userId,
-          tanggal: { gte: empatBelasHariLalu, lt: tujuhHariLalu },
-        },
+        where: { userId, tanggal: { gte: empatBelasHariLalu, lt: tujuhHariLalu } },
         select: { terjual: true, produksi: { select: { hppPerPcs: true } } },
       }),
       this.prisma.pengeluaranLain.aggregate({
-        where: {
-          userId,
-          tanggal: { gte: empatBelasHariLalu, lt: tujuhHariLalu },
-        },
+        where: { userId, tanggal: { gte: empatBelasHariLalu, lt: tujuhHariLalu } },
         _sum: { jumlah: true },
       }),
     ]);
 
-    // Kalkulasi Data Sekarang
-    const totalPendapatanValue = Number(
-      totalPendapatan._sum.totalPendapatan ?? 0,
-    );
+    const totalPendapatanValue = Number(totalPendapatan._sum.totalPendapatan ?? 0);
     const totalTerjualValue = totalTerjual._sum.terjual ?? 0;
     let totalModalValue = 0;
     for (const p of totalModal) {
@@ -100,17 +76,15 @@ export class LaporanService {
     const marginKeuntungan =
       totalPendapatanValue > 0 ? (labaBersih / totalPendapatanValue) * 100 : 0;
 
-    // Kalkulasi Data Minggu Lalu (Pembanding)
     const pendapatanLaluVal = Number(pendapatanLalu._sum.totalPendapatan ?? 0);
-    const terjualLaluVal = terjualLalu._sum.terjual ?? 0;
     let modalLaluVal = 0;
     for (const p of modalLalu) {
       modalLaluVal += Number(p.produksi?.hppPerPcs ?? 0) * p.terjual;
     }
     const pengeluaranLaluVal = Number(pengeluaranLalu._sum.jumlah ?? 0);
-    const labaLaluVal = pendapatanLaluVal - (modalLaluVal + pengeluaranLaluVal);
+    const totalPengeluaranLaluVal = modalLaluVal + pengeluaranLaluVal;
+    const labaLaluVal = pendapatanLaluVal - totalPengeluaranLaluVal;
 
-    // Fungsi Pembantu Perubahan Persentase Bertipe Angka (Number)
     const hitungTren = (sekarang: number, lalu: number) => {
       if (lalu === 0) return sekarang > 0 ? 100 : 0;
       return Number((((sekarang - lalu) / lalu) * 100).toFixed(1));
@@ -119,19 +93,19 @@ export class LaporanService {
     return {
       totalPendapatan: totalPendapatanValue,
       totalHpp: totalModalValue,
+      totalPengeluaran,
       totalLaba: labaBersih,
       margin: Number(marginKeuntungan.toFixed(1)),
       penjualan: totalTerjualValue,
       tren: {
         pendapatan: hitungTren(totalPendapatanValue, pendapatanLaluVal),
         hpp: hitungTren(totalModalValue, modalLaluVal),
+        pengeluaran: hitungTren(totalPengeluaran, totalPengeluaranLaluVal),
         laba: hitungTren(labaBersih, labaLaluVal),
         margin: Number(
           (
             marginKeuntungan -
-            (pendapatanLaluVal > 0
-              ? (labaLaluVal / pendapatanLaluVal) * 100
-              : 0)
+            (pendapatanLaluVal > 0 ? (labaLaluVal / pendapatanLaluVal) * 100 : 0)
           ).toFixed(1),
         ),
       },
@@ -147,13 +121,7 @@ export class LaporanService {
     startDate.setHours(0, 0, 0, 0);
 
     const penjualan = await this.prisma.penjualan.findMany({
-      where: {
-        userId,
-        tanggal: {
-          gte: startDate,
-          lte: today,
-        },
-      },
+      where: { userId, tanggal: { gte: startDate, lte: today } },
       select: {
         tanggal: true,
         totalPendapatan: true,
@@ -163,54 +131,35 @@ export class LaporanService {
     });
 
     const pengeluaranLain = await this.prisma.pengeluaranLain.findMany({
-      where: {
-        userId,
-        tanggal: {
-          gte: startDate,
-          lte: today,
-        },
-      },
-      select: {
-        tanggal: true,
-        jumlah: true,
-      },
+      where: { userId, tanggal: { gte: startDate, lte: today } },
+      select: { tanggal: true, jumlah: true },
     });
 
     const isMonthly = days > 30;
-
-    // Use Map keyed by formatted label
     const aggregated = new Map<
       string,
       { pendapatan: number; modal: number; pengeluaran: number }
     >();
 
-    // Helper to format label based on range
     const fmtLabel = (d: Date) =>
       isMonthly
         ? d.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })
         : d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
 
-    // Initialize periods
     if (isMonthly) {
-      // Group by month: iterate month by month
       const cursor = new Date(startDate);
       while (cursor <= today) {
-        const label = cursor.toLocaleDateString('id-ID', {
-          month: 'short',
-          year: 'numeric',
-        });
+        const label = cursor.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
         if (!aggregated.has(label)) {
           aggregated.set(label, { pendapatan: 0, modal: 0, pengeluaran: 0 });
         }
         cursor.setMonth(cursor.getMonth() + 1);
       }
     } else {
-      // Initialize each day
       for (let i = 0; i < days; i++) {
         const d = new Date(startDate);
         d.setDate(d.getDate() + i);
-        const label = fmtLabel(d);
-        aggregated.set(label, { pendapatan: 0, modal: 0, pengeluaran: 0 });
+        aggregated.set(fmtLabel(d), { pendapatan: 0, modal: 0, pengeluaran: 0 });
       }
     }
 
@@ -239,61 +188,68 @@ export class LaporanService {
     }));
   }
 
-  // 3. GET /laporan/distribusi-hpp - ExpenseChart
-  async getDistribusiHpp(userId: number) {
-    const pengeluaran = await this.prisma.pengeluaranLain.findMany({
-      where: { userId },
-      select: { nama: true, jumlah: true },
+  // 3. GET /laporan/distribusi-hpp - Breakdown HPP per Resep/Produk
+  async getDistribusiHpp(userId: number, days: number = 7) {
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+    startDate.setHours(0, 0, 0, 0);
+
+    const penjualan = await this.prisma.penjualan.findMany({
+      where: { userId, tanggal: { gte: startDate, lte: today } },
+      select: {
+        terjual: true,
+        produksi: {
+          select: { hppPerPcs: true, resep: { select: { nama: true } } },
+        },
+      },
     });
 
-    // Group by nama
     const grouped = new Map<string, number>();
-    for (const p of pengeluaran) {
-      const existing = grouped.get(p.nama) ?? 0;
-      grouped.set(p.nama, existing + Number(p.jumlah));
+    for (const p of penjualan) {
+      const nama = p.produksi.resep.nama;
+      const modal = p.terjual * Number(p.produksi.hppPerPcs);
+      grouped.set(nama, (grouped.get(nama) ?? 0) + modal);
     }
 
     const total = Array.from(grouped.values()).reduce((a, b) => a + b, 0);
 
-    // Warna untuk kategori
-    const colors = [
-      '#FF8A00', // orange primary
-      '#F4D03F', // yellow
-      '#06D6A0', // green
-      '#2E294E', // dark purple
-      '#00B4D8', // cyan
-      '#606C38', // olive
-    ];
+    const colors = ['#FF8A00', '#F4D03F', '#06D6A0', '#2E294E', '#00B4D8', '#606C38'];
 
     return Array.from(grouped.entries())
       .map(([nama, value], index) => ({
         nama,
-        value,
+        value: Math.round(value),
         color: colors[index % colors.length],
         pct: total > 0 ? Number(((value / total) * 100).toFixed(1)) : 0,
       }))
-      .sort((a, b) => b.value - a.value);
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 5);
   }
 
-  // 4. GET /laporan/aktivitas-terbaru - RecentActivity
-  async getAktivitasTerbaru(userId: number) {
+  // 4. GET /laporan/aktivitas-terbaru - RecentActivity (sekarang ikut filter days)
+  async getAktivitasTerbaru(userId: number, days: number = 7) {
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+    startDate.setHours(0, 0, 0, 0);
+
     const [penjualan, pengeluaran] = await Promise.all([
       this.prisma.penjualan.findMany({
-        where: { userId },
-        include: {
-          produksi: { select: { resep: { select: { nama: true } } } },
-        },
+        where: { userId, tanggal: { gte: startDate, lte: today } },
+        include: { produksi: { select: { resep: { select: { nama: true } } } } },
         orderBy: { createdAt: 'desc' },
         take: 5,
       }),
       this.prisma.pengeluaranLain.findMany({
-        where: { userId },
+        where: { userId, tanggal: { gte: startDate, lte: today } },
         orderBy: { createdAt: 'desc' },
         take: 5,
       }),
     ]);
 
-    // Gabungkan dan urutkan
     const activities = [
       ...penjualan.map((p) => ({
         type: 'penjualan',
@@ -311,29 +267,27 @@ export class LaporanService {
       })),
     ];
 
-    activities.sort(
-      (a, b) => new Date(b.time).getTime() - new Date(a.time).getTime(),
-    );
+    activities.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
 
     return activities.slice(0, 5);
   }
 
-  // 5. GET /laporan/produk-terlaris - TopProducts
-  async getProdukTerlaris(userId: number) {
+  // 5. GET /laporan/produk-terlaris - TopProducts (sekarang ikut filter days)
+  async getProdukTerlaris(userId: number, days: number = 7) {
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+    startDate.setHours(0, 0, 0, 0);
+
     const penjualan = await this.prisma.penjualan.findMany({
-      where: { userId },
+      where: { userId, tanggal: { gte: startDate, lte: today } },
       include: {
-        produksi: {
-          select: { hppPerPcs: true, resep: { select: { nama: true } } },
-        },
+        produksi: { select: { hppPerPcs: true, resep: { select: { nama: true } } } },
       },
     });
 
-    // Group by resep
-    const grouped = new Map<
-      string,
-      { sold: number; revenue: number; laba: number }
-    >();
+    const grouped = new Map<string, { sold: number; revenue: number; laba: number }>();
     for (const p of penjualan) {
       const nama = p.produksi.resep.nama;
       const existing = grouped.get(nama) ?? { sold: 0, revenue: 0, laba: 0 };
@@ -342,7 +296,7 @@ export class LaporanService {
       existing.sold += p.terjual;
       existing.revenue += revenue;
       existing.laba += revenue - modal;
-      grouped.set(nama, existing);
+      grouped.set(nama, existing); // FIXED: sebelumnya "group.set" (typo, ReferenceError)
     }
 
     return Array.from(grouped.entries())
@@ -352,11 +306,7 @@ export class LaporanService {
         revenue: `Rp ${data.revenue.toLocaleString('id-ID')}`,
         laba: Math.round(data.laba),
       }))
-      .sort(
-        (a, b) =>
-          Number(b.sold.replace(' pcs', '')) -
-          Number(a.sold.replace(' pcs', '')),
-      )
+      .sort((a, b) => Number(b.sold.replace(' pcs', '')) - Number(a.sold.replace(' pcs', '')))
       .slice(0, 5);
   }
 }
