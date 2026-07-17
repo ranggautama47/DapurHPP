@@ -1,0 +1,103 @@
+"use client";
+
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { DistribusiHppItem } from "@/types/laporan";
+
+interface DistribusiHppProps {
+  data: DistribusiHppItem[];
+  totalHpp: number;
+  loading: boolean;
+}
+
+function CustomTooltip({ active, payload }: any) {
+  if (!active || !payload?.length) return null;
+  const item = payload[0].payload;
+  return (
+    <div className="bg-white rounded-2xl border border-[#DDC1AE] shadow-[0_8px_30px_rgba(109,76,65,0.12)] p-3">
+      <p className="text-xs font-[var(--font-be-vietnam)] font-semibold text-[#2A1711]">
+        {item.nama}
+      </p>
+      <p className="text-xs font-[var(--font-roboto-mono)] text-[#564334]">
+        Rp {item.value.toLocaleString("id-ID")} ({item.pct}%)
+      </p>
+    </div>
+  );
+}
+
+function Skeleton() {
+  return (
+    <div className="animate-pulse">
+      <div className="h-[300px] bg-[#F5E6D8] rounded-2xl" />
+    </div>
+  );
+}
+
+export function DistribusiHpp({ data, totalHpp, loading }: DistribusiHppProps) {
+  if (loading) return <Skeleton />;
+
+  return (
+    <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="font-[var(--font-playfair)] font-bold text-lg text-[#2A1711]">
+          Distribusi HPP
+        </h3>
+        <span className="text-[10px] font-semibold text-[#8A7362] uppercase tracking-wider bg-[#FFF8F6] px-3 py-1 rounded-full border border-[#DDC1AE]">
+          Top {data.length} Produk
+        </span>
+      </div>
+
+      <div className="flex flex-col items-center">
+        <div className="relative w-[200px] h-[200px] mx-auto">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={80}
+                paddingAngle={2}
+                dataKey="value"
+              >
+                {data.map((entry, index) => (
+                  <Cell key={index} fill={entry.color || `#FF8A00`} stroke="none" />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="text-center">
+              <p className="text-[8px] text-[#8A7362] font-semibold uppercase tracking-wider">Total HPP</p>
+              <p className="font-[var(--font-roboto-mono)] font-bold text-sm text-[#2A1711]">
+                Rp {totalHpp.toLocaleString("id-ID")}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full mt-4 space-y-2">
+          {data.map((item, idx) => (
+            <div key={idx} className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <span
+                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: item.color || "#FF8A00" }}
+                />
+                <span className="text-[#564334] font-[var(--font-be-vietnam)]">{item.nama}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="font-[var(--font-roboto-mono)] text-[#2A1711]">
+                  Rp {item.value.toLocaleString("id-ID")}
+                </span>
+                <span className="font-[var(--font-be-vietnam)] font-semibold text-[#8A7362] w-9 text-right">
+                  {item.pct}%
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -5,14 +5,17 @@ import { TrendingUp, ShoppingBag, ShoppingCart, PieChart } from "lucide-react";
 import { api } from "@/lib/axios";
 
 interface StatsResponse {
-  pendapatan: number;
-  modal: number;
-  penjualan: number;
-  marginKeuntungan: number;
-  pendapatanChange: string;
-  modalChange: string;
-  penjualanChange: string;
-  marginChange: string;
+  totalPendapatan: number;
+  totalHpp: number;
+  totalLaba: number;
+  margin: number;
+  penjualan: number; // ini JUMLAH PCS terjual, bukan rupiah
+  tren: {
+    pendapatan: number;
+    hpp: number;
+    laba: number;
+    margin: number;
+  };
 }
 
 interface StatCard {
@@ -28,9 +31,17 @@ interface StatCard {
 const defaultCards: StatCard[] = [
   { label: "Pendapatan", value: "Rp 0", change: "+0% dari kemarin", positive: true, icon: TrendingUp, iconBg: "#D0F4DE", iconColor: "#06D6A0" },
   { label: "Modal (HPP)", value: "Rp 0", change: "+0% dari kemarin", positive: false, icon: ShoppingBag, iconBg: "#FFE9E4", iconColor: "#FF8A00" },
-  { label: "Penjualan", value: "Rp 0", change: "+0% dari kemarin", positive: true, icon: ShoppingCart, iconBg: "#FFE9E4", iconColor: "#FF8A00" },
+  { label: "Penjualan", value: "0 pcs", change: "+0% dari kemarin", positive: true, icon: ShoppingCart, iconBg: "#FFE9E4", iconColor: "#FF8A00" },
   { label: "Margin Keuntungan", value: "0%", change: "+0% dari kemarin", positive: true, icon: PieChart, iconBg: "#E8E8F4", iconColor: "#2E294E" },
 ];
+
+// tren dari backend berupa angka (mis. 12.5 atau -8.2), bukan string "+12%"
+function formatTren(v: number | undefined): string {
+  const n = v ?? 0;
+  if (n > 0) return `+${n}%`;
+  if (n < 0) return `${n}%`;
+  return "0%";
+}
 
 export function StatsCards() {
   const [cards, setCards] = useState<StatCard[]>(defaultCards);
@@ -44,26 +55,27 @@ export function StatsCards() {
         setCards([
           {
             label: "Pendapatan",
-            value: `Rp ${(d.pendapatan ?? 0).toLocaleString()}`,
-            change: d.pendapatanChange ?? "+0%",
-            positive: true,
+            value: `Rp ${Number(d.totalPendapatan ?? 0).toLocaleString("id-ID")}`,
+            change: `${formatTren(d.tren?.pendapatan)} dari minggu lalu`,
+            positive: (d.tren?.pendapatan ?? 0) >= 0,
             icon: TrendingUp,
             iconBg: "#D0F4DE",
             iconColor: "#06D6A0",
           },
           {
             label: "Modal (HPP)",
-            value: `Rp ${(d.modal ?? 0).toLocaleString()}`,
-            change: d.modalChange ?? "+0%",
-            positive: false,
+            value: `Rp ${Number(d.totalHpp ?? 0).toLocaleString("id-ID")}`,
+            change: `${formatTren(d.tren?.hpp)} dari minggu lalu`,
+            // HPP naik = biasanya kurang bagus, jadi tren positif ditandai merah, bukan hijau
+            positive: (d.tren?.hpp ?? 0) <= 0,
             icon: ShoppingBag,
             iconBg: "#FFE9E4",
             iconColor: "#FF8A00",
           },
           {
             label: "Penjualan",
-            value: `Rp ${(d.penjualan ?? 0).toLocaleString()}`,
-            change: d.penjualanChange ?? "+0%",
+            value: `${Number(d.penjualan ?? 0).toLocaleString("id-ID")} pcs`,
+            change: "Total pcs terjual (7 hari)",
             positive: true,
             icon: ShoppingCart,
             iconBg: "#FFE9E4",
@@ -71,9 +83,9 @@ export function StatsCards() {
           },
           {
             label: "Margin Keuntungan",
-            value: `${(d.marginKeuntungan ?? 0).toLocaleString('id-ID', { minimumFractionDigits: 2 })}%`,
-            change: d.marginChange ?? "+0%",
-            positive: true,
+            value: `${Number(d.margin ?? 0).toLocaleString("id-ID", { minimumFractionDigits: 2 })}%`,
+            change: `${formatTren(d.tren?.margin)} dari minggu lalu`,
+            positive: (d.tren?.margin ?? 0) >= 0,
             icon: PieChart,
             iconBg: "#E8E8F4",
             iconColor: "#2E294E",
@@ -96,7 +108,7 @@ export function StatsCards() {
             <div>
               <p className="text-sm text-[#564334] font-[var(--font-be-vietnam)] mb-1">{s.label}</p>
               <p className={`text-xs flex items-center gap-1 ${s.positive ? "text-[#06D6A0]" : "text-[#EF4444]"}`}>
-                {s.positive ? "↑" : "↑"} {s.change}
+                {s.positive ? "↑" : "↓"} {s.change}
               </p>
             </div>
             <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
