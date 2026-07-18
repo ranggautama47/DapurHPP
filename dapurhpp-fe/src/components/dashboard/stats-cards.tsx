@@ -9,7 +9,7 @@ interface StatsResponse {
   totalHpp: number;
   totalLaba: number;
   margin: number;
-  penjualan: number; // JUMLAH PCS terjual
+  penjualan: number;
   tren: {
     pendapatan: number;
     hpp: number;
@@ -26,22 +26,24 @@ interface StatCard {
   icon: typeof TrendingUp;
   iconBg: string;
   iconColor: string;
+  bgCard: string;       // Warna background kartu baru
+  borderColor: string;  // Warna border kartu baru
+  textColor: string;    // Warna teks angka utama baru
+  labelColor: string;   // Warna teks label judul baru
 }
 
 const defaultCards: StatCard[] = [
-  { label: "Pendapatan", value: "Rp 0", change: "0% dari kemarin", positive: true, icon: TrendingUp, iconBg: "#D0F4DE", iconColor: "#06D6A0" },
-  { label: "Modal (HPP)", value: "Rp 0", change: "0% dari kemarin", positive: false, icon: ShoppingBag, iconBg: "#FFE9E4", iconColor: "#FF8A00" },
-  { label: "Penjualan", value: "0 pcs", change: "0% dari kemarin", positive: true, icon: ShoppingCart, iconBg: "#FFE9E4", iconColor: "#FF8A00" },
-  { label: "Margin Keuntungan", value: "0%", change: "0% dari kemarin", positive: true, icon: PieChart, iconBg: "#E8E8F4", iconColor: "#2E294E" },
+  { label: "Pendapatan", value: "Rp 0", change: "0% dari kemarin", positive: true, icon: TrendingUp, iconBg: "#D0F4DE", iconColor: "#06D6A0", bgCard: "#F4FAF6", borderColor: "#E1F5EA", textColor: "#0B6623", labelColor: "#1E4620" },
+  { label: "Modal (HPP)", value: "Rp 0", change: "0% dari kemarin", positive: false, icon: ShoppingBag, iconBg: "#FFE9E4", iconColor: "#FF8A00", bgCard: "#FFF6F4", borderColor: "#FEE8E2", textColor: "#BC4E00", labelColor: "#5C2600" },
+  { label: "Penjualan", value: "0 pcs", change: "0% dari kemarin", positive: true, icon: ShoppingCart, iconBg: "#FFF3E0", iconColor: "#FFB020", bgCard: "#FFFBF5", borderColor: "#FFF0D6", textColor: "#2A1711", labelColor: "#564334" },
+  { label: "Margin Keuntungan", value: "0%", change: "0% dari kemarin", positive: true, icon: PieChart, iconBg: "#F3E8FF", iconColor: "#6B21A8", bgCard: "#F9F5FF", borderColor: "#EADBFB", textColor: "#5B149C", labelColor: "#370963" },
 ];
 
 function formatTren(v: number | undefined): string {
   const n = v ?? 0;
-  // Ubah format agar sesuai desain: "12.5%" tanpa tanda +/-, panah diurus di UI
   return `${Math.abs(n)}%`; 
 }
 
-// Stats Cards memanggil data hari ini (bisa dipass prop date kalau nanti butuh)
 export function StatsCards({ selectedDate }: { selectedDate?: string }) {
   const [cards, setCards] = useState<StatCard[]>(defaultCards);
   const [loading, setLoading] = useState(true);
@@ -50,7 +52,6 @@ export function StatsCards({ selectedDate }: { selectedDate?: string }) {
     async function fetchStats() {
       setLoading(true);
       try {
-        // Panggil endpoint (secara default asumsikan ini endpoint untuk 1 hari/ringkasan)
         const queryParam = selectedDate ? `?date=${selectedDate}` : `?days=1`;
         const res = await api.get<StatsResponse>(`/laporan/ringkasan${queryParam}`);
         const d = res.data;
@@ -61,28 +62,52 @@ export function StatsCards({ selectedDate }: { selectedDate?: string }) {
             value: `Rp ${Number(d.totalPendapatan ?? 0).toLocaleString("id-ID")}`,
             change: `${formatTren(d.tren?.pendapatan)} dari kemarin`,
             positive: (d.tren?.pendapatan ?? 0) >= 0,
-            icon: TrendingUp, iconBg: "#D0F4DE", iconColor: "#06D6A0",
+            icon: TrendingUp, 
+            iconBg: "#D0F4DE", 
+            iconColor: "#06D6A0",
+            bgCard: "#F4FAF6",       // Hijau sangat soft
+            borderColor: "#E1F5EA",
+            textColor: "#0B6623",    // Teks angka hijau tua sesuai blueprint
+            labelColor: "#1E4620",
           },
           {
             label: "Modal (HPP)",
             value: `Rp ${Number(d.totalHpp ?? 0).toLocaleString("id-ID")}`,
             change: `${formatTren(d.tren?.hpp)} dari kemarin`,
-            positive: (d.tren?.hpp ?? 0) <= 0, // HPP turun itu bagus (hijau)
-            icon: ShoppingBag, iconBg: "#FFE9E4", iconColor: "#FF8A00", // Pakai warna kunci dari gambar
+            positive: (d.tren?.hpp ?? 0) <= 0,
+            icon: ShoppingBag, 
+            iconBg: "#FFE9E4", 
+            iconColor: "#FF8A00",
+            bgCard: "#FFF6F4",       // Oranye/Merah sangat soft
+            borderColor: "#FEE8E2",
+            textColor: "#BC4E00",    // Teks angka cokelat kemerahan HPP
+            labelColor: "#5C2600",
           },
           {
             label: "Penjualan",
             value: `${Number(d.penjualan ?? 0).toLocaleString("id-ID")} pcs`,
-            change: `${formatTren(d.tren?.laba)} dari kemarin`, // Atau parameter lain sesuai API
+            change: `${formatTren(d.tren?.laba)} dari kemarin`,
             positive: true,
-            icon: ShoppingCart, iconBg: "#FFF3E0", iconColor: "#FFB020",
+            icon: ShoppingCart, 
+            iconBg: "#FFF3E0", 
+            iconColor: "#FFB020",
+            bgCard: "#FFFBF5",       // Kuning soft hangat
+            borderColor: "#FFF0D6",
+            textColor: "#2A1711",
+            labelColor: "#564334",
           },
           {
             label: "Margin Keuntungan",
             value: `${Number(d.margin ?? 0).toLocaleString("id-ID", { minimumFractionDigits: 2 })}%`,
             change: `${formatTren(d.tren?.margin)} dari kemarin`,
             positive: (d.tren?.margin ?? 0) >= 0,
-            icon: PieChart, iconBg: "#F3E8FF", iconColor: "#6B21A8",
+            icon: PieChart, 
+            iconBg: "#F3E8FF", 
+            iconColor: "#6B21A8",
+            bgCard: "#F9F5FF",       // Ungu sangat soft
+            borderColor: "#EADBFB",
+            textColor: "#5B149C",    // Teks angka ungu tua
+            labelColor: "#370963",
           },
         ]);
       } catch (err) {
@@ -92,25 +117,40 @@ export function StatsCards({ selectedDate }: { selectedDate?: string }) {
       }
     }
     fetchStats();
-  }, [selectedDate]); // Lepas prop days dari dependensi agar fetch sekali saja sesuai halaman
+  }, [selectedDate]);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       {cards.map((s, i) => (
-        <div key={i} className="bg-white rounded-[24px] border border-[#E8D5C4] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)] hover:-translate-y-1 transition-transform duration-300">
+        <div 
+          key={i} 
+          className="rounded-[24px] border p-6 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:-translate-y-1 transition-transform duration-300"
+          style={{ 
+            backgroundColor: s.bgCard, // Mengubah warna background dinamis tidak putih lagi
+            borderColor: s.borderColor 
+          }}
+        >
           <div className="flex items-start justify-between mb-4">
             <div>
-              <p className="text-sm text-[#564334] font-[var(--font-be-vietnam)] mb-1">{s.label}</p>
-              <p className={`text-xs flex items-center gap-1 ${s.positive ? "text-[#06D6A0]" : "text-[#EF4444]"}`}>
+              <p 
+                className="text-sm font-[var(--font-be-vietnam)] mb-1 font-medium"
+                style={{ color: s.labelColor }}
+              >
+                {s.label}
+              </p>
+              <p className={`text-xs flex items-center gap-1 font-medium ${s.positive ? "text-[#06D6A0]" : "text-[#EF4444]"}`}>
                 {s.positive ? "↑" : "↓"} {s.change}
               </p>
             </div>
             <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
               style={{ backgroundColor: s.iconBg }}>
-              <s.icon size={18} strokeWidth={1.75} color={s.iconColor} />
+              <s.icon size={18} strokeWidth={2} color={s.iconColor} />
             </div>
           </div>
-          <p className="text-2xl font-bold text-[#2A1711] font-[var(--font-roboto-mono)]">
+          <p 
+            className="text-2xl font-bold font-[var(--font-roboto-mono)]"
+            style={{ color: s.textColor }}
+          >
             {loading ? "—" : s.value}
           </p>
         </div>
