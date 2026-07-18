@@ -11,7 +11,14 @@ interface ExpenseDataItem {
   pct: number;
 }
 
-const COLORS = ["#FF8A00", "#F4D03F", "#06D6A0", "#2E294E", "#00B4D8", "#606C38"];
+const COLORS = [
+  "#FF8A00",
+  "#F4D03F",
+  "#06D6A0",
+  "#2E294E",
+  "#00B4D8",
+  "#606C38",
+];
 
 const fmt = (v: number | undefined) => "Rp " + (v ?? 0).toLocaleString("id-ID");
 
@@ -24,7 +31,9 @@ export function ExpenseChart({ selectedDate }: { selectedDate?: string }) {
       setLoading(true);
       try {
         const queryParam = selectedDate ? `?date=${selectedDate}` : "?days=1";
-        const res = await api.get<ExpenseDataItem[]>(`/laporan/distribusi-hpp${queryParam}`);
+        const res = await api.get<ExpenseDataItem[]>(
+          `/laporan/distribusi-hpp${queryParam}`,
+        );
         const withColors = res.data.map((d, i) => ({
           ...d,
           color: d.color ?? COLORS[i % COLORS.length],
@@ -36,8 +45,8 @@ export function ExpenseChart({ selectedDate }: { selectedDate?: string }) {
         setLoading(false);
       }
     }
-  fetchExpense();
-}, [selectedDate]);
+    fetchExpense();
+  }, [selectedDate]);
 
   const total = data.reduce((acc, d) => acc + d.value, 0);
 
@@ -47,10 +56,15 @@ export function ExpenseChart({ selectedDate }: { selectedDate?: string }) {
         Distribusi Pengeluaran (HPP)
       </h3>
       <div className="flex flex-col md:flex-row items-center gap-6">
-        <div className="relative flex-shrink-0" style={{ width: 180, height: 180 }}>
+        <div
+          className="relative flex-shrink-0"
+          style={{ width: 180, height: 180 }}
+        >
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0">
             <span className="text-[11px] text-[#8A7362]">Total</span>
-            <span className="text-sm font-bold font-[var(--font-roboto-mono)] text-[#2A1711]">{fmt(total)}</span>
+            <span className="text-sm font-bold font-[var(--font-roboto-mono)] text-[#2A1711]">
+              {fmt(total)}
+            </span>
           </div>
 
           <div className="relative z-10 w-full h-full">
@@ -70,7 +84,11 @@ export function ExpenseChart({ selectedDate }: { selectedDate?: string }) {
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(v: unknown) => fmt(typeof v === 'number' ? v : undefined)}
+                  formatter={(value: any, _name: any, props: any) => [
+                    fmt(value as number),
+                    props.payload?.nama ?? _name,
+                  ]}
+                  labelStyle={{ display: "none" }}
                   wrapperStyle={{ zIndex: 100 }}
                   contentStyle={{
                     backgroundColor: "#fff",
@@ -87,11 +105,20 @@ export function ExpenseChart({ selectedDate }: { selectedDate?: string }) {
 
         <div className="flex-1 space-y-2.5 w-full">
           {data.map((d, i) => (
-            <div key={i} className="flex items-center gap-3 text-sm">
-              <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
-              <span className="flex-1 text-[#564334] font-[var(--font-be-vietnam)]">{d.nama}</span>
-              <span className="font-[var(--font-roboto-mono)] text-[#2A1711] text-xs">{fmt(d.value)}</span>
-              <span className="text-[#8A7362] text-xs w-12 text-right">{d.pct.toFixed(1)}%</span>
+            <div key={i} className="flex items-center gap-1 text-xs">
+              <span
+                className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                style={{ backgroundColor: d.color }}
+              />
+              <span className="flex-1 text-[#564334] md:text-lg font-[var(--font-be-vietnam)] truncate">
+                {d.nama}
+              </span>
+              <span className="font-[var(--font-roboto-mono)] text-[#2A1711]  text-base font-semibold flex-shrink-0">
+                {fmt(d.value)}
+              </span>
+              <span className="text-[#8A7362] text-[11px] w-10 text-right flex-shrink-0">
+                {d.pct.toFixed(0)}%
+              </span>
             </div>
           ))}
         </div>
