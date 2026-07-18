@@ -1,4 +1,4 @@
-import { IsOptional, IsInt, Min, Max } from 'class-validator';
+import { IsOptional, IsInt, Min, Max, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class LaporanQueryDto {
@@ -8,4 +8,7 @@ export class LaporanQueryDto {
   @Min(1)
   @Max(365)
   days?: number = 7; // default 7 hari kalau query kosong
+  @IsOptional()
+  @IsString()
+  date?: string;
 }

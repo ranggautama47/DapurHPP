@@ -10,26 +10,26 @@ export class LaporanController {
 
   @Get('ringkasan')
   async getRingkasan(@Request() req: any, @Query() query: LaporanQueryDto) {
-    return this.laporanService.getRingkasan(req.user.id, query.days);
+    return this.laporanService.getRingkasan(req.user.id, query);
   }
 
   @Get('grafik-laba')
   async getGrafikLaba(@Request() req: any, @Query() query: LaporanQueryDto) {
-    return this.laporanService.getGrafikLaba(req.user.id, query.days);
+    return this.laporanService.getGrafikLaba(req.user.id, query);
   }
 
   @Get('distribusi-hpp')
   async getDistribusiHpp(@Request() req: any, @Query() query: LaporanQueryDto) {
-    return this.laporanService.getDistribusiHpp(req.user.id, query.days);
+    return this.laporanService.getDistribusiHpp(req.user.id, query);
   }
 
   @Get('aktivitas-terbaru')
   async getAktivitasTerbaru(@Request() req: any, @Query() query: LaporanQueryDto) {
-    return this.laporanService.getAktivitasTerbaru(req.user.id, query.days);
+    return this.laporanService.getAktivitasTerbaru(req.user.id, query);
   }
 
   @Get('produk-terlaris')
   async getProdukTerlaris(@Request() req: any, @Query() query: LaporanQueryDto) {
-    return this.laporanService.getProdukTerlaris(req.user.id, query.days);
+    return this.laporanService.getProdukTerlaris(req.user.id, query);
   }
 }
