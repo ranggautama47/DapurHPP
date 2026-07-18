@@ -5,7 +5,7 @@ import { api } from "@/lib/axios";
 import Link from "next/link";
 
 // Sesuaikan URL ini dengan alamat port backend NestJS Anda (misal http://localhost:5000)
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = "http://localhost:3001";
 
 interface ProductItem {
   name: string;
