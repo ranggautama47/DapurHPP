@@ -15,15 +15,16 @@ const COLORS = ["#FF8A00", "#F4D03F", "#06D6A0", "#2E294E", "#00B4D8", "#606C38"
 
 const fmt = (v: number | undefined) => "Rp " + (v ?? 0).toLocaleString("id-ID");
 
-export function ExpenseChart() {
+export function ExpenseChart({ selectedDate }: { selectedDate?: string }) {
   const [data, setData] = useState<ExpenseDataItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchExpense() {
+      setLoading(true);
       try {
-        const res = await api.get<ExpenseDataItem[]>("/laporan/distribusi-hpp");
-        // Tambahkan warna jika belum ada dari backend
+        const queryParam = selectedDate ? `?date=${selectedDate}` : "?days=1";
+        const res = await api.get<ExpenseDataItem[]>(`/laporan/distribusi-hpp${queryParam}`);
         const withColors = res.data.map((d, i) => ({
           ...d,
           color: d.color ?? COLORS[i % COLORS.length],
@@ -35,8 +36,8 @@ export function ExpenseChart() {
         setLoading(false);
       }
     }
-    fetchExpense();
-  }, []);
+  fetchExpense();
+}, [selectedDate]);
 
   const total = data.reduce((acc, d) => acc + d.value, 0);
 

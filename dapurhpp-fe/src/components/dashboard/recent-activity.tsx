@@ -29,14 +29,16 @@ const ICON_MAP: Record<
   pengeluaran: { icon: DollarSign, iconBg: "#FFE9E4", iconColor: "#FF8A00" },
 };
 
-export function RecentActivity() {
+export function RecentActivity({ selectedDate }: { selectedDate?: string }) {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchActivities() {
+      setLoading(true);
       try {
-        const res = await api.get<ActivityItem[]>("/laporan/aktivitas-terbaru");
+        const queryParam = selectedDate ? `?date=${selectedDate}` : "?days=1";
+      const res = await api.get<ActivityItem[]>(`/laporan/aktivitas-terbaru${queryParam}`);
         setActivities(res.data);
       } catch (err) {
         console.error("Gagal fetch aktivitas:", err);
@@ -45,7 +47,7 @@ export function RecentActivity() {
       }
     }
     fetchActivities();
-  }, []);
+  }, [selectedDate]);
 
   const formatTime = (timeStr: string) => {
     const d = new Date(timeStr);

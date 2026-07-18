@@ -4,23 +4,29 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/axios";
 import Link from "next/link";
 
+// Sesuaikan URL ini dengan alamat port backend NestJS Anda (misal http://localhost:5000)
+const BACKEND_URL = "http://localhost:5000";
+
 interface ProductItem {
   name: string;
   sold: string;
   revenue: string;
   change: string;
+  fotoUrl?: string | null;
 }
 
-export function TopProducts() {
+export function TopProducts({ selectedDate }: { selectedDate?: string }) {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchProducts() {
+      setLoading(true);
       try {
-        const res = await api.get<
-          { name: string; sold: string; revenue: string; change: string }[]
-        >("/laporan/produk-terlaris");
+        const queryParam = selectedDate ? `?date=${selectedDate}` : "?days=1";
+        const res = await api.get<ProductItem[]>(
+          `/laporan/produk-terlaris${queryParam}`,
+        );
         setProducts(res.data);
       } catch (err) {
         console.error("Gagal fetch produk terlaris:", err);
@@ -29,7 +35,7 @@ export function TopProducts() {
       }
     }
     fetchProducts();
-  }, []);
+  }, [selectedDate]);
 
   return (
     <div className="bg-white rounded-[24px] border border-[#E8D5C4] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
@@ -51,7 +57,7 @@ export function TopProducts() {
               key={i}
               className="flex items-start gap-3 py-2 border-b border-[#F5E6D8] last:border-b-0"
             >
-              <div className="w-10 h-10 bg-[#FFE2DA] rounded-full animate-pulse" />
+              <div className="w-10 h-10 bg-[#FFE2DA] rounded-xl animate-pulse" />
               <div className="flex-1 space-y-1">
                 <div className="h-4 bg-[#F5E6D8] rounded w-3/4 animate-pulse" />
                 <div className="h-3 bg-[#F5E6D8] rounded w-1/2 animate-pulse" />
@@ -68,11 +74,21 @@ export function TopProducts() {
               key={index}
               className="flex items-start gap-3 py-2 border-b border-[#F5E6D8] last:border-b-0"
             >
-              <div className="flex-shrink-0 w-10 h-10 bg-[#FFE2DA] rounded-full flex items-center justify-center">
-                <span className="text-xs font-medium text-[#2A1711]">
-                  {product.name.charAt(0)}
-                </span>
+              {/* KOTAK FOTO (rounded-xl) */}
+              <div className="flex-shrink-0 w-10 h-10 bg-[#FFE2DA] rounded-xl flex items-center justify-center overflow-hidden border border-[#E8D5C4]">
+                {product.fotoUrl ? (
+                  <img
+                    src={product.fotoUrl.startsWith("http") ? product.fotoUrl : `${BACKEND_URL}${product.fotoUrl}`}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-xs font-semibold text-[#2A1711]">
+                    {product.name.charAt(0)}
+                  </span>
+                )}
               </div>
+
               <div className="flex-1 space-y-0.5">
                 <p className="text-sm font-medium text-[#2A1711]">
                   {product.name}

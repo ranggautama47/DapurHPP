@@ -9,7 +9,7 @@ interface StatsResponse {
   totalHpp: number;
   totalLaba: number;
   margin: number;
-  penjualan: number; // ini JUMLAH PCS terjual, bukan rupiah
+  penjualan: number; // JUMLAH PCS terjual
   tren: {
     pendapatan: number;
     hpp: number;
@@ -29,66 +29,60 @@ interface StatCard {
 }
 
 const defaultCards: StatCard[] = [
-  { label: "Pendapatan", value: "Rp 0", change: "+0% dari kemarin", positive: true, icon: TrendingUp, iconBg: "#D0F4DE", iconColor: "#06D6A0" },
-  { label: "Modal (HPP)", value: "Rp 0", change: "+0% dari kemarin", positive: false, icon: ShoppingBag, iconBg: "#FFE9E4", iconColor: "#FF8A00" },
-  { label: "Penjualan", value: "0 pcs", change: "+0% dari kemarin", positive: true, icon: ShoppingCart, iconBg: "#FFE9E4", iconColor: "#FF8A00" },
-  { label: "Margin Keuntungan", value: "0%", change: "+0% dari kemarin", positive: true, icon: PieChart, iconBg: "#E8E8F4", iconColor: "#2E294E" },
+  { label: "Pendapatan", value: "Rp 0", change: "0% dari kemarin", positive: true, icon: TrendingUp, iconBg: "#D0F4DE", iconColor: "#06D6A0" },
+  { label: "Modal (HPP)", value: "Rp 0", change: "0% dari kemarin", positive: false, icon: ShoppingBag, iconBg: "#FFE9E4", iconColor: "#FF8A00" },
+  { label: "Penjualan", value: "0 pcs", change: "0% dari kemarin", positive: true, icon: ShoppingCart, iconBg: "#FFE9E4", iconColor: "#FF8A00" },
+  { label: "Margin Keuntungan", value: "0%", change: "0% dari kemarin", positive: true, icon: PieChart, iconBg: "#E8E8F4", iconColor: "#2E294E" },
 ];
 
-// tren dari backend berupa angka (mis. 12.5 atau -8.2), bukan string "+12%"
 function formatTren(v: number | undefined): string {
   const n = v ?? 0;
-  if (n > 0) return `+${n}%`;
-  if (n < 0) return `${n}%`;
-  return "0%";
+  // Ubah format agar sesuai desain: "12.5%" tanpa tanda +/-, panah diurus di UI
+  return `${Math.abs(n)}%`; 
 }
 
-export function StatsCards() {
+// Stats Cards memanggil data hari ini (bisa dipass prop date kalau nanti butuh)
+export function StatsCards({ selectedDate }: { selectedDate?: string }) {
   const [cards, setCards] = useState<StatCard[]>(defaultCards);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchStats() {
+      setLoading(true);
       try {
-        const res = await api.get<StatsResponse>("/laporan/ringkasan");
+        // Panggil endpoint (secara default asumsikan ini endpoint untuk 1 hari/ringkasan)
+        const queryParam = selectedDate ? `?date=${selectedDate}` : `?days=1`;
+        const res = await api.get<StatsResponse>(`/laporan/ringkasan${queryParam}`);
         const d = res.data;
+        
         setCards([
           {
             label: "Pendapatan",
             value: `Rp ${Number(d.totalPendapatan ?? 0).toLocaleString("id-ID")}`,
-            change: `${formatTren(d.tren?.pendapatan)} dari minggu lalu`,
+            change: `${formatTren(d.tren?.pendapatan)} dari kemarin`,
             positive: (d.tren?.pendapatan ?? 0) >= 0,
-            icon: TrendingUp,
-            iconBg: "#D0F4DE",
-            iconColor: "#06D6A0",
+            icon: TrendingUp, iconBg: "#D0F4DE", iconColor: "#06D6A0",
           },
           {
             label: "Modal (HPP)",
             value: `Rp ${Number(d.totalHpp ?? 0).toLocaleString("id-ID")}`,
-            change: `${formatTren(d.tren?.hpp)} dari minggu lalu`,
-            // HPP naik = biasanya kurang bagus, jadi tren positif ditandai merah, bukan hijau
-            positive: (d.tren?.hpp ?? 0) <= 0,
-            icon: ShoppingBag,
-            iconBg: "#FFE9E4",
-            iconColor: "#FF8A00",
+            change: `${formatTren(d.tren?.hpp)} dari kemarin`,
+            positive: (d.tren?.hpp ?? 0) <= 0, // HPP turun itu bagus (hijau)
+            icon: ShoppingBag, iconBg: "#FFE9E4", iconColor: "#FF8A00", // Pakai warna kunci dari gambar
           },
           {
             label: "Penjualan",
             value: `${Number(d.penjualan ?? 0).toLocaleString("id-ID")} pcs`,
-            change: "Total pcs terjual (7 hari)",
+            change: `${formatTren(d.tren?.laba)} dari kemarin`, // Atau parameter lain sesuai API
             positive: true,
-            icon: ShoppingCart,
-            iconBg: "#FFE9E4",
-            iconColor: "#FF8A00",
+            icon: ShoppingCart, iconBg: "#FFF3E0", iconColor: "#FFB020",
           },
           {
             label: "Margin Keuntungan",
             value: `${Number(d.margin ?? 0).toLocaleString("id-ID", { minimumFractionDigits: 2 })}%`,
-            change: `${formatTren(d.tren?.margin)} dari minggu lalu`,
+            change: `${formatTren(d.tren?.margin)} dari kemarin`,
             positive: (d.tren?.margin ?? 0) >= 0,
-            icon: PieChart,
-            iconBg: "#E8E8F4",
-            iconColor: "#2E294E",
+            icon: PieChart, iconBg: "#F3E8FF", iconColor: "#6B21A8",
           },
         ]);
       } catch (err) {
@@ -98,7 +92,7 @@ export function StatsCards() {
       }
     }
     fetchStats();
-  }, []);
+  }, [selectedDate]); // Lepas prop days dari dependensi agar fetch sekali saja sesuai halaman
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
