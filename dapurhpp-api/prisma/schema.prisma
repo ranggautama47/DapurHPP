@@ -213,6 +213,7 @@ model PengeluaranLain {
   tanggal   DateTime @db.Date
   nama      String   @db.VarChar(100) // Gas, Plastik, Kemasan, dll
   jumlah    Decimal  @db.Decimal(12, 2)
+  kategori  KategoriPengeluaran @default(LAINNYA)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -253,5 +254,13 @@ enum KategoriBahan {
   SAYURAN
   BUMBU
   DAGING
+  LAINNYA
+}
+
+enum KategoriPengeluaran {
+  UTILITAS
+  KEMASAN
+  TRANSPORTASI
+  KEBERSIHAN
   LAINNYA
 }
