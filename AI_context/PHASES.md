@@ -22,7 +22,7 @@ Polyrepo & Config
 
     [x] Init folder struktur polyrepo (dapurhpp-api/, dapurhpp-fe/)
     [x] Setup .env.example
-    [x] Setup prisma/schema.prisma (sudah final — 10 tabel)
+    [x] Setup prisma/schema.prisma (11 tabel, termasuk detail_produksi — BARU)
     [x] npx prisma migrate dev --name init
     [x] npx prisma db seed — verifikasi data masuk
     [ ] ⚠️ TODO: DATABASE_URL masih pakai root MySQL, seharusnya pakai user dapurhpp_user
@@ -67,74 +67,44 @@ Backend
 Frontend
 
     [x] Halaman Master Bahan Baku — list + search + pagination (7 per halaman)
-    [x] BahanBakuTable — kolom: foto/emoji kategori, nama, kategori badge, satuan, harga terakhir, STOK (merah/hijau), terakhir update, aksi
-    [x] BahanBakuForm — tambah/edit, upload foto, field stok READ-ONLY saat edit (stok dikontrol otomatis oleh belanja)
-    [x] BahanBakuDetail — info lengkap, PriceHistoryChart (Recharts LineChart + tabel riwayat), stok progress bar
+    [x] BahanBakuTable, BahanBakuForm, BahanBakuDetail
     [x] Halaman Supplier — list + form tambah/edit
-    [x] kategoriBadge helper (emoji per kategori: TEPUNG/MINYAK/SAYURAN/BUMBU/DAGING/LAINNYA)
 
 PHASE 3 — Resep & HPP
 
-Backend
+Backend & Frontend — SELESAI
 
-    [x] ResepModule — GET/POST/PATCH/DELETE + soft delete
-    [x] GET /resep — list + kalkulasi hppPerPcs live dari hargaTerakhir
-    [x] GET /resep/:id — detail + breakdown per bahan + marginPersen
-    [x] POST /resep/:id/upload-foto — multer, simpan ke uploads/resep/
-    [x] Field catatan (TEXT nullable) sudah di-migrate ke tabel resep
-    [x] HppService — hpp_per_pcs = Σ(jumlah × hargaTerakhir) / estimasiHasil
-    [x] SimulasiService — pure calculation, tidak disimpan ke DB
-
-Frontend
-
-    [x] Tab Resep — list card (foto/fallback ChefHat, nama, HPP/pcs, hasil/batch), search, pagination client-side
-    [x] Halaman Detail Resep — tabel bahan, Ringkasan HPP card, Catatan card
-    [x] ResepForm — dynamic bahan list, preview HPP realtime, field catatan opsional
-    [x] SimulasiHarga modal — preset margin 10/20/30/40/custom, rumus visual
-    [x] ResepDetail — edit modal, delete confirm modal, breadcrumb
+    [x] ResepModule — GET/POST/PATCH/DELETE + soft delete, hppPerPcs live, upload foto, catatan
+    [x] Tab Resep, Detail, Form, SimulasiHarga — semua terkoneksi
 
 PHASE 4 — Belanja
 
-Backend
+Backend & Frontend — SELESAI
 
-    [x] BelanjaModule — GET/POST/PATCH/DELETE (hard delete)
-    [x] GET /belanja/ringkasan?tanggal=YYYY-MM-DD — stats harian (totalBelanja, jumlahItem, totalQty, jumlahSupplier, list)
-    [x] POST /belanja — atomic transaction: create + update hargaTerakhir (cek belanja lebih baru) + INCREMENT stok
-    [x] PATCH /belanja/:id — rollback stok lama → hapus detail lama → buat baru → tambah stok baru
-    [x] DELETE /belanja/:id — rollback stok → hard delete
-    [x] ⚠️ STOK OPTION B AKTIF: stok auto-update dari belanja. Tidak pernah negatif (Math.max(0, ...))
-
-Frontend
-
-    [x] Halaman Belanja — navigasi tanggal (prev/next/today/date picker), 4 stats cards selalu tampil
-    [x] BelanjaTable — kolom: tanggal, supplier, jumlah item, total belanja, aksi tombol "Detail"
-    [x] BelanjaForm — ⚠️ INPUT DIUBAH: kolom TOTAL BAYAR (bukan harga satuan). hargaSatuan = totalBayar / jumlah dihitung otomatis. Dropdown bahan tampilkan sisa stok.
-    [x] Halaman /belanja/riwayat — filter tanggalMulai/tanggalAkhir/supplier
-    [x] Halaman /belanja/:id — detail + hapus
-    [x] Tombol "Riwayat" di header, totalQty label = "unit" (bukan "kg")
+    [x] BelanjaModule — CRUD, ringkasan harian, auto-update hargaTerakhir & stok
+    [x] Halaman Belanja, riwayat, detail — semua terkoneksi
+    [x] Bug historis: total bayar vs harga satuan — sudah difix di FE (hargaSatuan = totalBayar/jumlah)
 
 PHASE 5 — Produksi & Penjualan
 
 Backend
 
-    [x] ProduksiModule
-        [x] GET /produksi — list per user + filter tanggal
-        [x] POST /produksi — snapshot HPP (hppPerPcs + totalModal), status DRAFT
-        [x] PATCH /produksi/:id — update hasilNyata, recalculate totalModal, status → SELESAI (hanya dari DRAFT)
-        [x] DELETE /produksi/:id — set status BATAL (hanya dari DRAFT)
-    [x] PenjualanModule
-        [x] GET /penjualan — list per user + filter tanggal
-        [x] POST /penjualan — hitung totalPendapatan + sisa, status OPEN
-        [x] PATCH /penjualan/:id — update terjual atau close (CLOSED)
+    [x] ProduksiModule — CRUD + status DRAFT/SELESAI/BATAL
+    [x] DetailProduksi — snapshot breakdown per bahan saat create (BARU, migration add_detail_produksi)
+    [x] fotoUrl resep ikut di-include di findAll/findOne produksi (FIXED)
+    [x] PenjualanModule — CRUD + laba dihitung di findAll/findOne (FIXED, sebelumnya field laba gak ada)
 
 Frontend
 
-    [X] Tab Produksi — list per tanggal, status badge (DRAFT/SELESAI/BATAL)
-    [X] Form tambah produksi — pilih resep, input hasilNyata, preview HPP snapshot
-    [X] Detail produksi — breakdown HPP, tombol selesaikan/batalkan
-    [X] Tab Penjualan — list per tanggal, total pendapatan + laba
-    [X] Form tambah penjualan — pilih produksi (status SELESAI), input terjual + harga jual
-    [X] Summary: total pendapatan, total HPP, laba
+    [x] Tab Produksi — list per tanggal, status badge, stats card
+        (FIXED: total agregat exclude status BATAL, Number() cast Decimal string yg tadinya nyambung jadi "017100190007600")
+    [x] Form tambah produksi, Detail produksi — breakdown HPP via detailProduksi, foto resep
+        (FIXED: field `foto`→`fotoUrl` mismatch, Next.js 16 params sekarang di-`await` — sebelumnya bikin /produksi/NaN 500 error)
+    [x] Tab Penjualan — list per tanggal, total pendapatan + laba
+        (FIXED: timezone bug toISOString→formatLocalDate, string-concat Decimal bug di total pendapatan)
+    [x] Form tambah penjualan
+    [x] Halaman /penjualan/ringkasan — 4 stats card + tren dinamis + grafik + top produk
+        (FIXED: dummy data gak pernah kepake, field mismatch hari/days, timezone)
 
 PHASE 6 — Pengeluaran Lain
 
@@ -144,42 +114,69 @@ Backend
 
 Frontend
 
-    [ ] Form tambah pengeluaran lain (nama + jumlah)
-    [ ] List pengeluaran lain per tanggal
+    [ ] ⚠️ BELUM DIKERJAKAN — Form tambah pengeluaran lain (nama + jumlah)
+    [ ] ⚠️ BELUM DIKERJAKAN — List pengeluaran lain per tanggal
+    [ ] PRIORITAS BERIKUTNYA setelah Phase 7 dituntaskan
 
 PHASE 7 — Laporan & Dashboard
 
-Backend
+Backend — SELESAI, sudah diaudit ulang beberapa kali
 
-    [x] LaporanModule
-        [x] GET /laporan/ringkasan
-        [x] GET /laporan/grafik-laba?days=7|30|90|180
-        [x] GET /laporan/distribusi-hpp
-        [x] GET /laporan/aktivitas-terbaru
-        [x] GET /laporan/produk-terlaris
-        (semua pakai JwtAuthGuard)
+    [x] LaporanModule — ringkasan, grafik-laba, distribusi-hpp, aktivitas-terbaru, produk-terlaris
+    [x] FIXED: bug off-by-time-of-day di getRingkasan & getGrafikLaba (query tanggal gak match krn ada komponen jam)
+    [x] FIXED: semua endpoint sekarang pakai DTO seragam (LaporanQueryDto: days, 1-365, default 7) via @Query() query,
+        bukan manual @Query('days') parse per endpoint
+    [x] FIXED: getDistribusiHpp — SEBELUMNYA salah query tabel pengeluaranLain (hampir selalu kosong/gak related),
+        SEKARANG query benar dari Penjualan→Produksi→Resep, breakdown HPP per resep
+    [x] FIXED: totalPengeluaran sekarang di-return beneran (sebelumnya dihitung internal tapi dibuang, FE
+        terpaksa duplikat totalHpp sebagai "Total Pengeluaran" — dua card kembar)
+    [x] FIXED: tren.pengeluaran ditambahkan, terpisah dari tren.hpp
+    [x] FIXED: custom date-range days sekarang diterima berapapun (dulu whitelist [7,30,90,180] doang, custom
+        selalu fallback diam-diam ke 7 hari)
+    [x] FIXED: getProdukTerlaris & getAktivitasTerbaru sekarang terima param days juga (dulu selalu all-time,
+        gak ikut filter periode di FE)
+    [x] FIXED: typo fatal `group.set` (harusnya `grouped.set`) yang bikin /produk-terlaris 500 error total
 
-Frontend
+Frontend — Tab Laporan penuh SELESAI
 
-    [ ] Tab Laporan — ringkasan dengan filter periode
-    [x] Dashboard (Beranda) — stats-cards, profit-chart AreaChart dinamis, expense-chart donut, recent-activity, top-products — connect API real
+    [x] LaporanFilter — preset Hari Ini/7/30/90/180 hari + Custom date-range
+        (FIXED: tombol "Terapkan Filter" logic kebalik — isCustomApplied dulu jadi TRUE pas tanggal
+        udah diisi lengkap, padahal dipakai buat DISABLE tombol. Sekarang logic-nya benar)
+    [x] RingkasanCards — 5 stats card + tren asli dari backend
+        (FIXED: card "Total Pengeluaran" dulu duplikat totalHpp, sekarang pakai totalPengeluaran asli;
+        HPP & Pengeluaran naik sekarang ditandai MERAH bukan hijau — invert logic utk cost metric)
+    [x] GrafikPerforma — chart 3 garis (Pendapatan/HPP/Laba)
+        (FIXED: toggle Harian/Mingguan/Bulanan dulu cuma dekorasi/gak ngefek, sekarang beneran
+        agregasi ulang data di FE per chunk 7/30 titik)
+    [x] DistribusiHpp — donut chart breakdown HPP per resep
+        (FIXED: endpoint distribusi-hpp di page-client.tsx dulu gak kirim ?days=, selalu balik data
+        window 7 hari default meski filter di-ganti — root cause "Top 0 Produk"/donut kosong)
+    [x] DetailPerforma — tabel per periode + total row
+    [x] RingkasanOperasional — counts total produksi/penjualan/belanja/pengeluaran
+        (FIXED: dulu selalu all-time gak filter periode, sekarang di-filter tanggal di FE sesuai periode aktif)
+    [x] types/laporan.ts — ditambah totalPengeluaran & tren.pengeluaran ke interface RingkasanLaporan
+    [x] Dashboard Beranda — stats-cards, profit-chart, expense-chart, recent-activity, top-products
+        (FIXED: field mismatch total d.pendapatan vs d.totalPendapatan dkk — akar dari "Rp 0" semua;
+        card Penjualan salah format Rp 45→45 pcs; panah tren dulu selalu ↑ apapun kondisinya)
 
 PHASE 8 — Polish & Testing
 
     [ ] Loading states semua halaman (Skeleton)
     [ ] Error handling — toast notification (Sonner)
-    [ ] Empty states — ilustrasi kalau data kosong
+    [ ] Empty states
     [ ] Responsive check — mobile first (target: 375px)
     [ ] Test alur lengkap: Login → Belanja → Resep → Produksi → Penjualan → Laporan
     [ ] Verifikasi kalkulasi HPP dengan angka nyata
     [ ] Screenshot + video demo untuk portofolio
     [ ] Ganti DATABASE_URL dari root ke dapurhpp_user
 
-STATUS RINGKASAN (update: Juli 2026)
+STATUS RINGKASAN (update terbaru — Phase 7 tuntas)
 
-    Backend selesai: Phase 0-6 semua endpoint jalan
-    Frontend selesai: Auth, Dashboard Beranda, Bahan Baku, Supplier, Resep & HPP, Belanja (Phase 1-4)
-    Frontend belum dikerjakan: Produksi & Penjualan (Phase 5 FE), Pengeluaran Lain (Phase 6 FE), Tab Laporan (Phase 7 FE), Polish & Testing (Phase 8)
+    Backend selesai: Phase 0-7 semua endpoint jalan + sudah lolos audit bug berkali-kali
+        (timezone, field mismatch, string-concat, DTO seragam, custom range, typo fatal)
+    Frontend selesai: Auth, Dashboard Beranda, Bahan Baku, Supplier, Resep, Belanja,
+        Produksi, Penjualan+Ringkasan, Tab Laporan penuh
+    Frontend BELUM: Pengeluaran Lain FE (Phase 6 — PRIORITAS SEKARANG), Polish (Phase 8)
 
 Catatan Penting untuk AI Context
 
@@ -188,9 +185,8 @@ Aturan Kalkulasi
     HPP selalu dihitung dari harga_terakhir di tabel bahan_baku — bukan dari detail_belanja langsung
     Setelah belanja disimpan, harga_terakhir bahan yang dibeli wajib di-update
     HPP snapshot di tabel produksi tidak boleh diubah setelah status SELESAI
-    Riwayat harga bahan = query detail_belanja JOIN belanja ORDER BY tanggal — tidak ada tabel terpisah
     Simulasi harga jual tidak disimpan ke DB — pure calculation
-    BelanjaForm: user input TOTAL BAYAR bukan harga satuan. hargaSatuan = totalBayar / jumlah dihitung di FE sebelum kirim API
+    BelanjaForm: user input TOTAL BAYAR bukan harga satuan. hargaSatuan = totalBayar / jumlah dihitung di FE
     Stok Option B aktif: stok auto-update dari belanja. Increment create, decrement delete. Tidak pernah negatif.
 
 Aturan Ownership
@@ -211,14 +207,35 @@ Naming Convention
     Database: snake_case (Prisma @map)
     API response: camelCase
     URL: kebab-case (/bahan-baku, /pengeluaran-lain)
+    Query param filter periode: SELALU pakai nama `days` (angka hari), bukan `hari`/`periode`/custom lain —
+        konsistensi ini yang dulu berkali-kali bikin bug mismatch antara FE dan BE
 
-Masalah Teknis yang Pernah Kejadian (jangan keulang)
+Masalah Teknis yang Pernah Kejadian (JANGAN DIULANG)
 
-    Next.js 16: middleware.ts harus di-rename proxy.ts, export function namanya "proxy" bukan "middleware"
-    globals.css: JANGAN redefine --font-playfair/--font-be-vietnam di @theme Tailwind v4 — circular reference, bikin Turbopack panic "reading file nul" di Windows
-    Server Component butuh auth: baca token dari cookies(), bukan axios — SSR tidak bisa akses localStorage
-    OpenCode kadang KLAIM sudah edit file tapi ternyata tidak — selalu minta read-back file setelah edit
-    BelanjaController: route GET 'ringkasan' HARUS di atas GET ':id' agar tidak diinterpretasi sebagai param ID
-    totalQty di BelanjaRingkasan adalah jumlah lintas satuan berbeda — tampilkan sebagai "unit" bukan "kg"
-    BahanBakuForm: field stok READ-ONLY saat mode edit
-    Prisma model mapping: model BahanBaku → prisma.bahanBaku (camelCase)
+    Next.js 16: middleware.ts → proxy.ts, export "proxy" bukan "middleware"
+    Next.js 16: params di [id]/page.tsx adalah Promise, WAJIB `await params`
+    globals.css: JANGAN redefine --font-playfair/--font-be-vietnam di @theme Tailwind v4
+    Server Component butuh auth: baca token dari cookies(), bukan axios
+    AI agent (OpenCode/Kimi/Gemini) kadang KLAIM selesai tapi field name gak match backend, atau
+        nyaranin fix yang sebenarnya sudah ada di kode (gagal baca state sebenarnya) — SELALU minta
+        curl/JSON mentah dan baca-ulang file utk verifikasi, jangan percaya screenshot/klaim doang
+    BelanjaController: route GET 'ringkasan' HARUS di atas GET ':id'
+    totalQty BelanjaRingkasan = "unit" bukan "kg"
+    Prisma Decimal field SELALU balik sebagai STRING ke JSON — WAJIB Number() cast sebelum di-+ (reduce)
+        atau ditampilkan, kalau nggak: string-concat bug ("025000150...") atau format salah (gak ada titik ribuan)
+    Query range tanggal WAJIB pakai formatLocalDate() (bukan toISOString()) — toISOString convert ke UTC,
+        geser tanggal krn WIB=UTC+7
+    Query range tanggal dgn `new Date()` langsung (bukan set jam 00:00/23:59) kena bug off-by-time-of-day
+        — data jam 00:00 ketolak krn dibanding sama timestamp yg ada jam-nya
+    Field name HARUS dicek exact match antara backend response dan FE interface — banyak kasus
+        (foto vs fotoUrl, hari vs days, detail vs detailProduksi, bahanId vs bahanBakuId) bikin data
+        "kosong"/"Rp 0" padahal backend udah bener
+    Kalau ubah nama field di FE, cek juga file types/*.ts — jangan cuma di komponen, TS gak akan warning
+        kalau interface-nya juga salah (dua-duanya salah = "konsisten" secara TS tapi salah secara runtime)
+    AI agent kalau disuruh benerin 1 bug, sering nyenggol banyak file di luar scope — WAJIB git commit
+        checkpoint SEBELUM kasih task ke agent, dan kasih scope file eksplisit + larangan ubah file lain
+    Dev server / Next.js build cache bisa nyimpen versi lama meski source code sudah benar — kalau curl/source
+        udah sesuai tapi browser masih nunjukin behavior lama: rm -rf .next, restart total, hard refresh browser
+    Props/variable dengan nama membingungkan (mis. "isCustomApplied" yg isinya kondisi kebalik) rawan
+        bikin logic disabled/enabled kebalik — kalau nemu bug tombol gak bisa diklik, cek dulu logic
+        boolean-nya sebelum curiga ke tempat lain
