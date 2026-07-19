@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area } from "recharts";
 import { api } from "@/lib/axios";
+import { buildLaporanQuery, type LaporanDateParams } from "@/lib/laporan-query";
 
 interface ProfitDataItem { label: string; laba: number; }
 
@@ -10,24 +11,16 @@ const formatRp = (v: number) =>
   : v >= 1000 ? "Rp " + (v/1000).toFixed(0) + "K"
   : "Rp " + v;
 
-const RANGES = [
-  { label: "7 Hari", days: 7 },
-  { label: "30 Hari", days: 30 },
-  { label: "3 Bulan", days: 90 },
-  { label: "6 Bulan", days: 180 },
-];
-
-export function ProfitChart() {
+export function ProfitChart({ dateParams }: { dateParams?: LaporanDateParams }) {
   const [data, setData] = useState<ProfitDataItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeDays, setActiveDays] = useState(7);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     (async () => {
       try {
-        const res = await api.get<ProfitDataItem[]>(`/laporan/grafik-laba?days=${activeDays}`);
+        const res = await api.get<ProfitDataItem[]>(`/laporan/grafik-laba${buildLaporanQuery(dateParams ?? {})}`);
         if (!cancelled) setData(res.data);
       } catch (err) {
         if (!cancelled) console.error("Gagal fetch grafik laba:", err);
@@ -36,7 +29,7 @@ export function ProfitChart() {
       }
     })();
     return () => { cancelled = true; };
-  }, [activeDays]);
+  }, [dateParams]);
 
   return (
     <div className="bg-white rounded-[24px] border border-[#E8D5C4] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
@@ -45,20 +38,6 @@ export function ProfitChart() {
         <h3 className="font-[var(--font-playfair)] font-bold text-lg text-[#2A1711]">
           Grafik Laba
         </h3>
-
-        <div className="relative">
-          <select
-            value={activeDays}
-            onChange={(e) => setActiveDays(Number(e.target.value))}
-            className="appearance-none pl-4 pr-9 py-2 text-xs font-semibold rounded-xl bg-[#FDF8F5] text-[#2A1711] border border-[#E8D5C4] outline-none cursor-pointer transition-all duration-200 hover:border-[#FF8A00] focus:border-[#FF8A00] bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%238A7362%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:10px_10px] bg-[right_14px_center] bg-no-repeat"
-          >
-            {RANGES.map((r) => (
-              <option key={r.days} value={r.days}>
-                {r.label}
-              </option>
-            ))}
-          </select>
-        </div>
       </div>
 
       <div className="h-[260px] w-full relative">

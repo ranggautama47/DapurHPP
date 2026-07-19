@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/axios";
 import Link from "next/link";
+import { buildLaporanQuery, type LaporanDateParams } from "@/lib/laporan-query";
 
 interface ActivityItem {
   type: "penjualan" | "pengeluaran";
@@ -29,7 +30,7 @@ const ICON_MAP: Record<
   pengeluaran: { icon: DollarSign, iconBg: "#FFE9E4", iconColor: "#FF8A00" },
 };
 
-export function RecentActivity({ selectedDate }: { selectedDate?: string }) {
+export function RecentActivity({ dateParams }: { dateParams?: LaporanDateParams }) {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,8 +38,9 @@ export function RecentActivity({ selectedDate }: { selectedDate?: string }) {
     async function fetchActivities() {
       setLoading(true);
       try {
-        const queryParam = selectedDate ? `?date=${selectedDate}` : "?days=1";
-      const res = await api.get<ActivityItem[]>(`/laporan/aktivitas-terbaru${queryParam}`);
+        const res = await api.get<ActivityItem[]>(
+          `/laporan/aktivitas-terbaru${buildLaporanQuery(dateParams ?? {})}`,
+        );
         setActivities(res.data);
       } catch (err) {
         console.error("Gagal fetch aktivitas:", err);
@@ -47,7 +49,7 @@ export function RecentActivity({ selectedDate }: { selectedDate?: string }) {
       }
     }
     fetchActivities();
-  }, [selectedDate]);
+  }, [dateParams]);
 
   const formatTime = (timeStr: string) => {
     const d = new Date(timeStr);

@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/axios";
 import Link from "next/link";
+import { buildLaporanQuery, type LaporanDateParams } from "@/lib/laporan-query";
 
-// Sesuaikan URL ini dengan alamat port backend NestJS Anda (misal http://localhost:5000)
 const BACKEND_URL = "http://localhost:3001";
 
 interface ProductItem {
@@ -15,7 +15,11 @@ interface ProductItem {
   fotoUrl?: string | null;
 }
 
-export function TopProducts({ selectedDate }: { selectedDate?: string }) {
+export function TopProducts({
+  dateParams,
+}: {
+  dateParams?: LaporanDateParams;
+}) {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,9 +27,8 @@ export function TopProducts({ selectedDate }: { selectedDate?: string }) {
     async function fetchProducts() {
       setLoading(true);
       try {
-        const queryParam = selectedDate ? `?date=${selectedDate}` : "?days=1";
         const res = await api.get<ProductItem[]>(
-          `/laporan/produk-terlaris${queryParam}`,
+          `/laporan/produk-terlaris${buildLaporanQuery(dateParams ?? {})}`,
         );
         setProducts(res.data);
       } catch (err) {
@@ -35,7 +38,7 @@ export function TopProducts({ selectedDate }: { selectedDate?: string }) {
       }
     }
     fetchProducts();
-  }, [selectedDate]);
+  }, [dateParams]);
 
   return (
     <div className="bg-white rounded-[24px] border border-[#E8D5C4] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
@@ -74,11 +77,14 @@ export function TopProducts({ selectedDate }: { selectedDate?: string }) {
               key={index}
               className="flex items-start gap-3 py-2 border-b border-[#F5E6D8] last:border-b-0"
             >
-              {/* KOTAK FOTO (rounded-xl) */}
               <div className="flex-shrink-0 w-10 h-10 bg-[#FFE2DA] rounded-xl flex items-center justify-center overflow-hidden border border-[#E8D5C4]">
                 {product.fotoUrl ? (
                   <img
-                    src={product.fotoUrl.startsWith("http") ? product.fotoUrl : `${BACKEND_URL}${product.fotoUrl}`}
+                    src={
+                      product.fotoUrl.startsWith("http")
+                        ? product.fotoUrl
+                        : `${BACKEND_URL}${product.fotoUrl}`
+                    }
                     alt={product.name}
                     className="w-full h-full object-cover"
                   />

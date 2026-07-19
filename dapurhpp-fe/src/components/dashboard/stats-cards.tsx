@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { TrendingUp, ShoppingBag, ShoppingCart, PieChart } from "lucide-react";
 import { api } from "@/lib/axios";
+import { buildLaporanQuery, type LaporanDateParams } from "@/lib/laporan-query";
 
 interface StatsResponse {
   totalPendapatan: number;
@@ -44,7 +45,7 @@ function formatTren(v: number | undefined): string {
   return `${Math.abs(n)}%`; 
 }
 
-export function StatsCards({ selectedDate }: { selectedDate?: string }) {
+export function StatsCards({ dateParams }: { dateParams?: LaporanDateParams }) {
   const [cards, setCards] = useState<StatCard[]>(defaultCards);
   const [loading, setLoading] = useState(true);
 
@@ -52,8 +53,7 @@ export function StatsCards({ selectedDate }: { selectedDate?: string }) {
     async function fetchStats() {
       setLoading(true);
       try {
-        const queryParam = selectedDate ? `?date=${selectedDate}` : `?days=1`;
-        const res = await api.get<StatsResponse>(`/laporan/ringkasan${queryParam}`);
+        const res = await api.get<StatsResponse>(`/laporan/ringkasan${buildLaporanQuery(dateParams ?? {})}`);
         const d = res.data;
         
         setCards([
@@ -117,7 +117,7 @@ export function StatsCards({ selectedDate }: { selectedDate?: string }) {
       }
     }
     fetchStats();
-  }, [selectedDate]);
+  }, [dateParams]);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

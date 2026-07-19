@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
 import { api } from "@/lib/axios";
+import { buildLaporanQuery, type LaporanDateParams } from "@/lib/laporan-query";
 
 interface ExpenseDataItem {
   nama: string;
@@ -18,11 +19,13 @@ const COLORS = [
   "#2E294E",
   "#00B4D8",
   "#606C38",
+  "#8B5CF6",
+  "#EC4899",
 ];
 
 const fmt = (v: number | undefined) => "Rp " + (v ?? 0).toLocaleString("id-ID");
 
-export function ExpenseChart({ selectedDate }: { selectedDate?: string }) {
+export function ExpenseChart({ dateParams }: { dateParams?: LaporanDateParams }) {
   const [data, setData] = useState<ExpenseDataItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,9 +33,8 @@ export function ExpenseChart({ selectedDate }: { selectedDate?: string }) {
     async function fetchExpense() {
       setLoading(true);
       try {
-        const queryParam = selectedDate ? `?date=${selectedDate}` : "?days=1";
         const res = await api.get<ExpenseDataItem[]>(
-          `/laporan/distribusi-hpp${queryParam}`,
+          `/laporan/distribusi-hpp${buildLaporanQuery(dateParams ?? {})}`,
         );
         const withColors = res.data.map((d, i) => ({
           ...d,
@@ -46,7 +48,7 @@ export function ExpenseChart({ selectedDate }: { selectedDate?: string }) {
       }
     }
     fetchExpense();
-  }, [selectedDate]);
+  }, [dateParams]);
 
   const total = data.reduce((acc, d) => acc + d.value, 0);
 
