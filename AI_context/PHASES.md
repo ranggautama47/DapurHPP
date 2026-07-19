@@ -108,15 +108,41 @@ Frontend
 
 PHASE 6 — Pengeluaran Lain
 
-Backend
+Backend — SELESAI
 
     [x] PengeluaranLainModule — GET/POST/PATCH/DELETE (filter by tanggal)
+    [x] Migration add_kategori_pengeluaran_lain — kolom kategori KategoriPengeluaran
+        (enum: UTILITAS/KEMASAN/TRANSPORTASI/KEBERSIHAN/LAINNYA) @default(LAINNYA)
+    [x] CreatePengeluaranLainDto + service create/update — kategori sekarang persisted
+        ke DB (SEBELUMNYA: field kategori cuma ada di FE, dibuang sebelum submit,
+        ditebak ulang via detectKategori(nama) regex tiap render — desain gak konsisten,
+        SEKARANG: kategori tersimpan asli, single source of truth dari DB)
 
-Frontend
+Frontend — SELESAI (diverifikasi manual: data tersimpan di DB, konsisten setelah refresh,
+filter tanggal-range & kategori jalan, total format benar)
 
-    [ ] ⚠️ BELUM DIKERJAKAN — Form tambah pengeluaran lain (nama + jumlah)
-    [ ] ⚠️ BELUM DIKERJAKAN — List pengeluaran lain per tanggal
-    [ ] PRIORITAS BERIKUTNYA setelah Phase 7 dituntaskan
+    [x] Form tambah pengeluaran lain (nama + jumlah + kategori)
+        types/pengeluaran.ts, lib/pengeluaran-lain.ts, kategori-badge.tsx,
+        filter-bar.tsx, pengeluaran-form.tsx, pengeluaran-table.tsx — semua sinkron
+        ke enum uppercase (UTILITAS/KEMASAN/dst), label display tetap capitalized di UI
+    [x] List pengeluaran lain per tanggal — filter tanggal-range & kategori jalan,
+        total format benar (titik ribuan)
+    [x] FIXED: Enum case mismatch — backend UTILITAS/KEMASAN/dst (uppercase), FE awalnya
+        capitalized (Utilitas/Kemasan) → 400 Bad Request. Fix: FE value uppercase,
+        label display tetap capitalized (opsi A dipilih atas opsi B/mapping runtime)
+    [x] FIXED: Duplicate function filterByKategori di lib/pengeluaran-lain.ts (agent
+        nambah kode baru tanpa hapus versi lama — TS2323/2393 Cannot redeclare)
+    [x] FIXED: filterByDateRange sempat hilang/ke-hapus gak sengaja saat fix
+        sebelumnya — "is not a function" error saat klik Terapkan Filter
+    [x] FIXED: "Invalid Date" di kolom tanggal — parsing pakai string concat
+        item.tanggal + "T00:00:00" padahal item.tanggal dari backend sudah
+        ISO string penuh, bukan "YYYY-MM-DD" saja. Fix: new Date(item.tanggal) langsung
+    [x] FIXED: Total "Rp 017000" — Prisma Decimal balik sebagai STRING, reduce tanpa
+        Number() cast jadi string-concat. Fix: Number() cast di reduce + formatRupiah
+        (bug sama persis seperti Phase 5, terulang di modul baru — jadi default-check wajib)
+    [x] pengeluaran-lain.service.ts findAll() — filter by tanggal exact-match diganti
+        jadi date-range (00:00:00 s/d 23:59:59) biar gak kena timezone/off-by-time bug
+        yang sama seperti modul lain
 
 PHASE 7 — Laporan & Dashboard
 
@@ -159,9 +185,56 @@ Frontend — Tab Laporan penuh SELESAI
         (FIXED: field mismatch total d.pendapatan vs d.totalPendapatan dkk — akar dari "Rp 0" semua;
         card Penjualan salah format Rp 45→45 pcs; panah tren dulu selalu ↑ apapun kondisinya)
 
-PHASE 8 — Polish & Testing
+PHASE 7.5 — Dashboard Global Filter & Distribusi HPP Gabungan — SELESAI
+
+Keputusan Bisnis (untuk konteks AI berikutnya, JANGAN diubah tanpa alasan kuat)
+
+    [x] "Laba" = Pendapatan - HPP - Pengeluaran Lain (bukan cuma Pendapatan - HPP).
+        Kalau ada pengeluaran tapi gak ada pendapatan di periode itu, laba MEMANG minus
+        — itu akurat secara akuntansi, BUKAN bug, jangan direvert berdasarkan kesan visual
+        grafik yang "harusnya selalu naik"
+    [x] "Distribusi Pengeluaran (HPP)" di dashboard SENGAJA menggabungkan 2 sumber:
+        breakdown HPP per resep (dari Penjualan→Produksi→Resep) DAN pengeluaran lain
+        di-group by kategori (Gas & Utilitas, Kemasan, dst). Secara akuntansi ketat ini
+        agak salah kaprah (HPP harusnya cuma cost of goods sold, bukan operational expense),
+        tapi ini keputusan UX yang disengaja mengikuti blueprint desain — nama endpoint
+        tetap getDistribusiHpp untuk kompatibilitas, isinya sekarang gabungan
+
+Backend
+
+    [x] laporan-query.dto.ts — tambah startDate & endDate (opsional, string), selain
+        days & date yang sudah ada. Prioritas resolusi: startDate+endDate > date > days
+    [x] laporan.service.ts batasiTanggal() — refactor terima startDate/endDate custom
+        range, fallback ke date lalu days kalau gak ada
+    [x] laporan.service.ts getDistribusiHpp() — sekarang query 2 sumber paralel
+        (Penjualan→Produksi→Resep DAN pengeluaranLain.groupBy kategori), digabung
+        jadi 1 array, slice(0, 8) bukan slice(0, 5) karena sumbernya lebih banyak
+
+Frontend
+
+    [x] lib/laporan-query.ts (BARU) — helper buildLaporanQuery(params) generate query
+        string konsisten dari LaporanDateParams, dipakai semua 5 komponen dashboard
+    [x] dashboard/page.tsx — datepicker sekarang punya toggle mode "Tanggal Tunggal"
+        vs "Rentang Tanggal" (pakai react-day-picker mode="single"/"range"), state
+        di-lift ke page.tsx sebagai dateParams, di-pass ke 5 komponen sebagai prop
+    [x] FIXED: ProfitChart SEBELUMNYA punya activeDays state internal sendiri +
+        dropdown RANGES lokal, TIDAK sinkron sama datepicker global di atas — root
+        cause kenapa pilih tanggal di atas gak ngefek ke Grafik Laba. Sekarang RANGES
+        lokal dihapus total, full delegate ke prop dateParams dari parent
+    [x] stats-cards.tsx, expense-chart.tsx, recent-activity.tsx, top-products.tsx —
+        semua ganti dari prop selectedDate?: string jadi dateParams?: LaporanDateParams,
+        query string dibangun via buildLaporanQuery() bukan manual string interpolation
+    [x] FIXED error TS2322 "Property 'dateParams' does not exist" — root cause:
+        komponen (ProfitChart dkk) belum diupdate signature-nya pas page.tsx sudah
+        dipass prop baru. Semua komponen HARUS diupdate bersamaan/1 batch, gak bisa
+        page.tsx duluan lalu komponen menyusul satu-satu
+
+PHASE 8 — Polish & Testing (BELUM DIKERJAKAN — prioritas sekarang)
 
     [ ] Loading states semua halaman (Skeleton)
+        Saran: pecah per-modul per-sesi (misal 1 sesi "Bahan Baku + Resep", sesi lain
+        "Belanja + Produksi"), JANGAN minta AI agent generate semua sekaligus — supaya
+        gampang di-checkpoint dan gampang ketauan kalau ada file di luar scope kesenggol
     [ ] Error handling — toast notification (Sonner)
     [ ] Empty states
     [ ] Responsive check — mobile first (target: 375px)
@@ -170,13 +243,15 @@ PHASE 8 — Polish & Testing
     [ ] Screenshot + video demo untuk portofolio
     [ ] Ganti DATABASE_URL dari root ke dapurhpp_user
 
-STATUS RINGKASAN (update terbaru — Phase 7 tuntas)
+STATUS RINGKASAN (update terbaru — Phase 7.5 tuntas)
 
-    Backend selesai: Phase 0-7 semua endpoint jalan + sudah lolos audit bug berkali-kali
-        (timezone, field mismatch, string-concat, DTO seragam, custom range, typo fatal)
-    Frontend selesai: Auth, Dashboard Beranda, Bahan Baku, Supplier, Resep, Belanja,
-        Produksi, Penjualan+Ringkasan, Tab Laporan penuh
-    Frontend BELUM: Pengeluaran Lain FE (Phase 6 — PRIORITAS SEKARANG), Polish (Phase 8)
+    Backend selesai: Phase 0-7.5 semua endpoint jalan + sudah lolos audit bug berkali-kali
+        (timezone, field mismatch, string-concat, DTO seragam, custom range, typo fatal,
+        enum case mismatch, distribusi-hpp gabungan sumber)
+    Frontend selesai: Auth, Dashboard Beranda (+ global filter range), Bahan Baku,
+        Supplier, Resep, Belanja, Produksi, Penjualan+Ringkasan, Tab Laporan penuh,
+        Pengeluaran Lain (kategori persisted, filter jalan)
+    Frontend BELUM: Polish (Phase 8) — PRIORITAS SEKARANG
 
 Catatan Penting untuk AI Context
 
@@ -188,6 +263,10 @@ Aturan Kalkulasi
     Simulasi harga jual tidak disimpan ke DB — pure calculation
     BelanjaForm: user input TOTAL BAYAR bukan harga satuan. hargaSatuan = totalBayar / jumlah dihitung di FE
     Stok Option B aktif: stok auto-update dari belanja. Increment create, decrement delete. Tidak pernah negatif.
+    "Laba" = Pendapatan - HPP - Pengeluaran Lain (lihat Phase 7.5 untuk detail keputusan ini)
+    "Distribusi Pengeluaran (HPP)" di dashboard = gabungan breakdown HPP per resep +
+        pengeluaran lain per kategori (lihat Phase 7.5) — INI KEPUTUSAN UX SENGAJA,
+        bukan bug, jangan "diperbaiki" balik ke cuma-HPP-murni tanpa konfirmasi user
 
 Aturan Ownership
 
@@ -209,6 +288,13 @@ Naming Convention
     URL: kebab-case (/bahan-baku, /pengeluaran-lain)
     Query param filter periode: SELALU pakai nama `days` (angka hari), bukan `hari`/`periode`/custom lain —
         konsistensi ini yang dulu berkali-kali bikin bug mismatch antara FE dan BE
+    Query param date-range custom: `startDate` & `endDate` (bukan `dari`/`sampai` atau nama lain)
+    Enum values: SELALU uppercase (UTILITAS, KEMASAN, dll) — kalau FE butuh label lebih
+        enak dibaca, buat mapping Record<Enum, string> terpisah utk display, JANGAN ubah
+        value enum itu sendiri jadi capitalized (bikin 400 Bad Request krn gak match backend)
+    Komponen dashboard yang butuh filter tanggal SELALU terima prop dateParams?: LaporanDateParams
+        (dari lib/laporan-query.ts), JANGAN bikin state tanggal sendiri-sendiri per komponen
+        — itu penyebab utama komponen gak sinkron satu sama lain (lihat kasus ProfitChart Phase 7.5)
 
 Masalah Teknis yang Pernah Kejadian (JANGAN DIULANG)
 
@@ -223,19 +309,52 @@ Masalah Teknis yang Pernah Kejadian (JANGAN DIULANG)
     totalQty BelanjaRingkasan = "unit" bukan "kg"
     Prisma Decimal field SELALU balik sebagai STRING ke JSON — WAJIB Number() cast sebelum di-+ (reduce)
         atau ditampilkan, kalau nggak: string-concat bug ("025000150...") atau format salah (gak ada titik ribuan)
+        — SUDAH KEJADIAN 2X di modul berbeda (Produksi/Penjualan di Phase 5, Pengeluaran Lain di Phase 6),
+        JADIKAN default-check WAJIB tiap kali nambah field Decimal baru di modul manapun
     Query range tanggal WAJIB pakai formatLocalDate() (bukan toISOString()) — toISOString convert ke UTC,
         geser tanggal krn WIB=UTC+7
     Query range tanggal dgn `new Date()` langsung (bukan set jam 00:00/23:59) kena bug off-by-time-of-day
         — data jam 00:00 ketolak krn dibanding sama timestamp yg ada jam-nya
+    Parsing tanggal dari backend response: JANGAN string-concat "T00:00:00" ke item.tanggal
+        kalau backend sudah balikin ISO string penuh — cek dulu format aslinya (curl response),
+        baru putuskan perlu concat atau langsung new Date(item.tanggal) saja
     Field name HARUS dicek exact match antara backend response dan FE interface — banyak kasus
         (foto vs fotoUrl, hari vs days, detail vs detailProduksi, bahanId vs bahanBakuId) bikin data
         "kosong"/"Rp 0" padahal backend udah bener
+    Enum/string value HARUS dicek exact match case-sensitivity antara backend dan FE — backend
+        Prisma enum biasanya UPPERCASE, kalau FE pakai Capitalized tanpa sadar → 400 Bad Request
+        (bukan 500, jadi kelihatan kayak masalah validasi, padahal cuma beda huruf besar-kecil)
     Kalau ubah nama field di FE, cek juga file types/*.ts — jangan cuma di komponen, TS gak akan warning
         kalau interface-nya juga salah (dua-duanya salah = "konsisten" secara TS tapi salah secara runtime)
+    Kalau ubah SIGNATURE PROP komponen (misal selectedDate?: string → dateParams?: LaporanDateParams),
+        semua caller (parent component) dan komponen itu sendiri HARUS diupdate DALAM SATU BATCH —
+        kalau parent duluan lalu child menyusul, muncul TS2322 "Property does not exist on type"
     AI agent kalau disuruh benerin 1 bug, sering nyenggol banyak file di luar scope — WAJIB git commit
         checkpoint SEBELUM kasih task ke agent, dan kasih scope file eksplisit + larangan ubah file lain
+    AI agent kalau disuruh ganti isi function, kadang nambah kode BARU di bawah tanpa hapus yang LAMA —
+        hasilnya duplicate declaration/export (TS2323/2393 Cannot redeclare / Duplicate function
+        implementation). Selalu instruksikan eksplisit "REPLACE isi function, bukan tambah di bawah",
+        dan grep nama function setelah edit utk pastikan muncul cuma 1 kali
     Dev server / Next.js build cache bisa nyimpen versi lama meski source code sudah benar — kalau curl/source
         udah sesuai tapi browser masih nunjukin behavior lama: rm -rf .next, restart total, hard refresh browser
     Props/variable dengan nama membingungkan (mis. "isCustomApplied" yg isinya kondisi kebalik) rawan
         bikin logic disabled/enabled kebalik — kalau nemu bug tombol gak bisa diklik, cek dulu logic
         boolean-nya sebelum curiga ke tempat lain
+    Sebelum "fix" data yang kelihatan aneh (grafik turun, angka minus, dst), cek dulu apakah itu
+        BUG TEKNIS atau KEPUTUSAN BISNIS yang sengaja (lihat kasus Grafik Laba minus di Phase 7.5) —
+        jangan asumsikan angka aneh = bug tanpa verifikasi rumus/logic-nya dulu
+
+Git Commit Strategy
+
+    Prinsip: 1 unit logis = 1 commit, BUKAN 1 file = 1 commit. Commit yang saling
+        bergantung (schema+migration, DTO+service, dst) harus digabung — kalau dipisah,
+        tiap commit individual jadi gak bisa di-checkout sendirian tanpa compile error.
+    Contoh grouping yang benar (dari kasus kategori Pengeluaran Lain, Phase 6):
+        1. schema.prisma + migration file (database layer)
+        2. DTO + service (application layer, depend on #1)
+        3. FE types + lib/helpers (shared, dependency utk komponen)
+        4. FE komponen UI (form, table, badge, filter-bar)
+        5. FE page-client/page (wiring)
+    Pengecualian: bug fix independen yang gak saling terkait (misal 2 bug beda akar
+        di file berbeda) boleh dipisah per file/per bug karena masing-masing punya
+        arti sendiri kalau di-revert terpisah.
