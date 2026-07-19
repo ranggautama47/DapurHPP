@@ -7,8 +7,17 @@ export class LaporanQueryDto {
   @IsInt()
   @Min(1)
   @Max(365)
-  days?: number = 7; // default 7 hari kalau query kosong
+  days?: number = 7;
+
   @IsOptional()
   @IsString()
   date?: string;
+
+  @IsOptional()
+  @IsString()
+  startDate?: string;
+
+  @IsOptional()
+  @IsString()
+  endDate?: string; 
 }

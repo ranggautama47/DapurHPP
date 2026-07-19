@@ -8,32 +8,41 @@ export class LaporanService {
 
   // Helper untuk menentukan tanggal dinamis berdasarkan query
   private batasiTanggal(query: LaporanQueryDto) {
-    const { days = 7, date } = query;
+    const { days = 7, date, startDate: qStart, endDate: qEnd } = query;
     let startDate: Date;
     let endDate: Date;
     let prevStartDate: Date;
 
-    if (date) {
-      // Jika user pilih tanggal spesifik di kalender
-      startDate = new Date(date);
+    if (qStart && qEnd) {
+      // Range custom dari datepicker
+      startDate = new Date(qStart);
       startDate.setHours(0, 0, 0, 0);
-
-      endDate = new Date(date);
+      endDate = new Date(qEnd);
       endDate.setHours(23, 59, 59, 999);
 
-      // Periode lalu untuk komparasi tren = 1 hari sebelumnya
+      const rangeDays = Math.max(
+        1,
+        Math.round((endDate.getTime() - startDate.getTime()) / 86400000),
+      );
+      prevStartDate = new Date(startDate);
+      prevStartDate.setDate(prevStartDate.getDate() - rangeDays);
+
+      return { startDate, endDate, prevStartDate, effectiveDays: rangeDays };
+    }
+
+    if (date) {
+      startDate = new Date(date);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(date);
+      endDate.setHours(23, 59, 59, 999);
       prevStartDate = new Date(startDate);
       prevStartDate.setDate(prevStartDate.getDate() - 1);
     } else {
-      // Jika menggunakan filter default / rentang hari
       endDate = new Date();
       endDate.setHours(23, 59, 59, 999);
-
       startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
       startDate.setHours(0, 0, 0, 0);
-
-      // Periode lalu = mundur sebanyak X hari lagi
       prevStartDate = new Date(startDate);
       prevStartDate.setDate(prevStartDate.getDate() - days);
     }
@@ -234,22 +243,46 @@ export class LaporanService {
   async getDistribusiHpp(userId: number, query: LaporanQueryDto) {
     const { startDate, endDate } = this.batasiTanggal(query);
 
-    const penjualan = await this.prisma.penjualan.findMany({
-      where: { userId, tanggal: { gte: startDate, lte: endDate } },
-      select: {
-        terjual: true,
-        produksi: {
-          select: { hppPerPcs: true, resep: { select: { nama: true } } },
+    const [penjualan, pengeluaranLain] = await Promise.all([
+      this.prisma.penjualan.findMany({
+        where: { userId, tanggal: { gte: startDate, lte: endDate } },
+        select: {
+          terjual: true,
+          produksi: {
+            select: { hppPerPcs: true, resep: { select: { nama: true } } },
+          },
         },
-      },
-    });
+      }),
+      this.prisma.pengeluaranLain.groupBy({
+        by: ['kategori'],
+        where: { userId, tanggal: { gte: startDate, lte: endDate } },
+        _sum: { jumlah: true },
+      }),
+    ]);
+
+    const kategoriLabel: Record<string, string> = {
+      UTILITAS: 'Gas & Utilitas',
+      KEMASAN: 'Kemasan',
+      TRANSPORTASI: 'Transportasi',
+      KEBERSIHAN: 'Kebersihan',
+      LAINNYA: 'Lainnya',
+    };
 
     const grouped = new Map<string, number>();
+
     for (const p of penjualan) {
       if (!p.produksi) continue;
       const nama = p.produksi.resep?.nama ?? 'Tanpa Nama';
       const modal = p.terjual * Number(p.produksi.hppPerPcs ?? 0);
       grouped.set(nama, (grouped.get(nama) ?? 0) + modal);
+    }
+
+    for (const pl of pengeluaranLain) {
+      const label = kategoriLabel[pl.kategori] ?? pl.kategori;
+      const jumlah = Number(pl._sum.jumlah ?? 0);
+      if (jumlah > 0) {
+        grouped.set(label, (grouped.get(label) ?? 0) + jumlah);
+      }
     }
 
     const total = Array.from(grouped.values()).reduce((a, b) => a + b, 0);
@@ -260,6 +293,8 @@ export class LaporanService {
       '#2E294E',
       '#00B4D8',
       '#606C38',
+      '#8B5CF6',
+      '#EC4899',
     ];
 
     return Array.from(grouped.entries())
@@ -270,7 +305,7 @@ export class LaporanService {
         pct: total > 0 ? Number(((value / total) * 100).toFixed(1)) : 0,
       }))
       .sort((a, b) => b.value - a.value)
-      .slice(0, 5);
+      .slice(0, 8);
   }
 
   // 4. GET /laporan/aktivitas-terbaru
@@ -316,7 +351,6 @@ export class LaporanService {
     return activities.slice(0, 5);
   }
 
-  // 5. GET /laporan/produk-terlaris
   // 5. GET /laporan/produk-terlaris
   async getProdukTerlaris(userId: number, query: LaporanQueryDto) {
     const { startDate, endDate } = this.batasiTanggal(query);
