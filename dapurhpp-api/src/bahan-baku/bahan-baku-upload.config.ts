@@ -11,12 +11,21 @@ if (!existsSync(UPLOAD_DIR)) {
   mkdirSync(UPLOAD_DIR, { recursive: true });
 }
 
-const imageFilter = (_req: any, file: Express.Multer.File, cb: (error: Error | null, accept: boolean) => void) => {
+const imageFilter = (
+  _req: any,
+  file: Express.Multer.File,
+  cb: (error: Error | null, accept: boolean) => void,
+) => {
   const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
   if (allowed.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new BadRequestException('Hanya file gambar (jpg, jpeg, png, webp) yang diizinkan'), false);
+    cb(
+      new BadRequestException(
+        'Hanya file gambar (jpg, jpeg, png, webp) yang diizinkan',
+      ),
+      false,
+    );
   }
 };
 

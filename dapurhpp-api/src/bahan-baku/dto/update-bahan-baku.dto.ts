@@ -5,7 +5,7 @@ import {
   IsString,
   Min,
   MinLength,
-  IsUrl, 
+  IsUrl,
 } from 'class-validator';
 import { Satuan, KategoriBahan } from '@prisma/client';
 
