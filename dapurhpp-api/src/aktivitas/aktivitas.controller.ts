@@ -18,7 +18,10 @@ export class AktivitasController {
   constructor(private readonly aktivitasService: AktivitasService) {}
 
   @Get()
-  async findAll(@Request() req: any, @Query() query: QueryAktivitasDto): Promise<AktivitasResponse> {
+  async findAll(
+    @Request() req: any,
+    @Query() query: QueryAktivitasDto,
+  ): Promise<AktivitasResponse> {
     return this.aktivitasService.findAll(req.user.id, query);
   }
 

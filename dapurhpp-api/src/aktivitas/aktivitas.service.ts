@@ -97,7 +97,9 @@ export class AktivitasService {
       );
     }
 
-    allItems.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+    allItems.sort(
+      (a, b) => new Date(b.time).getTime() - new Date(a.time).getTime(),
+    );
 
     const total = allItems.length;
     const totalPages = Math.ceil(total / limit);
@@ -132,18 +134,42 @@ export class AktivitasService {
       produksiBulan,
       pengeluaranBulan,
     ] = await Promise.all([
-      this.prisma.penjualan.count({ where: { userId, createdAt: { gte: todayStart, lte: todayEnd } } }),
-      this.prisma.belanja.count({ where: { userId, createdAt: { gte: todayStart, lte: todayEnd } } }),
-      this.prisma.produksi.count({ where: { userId, createdAt: { gte: todayStart, lte: todayEnd } } }),
-      this.prisma.pengeluaranLain.count({ where: { userId, createdAt: { gte: todayStart, lte: todayEnd } } }),
-      this.prisma.penjualan.count({ where: { userId, createdAt: { gte: startOfWeek, lte: endOfWeek } } }),
-      this.prisma.belanja.count({ where: { userId, createdAt: { gte: startOfWeek, lte: endOfWeek } } }),
-      this.prisma.produksi.count({ where: { userId, createdAt: { gte: startOfWeek, lte: endOfWeek } } }),
-      this.prisma.pengeluaranLain.count({ where: { userId, createdAt: { gte: startOfWeek, lte: endOfWeek } } }),
-      this.prisma.penjualan.count({ where: { userId, createdAt: { gte: startOfMonth, lte: endOfMonth } } }),
-      this.prisma.belanja.count({ where: { userId, createdAt: { gte: startOfMonth, lte: endOfMonth } } }),
-      this.prisma.produksi.count({ where: { userId, createdAt: { gte: startOfMonth, lte: endOfMonth } } }),
-      this.prisma.pengeluaranLain.count({ where: { userId, createdAt: { gte: startOfMonth, lte: endOfMonth } } }),
+      this.prisma.penjualan.count({
+        where: { userId, createdAt: { gte: todayStart, lte: todayEnd } },
+      }),
+      this.prisma.belanja.count({
+        where: { userId, createdAt: { gte: todayStart, lte: todayEnd } },
+      }),
+      this.prisma.produksi.count({
+        where: { userId, createdAt: { gte: todayStart, lte: todayEnd } },
+      }),
+      this.prisma.pengeluaranLain.count({
+        where: { userId, createdAt: { gte: todayStart, lte: todayEnd } },
+      }),
+      this.prisma.penjualan.count({
+        where: { userId, createdAt: { gte: startOfWeek, lte: endOfWeek } },
+      }),
+      this.prisma.belanja.count({
+        where: { userId, createdAt: { gte: startOfWeek, lte: endOfWeek } },
+      }),
+      this.prisma.produksi.count({
+        where: { userId, createdAt: { gte: startOfWeek, lte: endOfWeek } },
+      }),
+      this.prisma.pengeluaranLain.count({
+        where: { userId, createdAt: { gte: startOfWeek, lte: endOfWeek } },
+      }),
+      this.prisma.penjualan.count({
+        where: { userId, createdAt: { gte: startOfMonth, lte: endOfMonth } },
+      }),
+      this.prisma.belanja.count({
+        where: { userId, createdAt: { gte: startOfMonth, lte: endOfMonth } },
+      }),
+      this.prisma.produksi.count({
+        where: { userId, createdAt: { gte: startOfMonth, lte: endOfMonth } },
+      }),
+      this.prisma.pengeluaranLain.count({
+        where: { userId, createdAt: { gte: startOfMonth, lte: endOfMonth } },
+      }),
     ]);
 
     const today =
@@ -232,9 +258,11 @@ export class AktivitasService {
     return data.map((b) => {
       const bahanNames = b.detailBelanja.map((d) => d.bahanBaku.nama);
       const uniqueBahan = [...new Set(bahanNames)];
-      const subtitle = uniqueBahan.length > 0
-        ? uniqueBahan.slice(0, 3).join(', ') + (uniqueBahan.length > 3 ? '...' : '')
-        : 'Belanja Pasar';
+      const subtitle =
+        uniqueBahan.length > 0
+          ? uniqueBahan.slice(0, 3).join(', ') +
+            (uniqueBahan.length > 3 ? '...' : '')
+          : 'Belanja Pasar';
 
       return {
         id: `belanja-${b.id}`,
@@ -280,7 +308,7 @@ export class AktivitasService {
         subtitle: `Hasil: ${p.hasilNyata} pcs`,
         time: p.createdAt.toISOString(),
         amount: isBatal ? undefined : Number(p.totalModal),
-        amountType: isBatal ? undefined : 'negative' as const,
+        amountType: isBatal ? undefined : ('negative' as const),
         status: p.status,
       };
     });
