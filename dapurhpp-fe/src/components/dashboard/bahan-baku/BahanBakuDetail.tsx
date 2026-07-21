@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Pencil, Trash2, Package } from "lucide-react";
 import { BahanBaku } from "@/types/bahan-baku";
+import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
+import { toast } from "sonner";
 import { api } from "@/lib/axios";
 import { PriceHistoryChart } from "./PriceHistoryChart";
 import { BahanBakuForm } from "./BahanBakuForm";
@@ -50,23 +52,27 @@ export function BahanBakuDetail({ initialData }: BahanBakuDetailProps) {
   const handleEdit = () => setShowForm(true);
 
   const handleDelete = async () => {
-    if (!window.confirm("Yakin ingin menghapus bahan baku ini?")) return;
     try {
       await api.delete(`/bahan-baku/${bahan.id}`);
+      toast.success("Data berhasil dihapus");
+      setShowDeleteConfirm(false);
       router.push("/dashboard/bahan-baku");
     } catch (err) {
       console.error("Gagal hapus:", err);
-      alert("Gagal menghapus bahan baku");
+      toast.error("Gagal menghapus data");
+      setShowDeleteConfirm(false);
     }
   };
 
   const handleFormSubmit = async (data: any) => {
     try {
       await api.patch(`/bahan-baku/${bahan.id}`, data);
+      toast.success("Bahan baku berhasil diperbarui");
       setShowForm(false);
       fetchDetail();
     } catch (err: any) {
       alert(err.response?.data?.message || "Gagal menyimpan");
+      toast.error("Gagal memperbarui bahan baku — coba lagi");
       throw err;
     }
   };
@@ -241,38 +247,13 @@ export function BahanBakuDetail({ initialData }: BahanBakuDetailProps) {
         </div>
       </div>
 
-      {/* Delete Confirm Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-[24px] shadow-[0_24px_64px_-12px_rgba(42,23,17,0.4)] w-full max-w-md relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#EF4444] via-[#BA1A1A] to-[#EF4444]" />
-            <div className="p-6 pt-10">
-              <h2 className="font-[var(--font-playfair)] font-bold text-[1.75rem] text-[#2A1711] mb-2">
-                Hapus Bahan Baku
-              </h2>
-              <p className="text-sm text-[#5D4037] mb-6">
-                Yakin ingin menghapus{" "}
-                <strong className="text-[#2A1711]">{bahan.nama}</strong>? Data
-                akan di-soft-delete dan tetap bisa dipulihkan.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 px-6 py-3 rounded-full border-2 border-[#DDC1AE] text-[#564334] hover:bg-[#FFF8F6] font-semibold"
-                >
-                  Batal
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="flex-1 px-6 py-3 rounded-full bg-[#EF4444] text-white font-semibold hover:bg-[#DC2626]"
-                >
-                  Hapus Sekarang
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDeleteDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        onConfirm={handleDelete}
+        title={`Hapus ${bahan.nama}?`}
+        description="Data akan di-soft-delete dan tetap bisa dipulihkan."
+      />
 
       {/* Edit Form Modal */}
       {showForm && (

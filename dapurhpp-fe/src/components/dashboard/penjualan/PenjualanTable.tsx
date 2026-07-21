@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Penjualan } from "@/types/penjualan";
 import { Trash2, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 import { api } from "@/lib/axios";
 
 interface PenjualanTableProps {
@@ -19,11 +20,13 @@ export function PenjualanTable({ data, onRefresh }: PenjualanTableProps) {
     setUpdatingIds(prev => new Set(prev).add(id));
     try {
       await api.patch(`/penjualan/${id}`, { status: 'CLOSED' });
+      toast.success("Penjualan ditutup");
       // Trigger refresh by calling onRefresh with current date
       const today = new Date();
       onRefresh(today);
     } catch (err: any) {
       alert(err.response?.data?.message || "Gagal menutup penjualan");
+      toast.error("Gagal menutup penjualan — coba lagi");
     } finally {
       setUpdatingIds(prev => {
         const next = new Set(prev);

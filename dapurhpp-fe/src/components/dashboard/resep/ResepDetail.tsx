@@ -12,6 +12,8 @@ import {
   ChefHat,
 } from "lucide-react";
 import { Resep } from "@/types/resep";
+import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
+import { toast } from "sonner";
 import { api } from "@/lib/axios";
 import { ResepForm } from "./ResepForm";
 import { SimulasiHarga } from "./SimulasiHarga";
@@ -50,11 +52,13 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
   const handleFormSubmit = async (data: any) => {
     try {
       const res = await api.patch(`/resep/${resep.id}`, data);
+      toast.success("Resep berhasil diperbarui");
       setShowForm(false);
       fetchDetail();
       return res.data;
     } catch (err: any) {
       alert(err.response?.data?.message || "Gagal menyimpan");
+      toast.error("Gagal memperbarui resep — coba lagi");
       throw err;
     }
   };
@@ -62,9 +66,12 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
   const handleDelete = async () => {
     try {
       await api.delete(`/resep/${resep.id}`);
+      toast.success("Data berhasil dihapus");
+      setShowDeleteConfirm(false);
       router.push("/dashboard/resep");
     } catch {
-      alert("Gagal menghapus resep");
+      toast.error("Gagal menghapus data");
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -366,37 +373,13 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
         </div>
       </div>
 
-      {/* Delete Confirm Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-[24px] shadow-[0_24px_64px_-12px_rgba(42,23,17,0.4)] w-full max-w-md relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#EF4444] via-[#BA1A1A] to-[#EF4444]" />
-            <div className="p-6 pt-10">
-              <h2 className="font-[var(--font-playfair)] font-bold text-xl text-[#2A1711] mb-2">
-                Hapus Resep
-              </h2>
-              <p className="text-sm text-[#5D4037] mb-6">
-                Yakin ingin menghapus <strong>{resep.nama}</strong>? Data akan
-                di-soft-delete.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 px-6 py-3 rounded-full border-2 border-[#DDC1AE] text-[#564334] hover:bg-[#FFF8F6] transition-colors font-semibold font-[var(--font-be-vietnam)]"
-                >
-                  Batal
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="flex-1 px-6 py-3 rounded-full bg-[#EF4444] text-white font-semibold font-[var(--font-be-vietnam)] hover:bg-[#DC2626] transition-colors"
-                >
-                  Hapus Sekarang
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDeleteDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        onConfirm={handleDelete}
+        title={`Hapus ${resep.nama}?`}
+        description="Data akan di-soft-delete."
+      />
 
       {/* Edit Form Modal */}
       <ResepForm
