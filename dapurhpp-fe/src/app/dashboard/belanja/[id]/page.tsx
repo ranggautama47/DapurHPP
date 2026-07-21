@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ShoppingCart, Trash2 } from "lucide-react";
 import { BelanjaDetail } from "@/types/belanja";
+import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
+import { toast } from "sonner";
 import { api } from "@/lib/axios";
 
 export default function BelanjaDetailPage() {
@@ -14,6 +16,7 @@ export default function BelanjaDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const fetchDetail = async () => {
     setIsLoading(true);
@@ -33,13 +36,15 @@ export default function BelanjaDetailPage() {
   }, [params.id]);
 
   const handleDelete = async () => {
-    if (!confirm("Hapus belanja ini?")) return;
     setIsDeleting(true);
     try {
       await api.delete(`/belanja/${params.id}`);
+      toast.success("Data berhasil dihapus");
+      setShowDeleteConfirm(false);
       router.push("/dashboard/belanja");
     } catch (err) {
-      alert("Gagal menghapus belanja.");
+      toast.error("Gagal menghapus data");
+      setShowDeleteConfirm(false);
     } finally {
       setIsDeleting(false);
     }
@@ -82,7 +87,7 @@ export default function BelanjaDetailPage() {
               </p>
             </div>
             <button
-              onClick={handleDelete}
+              onClick={() => setShowDeleteConfirm(true)}
               disabled={isDeleting}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-[#EF4444] text-[#EF4444] font-medium hover:bg-[#FEE2E2] disabled:opacity-50 transition-colors"
             >
@@ -161,6 +166,15 @@ export default function BelanjaDetailPage() {
               </tfoot>
             </table>
           </div>
+
+          <ConfirmDeleteDialog
+            open={showDeleteConfirm}
+            onOpenChange={setShowDeleteConfirm}
+            onConfirm={handleDelete}
+            title="Hapus belanja ini?"
+            description="Aksi ini tidak dapat dibatalkan."
+            isLoading={isDeleting}
+          />
         </>
       )}
     </div>

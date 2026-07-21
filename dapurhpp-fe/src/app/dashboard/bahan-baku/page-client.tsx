@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Package, Search, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { BahanBaku } from "@/types/bahan-baku";
 import { BahanBakuTable, BahanBakuForm } from "@/components/dashboard/bahan-baku";
+import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
+import { toast } from "sonner";
 import { api } from "@/lib/axios";
 
 export default function BahanBakuPageClient() {
@@ -16,6 +18,7 @@ export default function BahanBakuPageClient() {
   const [editTarget, setEditTarget] = useState<BahanBaku | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
   const ITEMS_PER_PAGE = 7;
   const filteredList = bahanList.filter((b) =>
@@ -47,11 +50,13 @@ export default function BahanBakuPageClient() {
     setIsSubmitting(true);
     try {
       const res = await api.post("/bahan-baku", data);
+      toast.success("Bahan baku berhasil ditambahkan");
       fetchList();
       setShowForm(false);
       return res.data.id;
     } catch (err: any) {
       alert(err.response?.data?.message || "Gagal menambah bahan baku");
+      toast.error("Gagal menambah bahan baku — coba lagi");
       throw err;
     } finally {
       setIsSubmitting(false);
@@ -68,25 +73,30 @@ export default function BahanBakuPageClient() {
     setIsSubmitting(true);
     try {
       await api.patch(`/bahan-baku/${editTarget.id}`, data);
+      toast.success("Bahan baku berhasil diperbarui");
       fetchList();
       setShowForm(false);
       setEditTarget(null);
     } catch (err: any) {
       alert(err.response?.data?.message || "Gagal mengedit bahan baku");
+      toast.error("Gagal memperbarui bahan baku — coba lagi");
       throw err;
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("Yakin ingin menghapus bahan baku ini? Data terkait (resep, belanja, dll) tetap terjaga.")) return;
+  const handleDelete = async () => {
+    if (deleteTargetId === null) return;
     try {
-      await api.delete(`/bahan-baku/${id}`);
+      await api.delete(`/bahan-baku/${deleteTargetId}`);
+      toast.success("Data berhasil dihapus");
+      setDeleteTargetId(null);
       fetchList();
     } catch (err) {
       console.error("Gagal hapus:", err);
-      alert("Gagal menghapus bahan baku");
+      toast.error("Gagal menghapus data");
+      setDeleteTargetId(null);
     }
   };
 
@@ -168,7 +178,7 @@ export default function BahanBakuPageClient() {
                 <BahanBakuTable
                   data={paginatedList}
                   onEdit={handleEdit}
-                  onDelete={handleDelete}
+                  onDelete={(id) => setDeleteTargetId(id)}
                   onView={(id) => router.push(`/dashboard/bahan-baku/${id}`)}
                 />
               </div>
@@ -209,6 +219,13 @@ export default function BahanBakuPageClient() {
         onSubmit={handleFormSubmit}
         initialData={editTarget}
         isLoading={isSubmitting}
+      />
+      <ConfirmDeleteDialog
+        open={deleteTargetId !== null}
+        onOpenChange={(open) => { if (!open) setDeleteTargetId(null); }}
+        onConfirm={handleDelete}
+        title="Hapus bahan baku ini?"
+        description="Data terkait (resep, belanja, dll) tetap terjaga."
       />
     </div>
   );

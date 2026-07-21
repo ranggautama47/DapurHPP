@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Search, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { Resep } from "@/types/resep";
 import { api } from "@/lib/axios";
+import { toast } from "sonner";
 import { ResepCard, ResepForm } from "@/components/dashboard/resep";
 
 const ITEMS_PER_PAGE = 6;
@@ -48,11 +49,13 @@ export default function ResepPageClient() {
     setIsSubmitting(true);
     try {
       const res = await api.post("/resep", data);
+      toast.success("Resep berhasil dibuat");
       setShowForm(false);
       fetchList();
       return res.data;
     } catch (err: any) {
       alert(err.response?.data?.message || "Gagal menyimpan resep");
+      toast.error("Gagal membuat resep — coba lagi");
       throw err;
     } finally {
       setIsSubmitting(false);

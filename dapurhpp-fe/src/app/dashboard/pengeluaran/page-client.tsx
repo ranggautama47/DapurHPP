@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Plus, Receipt } from "lucide-react";
+import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
+import { toast } from "sonner";
 import { api } from "@/lib/axios";
 import { formatLocalDate } from "@/lib/utils";
 import type { Pengeluaran, Kategori } from "@/types/pengeluaran";
@@ -81,13 +83,16 @@ export default function PengeluaranPageClient() {
     setShowForm(true);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async () => {
+    if (deleteConfirm === null) return;
     try {
-      await api.delete(`/pengeluaran-lain/${id}`);
+      await api.delete(`/pengeluaran-lain/${deleteConfirm}`);
+      toast.success("Data berhasil dihapus");
       setDeleteConfirm(null);
       await fetchAll();
     } catch {
-      alert("Gagal menghapus pengeluaran");
+      toast.error("Gagal menghapus data");
+      setDeleteConfirm(null);
     }
   };
 
@@ -207,34 +212,12 @@ export default function PengeluaranPageClient() {
         </div>
       </div>
 
-      {/* Delete Confirmation Dialog */}
-      {deleteConfirm !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2A1711]/60 backdrop-blur-sm">
-          <div className="bg-white rounded-[24px] shadow-[0_24px_64px_-12px_rgba(42,23,17,0.4)] p-6 max-w-sm w-full">
-            <h3 className="font-[var(--font-playfair)] font-bold text-xl text-[#2A1711] mb-2">
-              Hapus Pengeluaran
-            </h3>
-            <p className="text-[#564334] text-sm mb-6">
-              Apakah Anda yakin ingin menghapus pengeluaran ini? Tindakan ini
-              tidak dapat dibatalkan.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                className="flex-1 h-12 rounded-full border-2 border-[#DDC1AE] text-[#564334] font-semibold text-sm hover:bg-[#FFF8F6] transition-all"
-              >
-                Batal
-              </button>
-              <button
-                onClick={() => handleDelete(deleteConfirm)}
-                className="flex-1 h-12 rounded-full bg-[#EF4444] text-white font-semibold text-sm hover:bg-[#DC2626] transition-all"
-              >
-                Hapus
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDeleteDialog
+        open={deleteConfirm !== null}
+        onOpenChange={(open) => { if (!open) setDeleteConfirm(null); }}
+        onConfirm={handleDelete}
+        title="Hapus pengeluaran ini?"
+      />
     </div>
   );
 }
