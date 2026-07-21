@@ -5,10 +5,7 @@ import { LaporanService } from './laporan.service';
 import { LaporanController } from './laporan.controller';
 
 @Module({
-  imports: [
-    AuthModule,
-    PrismaModule, 
-  ],
+  imports: [AuthModule, PrismaModule],
   providers: [LaporanService],
   controllers: [LaporanController],
   exports: [LaporanService],

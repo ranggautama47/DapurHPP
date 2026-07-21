@@ -24,12 +24,18 @@ export class LaporanController {
   }
 
   @Get('aktivitas-terbaru')
-  async getAktivitasTerbaru(@Request() req: any, @Query() query: LaporanQueryDto) {
+  async getAktivitasTerbaru(
+    @Request() req: any,
+    @Query() query: LaporanQueryDto,
+  ) {
     return this.laporanService.getAktivitasTerbaru(req.user.id, query);
   }
 
   @Get('produk-terlaris')
-  async getProdukTerlaris(@Request() req: any, @Query() query: LaporanQueryDto) {
+  async getProdukTerlaris(
+    @Request() req: any,
+    @Query() query: LaporanQueryDto,
+  ) {
     return this.laporanService.getProdukTerlaris(req.user.id, query);
   }
 }
