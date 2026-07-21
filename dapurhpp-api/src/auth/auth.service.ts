@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
@@ -26,14 +30,13 @@ export class AuthService {
     });
 
     const { password, ...result } = user;
-     return {
+    return {
       id: user.id,
       name: user.name,
       email: user.email,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
-  
   }
 
   async login(dto: LoginDto) {
@@ -51,7 +54,7 @@ export class AuthService {
     const access_token = this.jwtService.sign(payload);
 
     const { password, ...result } = user;
-     return {
+    return {
       access_token,
       user: {
         id: user.id,

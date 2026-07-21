@@ -22,7 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException();
     }
-    
+
     // Hanya mengembalikan data yang benar-benar diperlukan oleh aplikasi
     // Aman dari ESLint unused-vars dan aman secara security footprint
     return {
