@@ -1,4 +1,11 @@
-import { IsDateString, IsEnum, IsNumber, IsString, Min, MinLength } from 'class-validator';
+import {
+  IsDateString,
+  IsEnum,
+  IsNumber,
+  IsString,
+  Min,
+  MinLength,
+} from 'class-validator';
 import { KategoriPengeluaran } from '@prisma/client';
 
 export class CreatePengeluaranLainDto {
