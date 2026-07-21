@@ -21,7 +21,7 @@ export function ProfitChart({ dateParams }: { dateParams?: LaporanDateParams }) 
     (async () => {
       try {
         const res = await api.get<ProfitDataItem[]>(`/laporan/grafik-laba${buildLaporanQuery(dateParams ?? {})}`);
-        if (!cancelled) setData(res.data);
+        if (!cancelled) setData(res.data || []);  // ← FIX 1: fallback ke []
       } catch (err) {
         if (!cancelled) console.error("Gagal fetch grafik laba:", err);
       } finally {
@@ -31,9 +31,10 @@ export function ProfitChart({ dateParams }: { dateParams?: LaporanDateParams }) 
     return () => { cancelled = true; };
   }, [dateParams]);
 
+  const isEmpty = !data || data.length === 0 || data.every(d => (d.laba ?? 0) === 0);  // ← FIX 2: cek all-zero
+
   return (
     <div className="bg-white rounded-[24px] border border-[#E8D5C4] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
-
       <div className="flex items-center justify-between mb-6">
         <h3 className="font-[var(--font-playfair)] font-bold text-lg text-[#2A1711]">
           Grafik Laba
@@ -50,7 +51,7 @@ export function ProfitChart({ dateParams }: { dateParams?: LaporanDateParams }) 
               ))}
             </div>
           </div>
-        ) : data.length === 0 ? (
+        ) : isEmpty ? (  // ← FIX 2: pakai isEmpty
           <div className="absolute inset-0 flex flex-col items-center justify-center text-[#8A7362]">
             <svg className="w-12 h-12 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />

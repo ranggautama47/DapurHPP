@@ -35,6 +35,35 @@ function Skeleton() {
 export function DistribusiHpp({ data, totalHpp, loading }: DistribusiHppProps) {
   if (loading) return <Skeleton />;
 
+  /* --- EMPTY STATE CHECK --- */
+  if (!data || data.length === 0 || totalHpp === 0) {
+    return (
+      <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="font-[var(--font-playfair)] font-bold text-lg text-[#2A1711]">
+            Distribusi HPP
+          </h3>
+        </div>
+        <div className="flex flex-col items-center justify-center h-[200px] text-[#8A7362]">
+          <svg
+            className="w-12 h-12 mb-2 opacity-30"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+            />
+          </svg>
+          <p className="text-sm">Belum ada data HPP untuk periode ini</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
       <div className="flex items-center justify-between mb-6">
@@ -60,7 +89,11 @@ export function DistribusiHpp({ data, totalHpp, loading }: DistribusiHppProps) {
                 dataKey="value"
               >
                 {data.map((entry, index) => (
-                  <Cell key={index} fill={entry.color || `#FF8A00`} stroke="none" />
+                  <Cell
+                    key={index}
+                    fill={entry.color || `#FF8A00`}
+                    stroke="none"
+                  />
                 ))}
               </Pie>
               <Tooltip content={<CustomTooltip />} />
@@ -68,7 +101,9 @@ export function DistribusiHpp({ data, totalHpp, loading }: DistribusiHppProps) {
           </ResponsiveContainer>
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="text-center">
-              <p className="text-[8px] text-[#8A7362] font-semibold uppercase tracking-wider">Total HPP</p>
+              <p className="text-[8px] text-[#8A7362] font-semibold uppercase tracking-wider">
+                Total HPP
+              </p>
               <p className="font-[var(--font-roboto-mono)] font-bold text-sm text-[#2A1711]">
                 Rp {totalHpp.toLocaleString("id-ID")}
               </p>
@@ -78,13 +113,18 @@ export function DistribusiHpp({ data, totalHpp, loading }: DistribusiHppProps) {
 
         <div className="w-full mt-4 space-y-2">
           {data.map((item, idx) => (
-            <div key={idx} className="flex items-center justify-between text-xs">
+            <div
+              key={idx}
+              className="flex items-center justify-between text-xs"
+            >
               <div className="flex items-center gap-2">
                 <span
                   className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                   style={{ backgroundColor: item.color || "#FF8A00" }}
                 />
-                <span className="text-[#564334] font-[var(--font-be-vietnam)]">{item.nama}</span>
+                <span className="text-[#564334] font-[var(--font-be-vietnam)]">
+                  {item.nama}
+                </span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="font-[var(--font-roboto-mono)] text-[#2A1711]">

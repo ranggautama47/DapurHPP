@@ -59,11 +59,9 @@ function Skeleton() {
   );
 }
 
-// Backend selalu balikin granularitas harian (kalau days<=30) atau bulanan
-// (kalau days>30). Toggle "Mingguan" di sini mengagregasi ulang data harian
-// di FE per 7 titik (chunk), karena backend tidak expose param groupBy.
-function aggregateByViewMode(data: GrafikLabaItem[], mode: ViewMode): GrafikLabaItem[] {
-  if (mode === "harian" || data.length === 0) return data;
+function aggregateByViewMode(data: GrafikLabaItem[] = [], mode: ViewMode): GrafikLabaItem[] {
+  if (!data || data.length === 0) return [];
+  if (mode === "harian") return data;
 
   const chunkSize = mode === "mingguan" ? 7 : 30;
   const result: GrafikLabaItem[] = [];
@@ -86,12 +84,19 @@ function aggregateByViewMode(data: GrafikLabaItem[], mode: ViewMode): GrafikLaba
   return result;
 }
 
-export function GrafikPerforma({ data, loading }: GrafikPerformaProps) {
+export function GrafikPerforma({ data = [], loading }: GrafikPerformaProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("harian");
 
   if (loading) return <Skeleton />;
 
-  const chartData = aggregateByViewMode(data, viewMode);
+  const safeData = data ?? [];
+  const chartData = aggregateByViewMode(safeData, viewMode);
+
+  // Cek apakah data benar-benar kosong ATAU semua nilainya 0 (tidak ada transaksi sama sekali)
+  const isDataEmpty =
+    !chartData ||
+    chartData.length === 0 ||
+    chartData.every((item) => item.pendapatan === 0 && item.hpp === 0 && item.laba === 0);
 
   return (
     <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
@@ -125,77 +130,96 @@ export function GrafikPerforma({ data, loading }: GrafikPerformaProps) {
       </div>
 
       <div className="h-[300px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
-            <defs>
-              <linearGradient id="gradientPendapatan" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#06D6A0" stopOpacity={0.15} />
-                <stop offset="95%" stopColor="#06D6A0" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="gradientHpp" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#FF8A00" stopOpacity={0.15} />
-                <stop offset="95%" stopColor="#FF8A00" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="gradientLaba" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.15} />
-                <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#F5E6D8" vertical={false} />
-            <XAxis
-              dataKey="label"
-              tick={{ fontSize: 10, fill: "#8A7362", fontFamily: "var(--font-be-vietnam)" }}
-              tickLine={false}
-              axisLine={{ stroke: "#E8D5C4" }}
-              interval="preserveStartEnd"
-            />
-            <YAxis
-              tickFormatter={formatRupiah}
-              tick={{ fontSize: 10, fill: "#8A7362", fontFamily: "var(--font-roboto-mono)" }}
-              tickLine={false}
-              axisLine={false}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend
-              verticalAlign="top"
-              align="right"
-              iconType="circle"
-              iconSize={8}
-              formatter={(value: string) => (
-                <span className="text-xs text-[#564334] font-[var(--font-be-vietnam)]">
-                  {value === "pendapatan" ? "Pendapatan" : value === "hpp" ? "HPP" : "Laba"}
-                </span>
-              )}
-            />
-            <Area
-              type="monotone"
-              dataKey="pendapatan"
-              stroke="#06D6A0"
-              strokeWidth={2}
-              fill="url(#gradientPendapatan)"
-              dot={false}
-              activeDot={{ r: 4, fill: "#06D6A0", stroke: "white", strokeWidth: 2 }}
-            />
-            <Area
-              type="monotone"
-              dataKey="hpp"
-              stroke="#FF8A00"
-              strokeWidth={2}
-              fill="url(#gradientHpp)"
-              dot={false}
-              activeDot={{ r: 4, fill: "#FF8A00", stroke: "white", strokeWidth: 2 }}
-            />
-            <Area
-              type="monotone"
-              dataKey="laba"
-              stroke="#8B5CF6"
-              strokeWidth={2}
-              fill="url(#gradientLaba)"
-              dot={false}
-              activeDot={{ r: 4, fill: "#8B5CF6", stroke: "white", strokeWidth: 2 }}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+        {isDataEmpty ? (
+          <div className="flex flex-col items-center justify-center h-full text-[#8A7362]">
+            <svg
+              className="w-12 h-12 mb-2 opacity-30"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+              />
+            </svg>
+            <p className="text-sm">Belum ada data untuk periode ini</p>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
+              <defs>
+                <linearGradient id="gradientPendapatan" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#06D6A0" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#06D6A0" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="gradientHpp" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#FF8A00" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#FF8A00" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="gradientLaba" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#F5E6D8" vertical={false} />
+              <XAxis
+                dataKey="label"
+                tick={{ fontSize: 10, fill: "#8A7362", fontFamily: "var(--font-be-vietnam)" }}
+                tickLine={false}
+                axisLine={{ stroke: "#E8D5C4" }}
+                interval="preserveStartEnd"
+              />
+              <YAxis
+                tickFormatter={formatRupiah}
+                tick={{ fontSize: 10, fill: "#8A7362", fontFamily: "var(--font-roboto-mono)" }}
+                tickLine={false}
+                axisLine={false}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend
+                verticalAlign="top"
+                align="right"
+                iconType="circle"
+                iconSize={8}
+                formatter={(value: string) => (
+                  <span className="text-xs text-[#564334] font-[var(--font-be-vietnam)]">
+                    {value === "pendapatan" ? "Pendapatan" : value === "hpp" ? "HPP" : "Laba"}
+                  </span>
+                )}
+              />
+              <Area
+                type="monotone"
+                dataKey="pendapatan"
+                stroke="#06D6A0"
+                strokeWidth={2}
+                fill="url(#gradientPendapatan)"
+                dot={false}
+                activeDot={{ r: 4, fill: "#06D6A0", stroke: "white", strokeWidth: 2 }}
+              />
+              <Area
+                type="monotone"
+                dataKey="hpp"
+                stroke="#FF8A00"
+                strokeWidth={2}
+                fill="url(#gradientHpp)"
+                dot={false}
+                activeDot={{ r: 4, fill: "#FF8A00", stroke: "white", strokeWidth: 2 }}
+              />
+              <Area
+                type="monotone"
+                dataKey="laba"
+                stroke="#8B5CF6"
+                strokeWidth={2}
+                fill="url(#gradientLaba)"
+                dot={false}
+                activeDot={{ r: 4, fill: "#8B5CF6", stroke: "white", strokeWidth: 2 }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   );
