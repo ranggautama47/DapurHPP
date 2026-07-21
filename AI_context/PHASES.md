@@ -229,19 +229,25 @@ Frontend
         dipass prop baru. Semua komponen HARUS diupdate bersamaan/1 batch, gak bisa
         page.tsx duluan lalu komponen menyusul satu-satu
 
-PHASE 8 — Polish & Testing (BELUM DIKERJAKAN — prioritas sekarang)
+PHASE 8 — Polish & Testing
 
-    [ ] Loading states semua halaman (Skeleton)
-        Saran: pecah per-modul per-sesi (misal 1 sesi "Bahan Baku + Resep", sesi lain
-        "Belanja + Produksi"), JANGAN minta AI agent generate semua sekaligus — supaya
-        gampang di-checkpoint dan gampang ketauan kalau ada file di luar scope kesenggol
-    [ ] Error handling — toast notification (Sonner)
-    [ ] Empty states
-    [ ] Responsive check — mobile first (target: 375px)
-    [ ] Test alur lengkap: Login → Belanja → Resep → Produksi → Penjualan → Laporan
-    [ ] Verifikasi kalkulasi HPP dengan angka nyata
-    [ ] Screenshot + video demo untuk portofolio
-    [ ] Ganti DATABASE_URL dari root ke dapurhpp_user
+[✓] Ganti DATABASE_URL dari root ke dapurhpp_user
+[✓] Bug HPP salah (hargaTerakhir stale) — fixed & verified
+[✓] Bug P2002 unique constraint recreate bahan soft-deleted — fixed & verified
+[✓] Fix badge BATAL di Activity Log
+[✓] SweetAlert Fase 1+2 (delete confirm + create/update toast) — verified via screenshot
+[~] Loading states — AUDIT SELESAI, hasil: - 1 file baru: pengeluaran/loading.tsx (belum ada, 8/9 modul lain sudah) - 3 komponen upgrade dash/teks → skeleton: stats-cards.tsx, ActivityStatsCards.tsx,
+expense-chart.tsx
+[~] Error handling toast — AUDIT SELESAI, hasil: - 5 titik initial-page-fetch butuh toast.error() (bahan-baku, belanja/riwayat,
+resep, supplier page-client — 2 file) - Sisanya (chart/widget kecil + yg sudah py UI error sendiri) TIDAK perlu toast,
+jangan asal tambahin semua 12 titik - 1 titik perlu klarifikasi dulu: penjualan/ringkasan/page-client.tsx baris 174
+[ ] Empty states — HAMPIR SELESAI, cuma 1 titik: GrafikPerforma.tsx (baris 66) return
+data kosong tanpa UI, chart kemungkinan blank tanpa keterangan
+[ ] Responsive check — mobile first (375px)
+[ ] Test alur lengkap: Login → Belanja → Resep → Produksi → Penjualan → Laporan
+[ ] Verifikasi kalkulasi HPP dengan angka nyata (baru Cabai rawit, bahan lain belum)
+[ ] Screenshot + video demo untuk portofolio
+[ ] CEK: stok bahan baku restore saat produksi BATAL — MASIH BELUM DIJAWAB (4x ditanya)
 
 STATUS RINGKASAN (update terbaru — Phase 7.5 tuntas)
 
