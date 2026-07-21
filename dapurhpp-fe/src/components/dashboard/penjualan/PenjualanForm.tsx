@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { X, Calculator, TrendingUp, ShoppingBag } from "lucide-react";
 import { api } from "@/lib/axios";
+import { toast } from "sonner";
 import { Penjualan } from "@/types/penjualan";
 import { formatLocalDate } from "@/lib/utils";
 
@@ -100,11 +101,13 @@ reset({
     setError(null);
     try {
       await api.post("/penjualan", data);
+      toast.success("Penjualan berhasil dicatat");
       onSuccess();
       onClose();
     } catch (err: any) {
       const msg = err.response?.data?.message ?? "Gagal menyimpan penjualan";
       setError(msg);
+      toast.error("Gagal mencatat penjualan — coba lagi");
     } finally {
       setIsSubmitting(false);
     }

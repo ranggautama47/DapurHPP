@@ -10,6 +10,7 @@ import { BahanBaku } from "@/types/bahan-baku";
 import { Supplier } from "@/types/supplier";
 import { Satuan } from "@/types/bahan-baku";
 import { formatLocalDate } from "@/lib/utils";
+import { toast } from "sonner";
 
 // 1. Tambahkan Helper Function untuk URL Gambar di luar komponen
 const getImageUrl = (path?: string | null) => {
@@ -127,10 +128,12 @@ const handleBahanChange = (index: number, bahanId: number) => {
           hargaSatuan: d.jumlah > 0 ? Math.round(d.totalHarga / d.jumlah) : 0,
         })),
       });
+      toast.success("Belanja berhasil dicatat");
       onSuccess();
       onClose();
     } catch (err: any) {
       alert(err.response?.data?.message || "Gagal menyimpan belanja");
+      toast.error("Gagal mencatat belanja — coba lagi");
     } finally {
       setIsSubmitting(false);
     }
@@ -327,7 +330,7 @@ const handleBahanChange = (index: number, bahanId: number) => {
                               />
                               {hargaPerGram > 0 && (
                                 <span className="text-xs text-[#FF8A00] whitespace-nowrap">
-                                  Rp {hargaPerGram.toLocaleString("id-ID")}/
+                                  Rp {hargaPerGram.toLocaleString("id-ID")} /{" "}
                                   {watch(`detailBelanja.${index}.satuan`) ||
                                     "gram"}
                                 </span>

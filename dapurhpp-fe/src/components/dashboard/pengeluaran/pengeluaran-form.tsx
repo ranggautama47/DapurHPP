@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { X } from "lucide-react";
 import { api } from "@/lib/axios";
+import { toast } from "sonner";
 import { formatLocalDate } from "@/lib/utils";
 import { detectKategori } from "@/lib/pengeluaran-lain";
 import type { Pengeluaran } from "@/types/pengeluaran";
@@ -90,10 +91,12 @@ export function PengeluaranForm({
       } else {
         await api.post("/pengeluaran-lain", payload);
       }
+      toast.success("Pengeluaran berhasil disimpan");
       onSuccess();
       onClose();
     } catch (err: any) {
       alert(err.response?.data?.message || "Gagal menyimpan pengeluaran");
+      toast.error("Gagal menyimpan pengeluaran — coba lagi");
     } finally {
       setIsSubmitting(false);
     }

@@ -13,6 +13,7 @@ import {
   UpdateBahanBakuDto,
 } from "@/types/bahan-baku";
 import { api } from "@/lib/axios";
+import { toast } from "sonner";
 
 const satuanOptions: Satuan[] = [
   "kg",
@@ -180,8 +181,10 @@ export function BahanBakuForm({
         await api.post(`/bahan-baku/${bahanId}/upload-foto`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
+        toast.success("Foto berhasil diunggah");
       } catch (err) {
         console.error("Gagal upload foto:", err);
+        toast.error("Gagal mengunggah foto — coba lagi");
         alert("Foto gagal diupload, data bahan sudah tersimpan");
       } finally {
         setUploading(false);
