@@ -25,7 +25,8 @@ export class BelanjaService {
     } else {
       if (query.tanggalMulai || query.tanggalAkhir) {
         where.tanggal = {};
-        if (query.tanggalMulai) where.tanggal.gte = new Date(query.tanggalMulai);
+        if (query.tanggalMulai)
+          where.tanggal.gte = new Date(query.tanggalMulai);
         if (query.tanggalAkhir) {
           const end = new Date(query.tanggalAkhir);
           end.setHours(23, 59, 59, 999);
@@ -46,7 +47,9 @@ export class BelanjaService {
       include: {
         detailBelanja: {
           include: {
-            bahanBaku: { select: { id: true, nama: true, satuan: true, fotoUrl: true } },
+            bahanBaku: {
+              select: { id: true, nama: true, satuan: true, fotoUrl: true },
+            },
             supplier: { select: { id: true, nama: true } },
           },
         },
@@ -73,14 +76,19 @@ export class BelanjaService {
       include: {
         detailBelanja: {
           include: {
-            bahanBaku: { select: { id: true, nama: true, fotoUrl: true, satuan: true } },
+            bahanBaku: {
+              select: { id: true, nama: true, fotoUrl: true, satuan: true },
+            },
             supplier: { select: { id: true, nama: true } },
           },
         },
       },
     });
 
-    const totalBelanja = list.reduce((sum, b) => sum + Number(b.totalBelanja), 0);
+    const totalBelanja = list.reduce(
+      (sum, b) => sum + Number(b.totalBelanja),
+      0,
+    );
     const jumlahItem = list.reduce((sum, b) => sum + b.detailBelanja.length, 0);
     const totalQty = list.reduce(
       (sum, b) =>
@@ -176,6 +184,16 @@ export class BelanjaService {
       );
     }
 
+    const bahanBakuMap = new Map(bahanBakuList.map((b) => [b.id, b]));
+    for (const detail of dto.detailBelanja) {
+      const bb = bahanBakuMap.get(detail.bahanBakuId);
+      if (bb && detail.satuan !== bb.satuan) {
+        throw new BadRequestException(
+          'Satuan transaksi harus sama dengan satuan bahan baku.',
+        );
+      }
+    }
+
     const supplierIds = dto.detailBelanja
       .map((d) => d.supplierId)
       .filter((id): id is number => id !== undefined && id !== null);
@@ -231,8 +249,16 @@ export class BelanjaService {
             bahanBakuId: detail.bahanBakuId,
             belanja: {
               userId,
-              tanggal: { gt: new Date(dto.tanggal) },
               id: { not: created.id },
+              OR: [
+                {
+                  tanggal: { gt: created.tanggal },
+                },
+                {
+                  tanggal: created.tanggal,
+                  createdAt: { gt: created.createdAt },
+                },
+              ],
             },
           },
         });
@@ -292,6 +318,16 @@ export class BelanjaService {
         );
       }
 
+      const bahanBakuMap = new Map(bahanBakuList.map((b) => [b.id, b]));
+      for (const detail of dto.detailBelanja) {
+        const bb = bahanBakuMap.get(detail.bahanBakuId);
+        if (bb && detail.satuan !== bb.satuan) {
+          throw new BadRequestException(
+            'Satuan transaksi harus sama dengan satuan bahan baku.',
+          );
+        }
+      }
+
       const supplierIds = dto.detailBelanja
         .map((d) => d.supplierId)
         .filter((id): id is number => id !== undefined && id !== null);
@@ -336,7 +372,10 @@ export class BelanjaService {
             where: { id: d.bahanBakuId },
             select: { stok: true },
           });
-          const newStok = Math.max(0, Number(current?.stok ?? 0) - Number(d.jumlah));
+          const newStok = Math.max(
+            0,
+            Number(current?.stok ?? 0) - Number(d.jumlah),
+          );
           await tx.bahanBaku.update({
             where: { id: d.bahanBakuId },
             data: { stok: newStok },
@@ -345,7 +384,7 @@ export class BelanjaService {
 
         await tx.detailBelanja.deleteMany({ where: { belanjaId: id } });
 
-        await tx.belanja.update({
+        const updated = await tx.belanja.update({
           where: { id },
           data: {
             ...updateData,
@@ -369,8 +408,16 @@ export class BelanjaService {
               bahanBakuId: detail.bahanBakuId,
               belanja: {
                 userId,
-                tanggal: { gt: tanggalPatokan },
                 id: { not: id },
+                OR: [
+                  {
+                    tanggal: { gt: updated.tanggal },
+                  },
+                  {
+                    tanggal: updated.tanggal,
+                    createdAt: { gt: updated.createdAt },
+                  },
+                ],
               },
             },
           });
@@ -419,7 +466,10 @@ export class BelanjaService {
           where: { id: d.bahanBakuId },
           select: { stok: true },
         });
-        const newStok = Math.max(0, Number(current?.stok ?? 0) - Number(d.jumlah));
+        const newStok = Math.max(
+          0,
+          Number(current?.stok ?? 0) - Number(d.jumlah),
+        );
         await tx.bahanBaku.update({
           where: { id: d.bahanBakuId },
           data: { stok: newStok },
@@ -429,6 +479,35 @@ export class BelanjaService {
       // Hapus detail dan belanja
       await tx.detailBelanja.deleteMany({ where: { belanjaId: id } });
       await tx.belanja.delete({ where: { id } });
+
+      // Update hargaTerakhir ke transaksi terbaru yang masih ada
+      for (const d of detailLama) {
+        const newestRemaining = await tx.detailBelanja.findFirst({
+          where: {
+            bahanBakuId: d.bahanBakuId,
+            belanja: {
+              userId,
+            },
+          },
+          orderBy: [
+            { belanja: { tanggal: 'desc' } },
+            { belanja: { createdAt: 'desc' } },
+          ],
+        });
+
+        if (newestRemaining) {
+          await tx.bahanBaku.updateMany({
+            where: { id: d.bahanBakuId, userId },
+            data: { hargaTerakhir: newestRemaining.hargaSatuan },
+          });
+        } else {
+          // Jika tidak ada belanja sama sekali, set hargaTerakhir ke 0
+          await tx.bahanBaku.updateMany({
+            where: { id: d.bahanBakuId, userId },
+            data: { hargaTerakhir: 0 },
+          });
+        }
+      }
     });
 
     return { message: 'Belanja berhasil dihapus' };
@@ -437,9 +516,7 @@ export class BelanjaService {
   private formatListItem(b: any) {
     const supplierNames = [
       ...new Set(
-        b.detailBelanja
-          .map((d: any) => d.supplier?.nama)
-          .filter(Boolean),
+        b.detailBelanja.map((d: any) => d.supplier?.nama).filter(Boolean),
       ),
     ] as string[];
 

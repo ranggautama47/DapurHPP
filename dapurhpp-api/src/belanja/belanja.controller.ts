@@ -29,10 +29,7 @@ export class BelanjaController {
   }
 
   @Get('ringkasan')
-  getRingkasan(
-    @Request() req: any,
-    @Query('tanggal') tanggal?: string,
-  ) {
+  getRingkasan(@Request() req: any, @Query('tanggal') tanggal?: string) {
     return this.belanjaService.getRingkasan(req.user.id, tanggal);
   }
 
