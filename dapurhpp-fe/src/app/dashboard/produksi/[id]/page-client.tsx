@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
+import { toast } from "sonner";
 import { api } from "@/lib/axios";
 import { Produksi } from "@/types/produksi";
 import { ProduksiDetail } from "@/components/dashboard/produksi";
@@ -14,6 +16,7 @@ export default function ProduksiDetailClient({ id }: { id: string }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const fetchDetail = async () => {
     setIsLoading(true);
@@ -43,30 +46,29 @@ export default function ProduksiDetailClient({ id }: { id: string }) {
       return;
     setActionLoading(true);
     try {
-      await api.patch(`/produksi/${produksiId}`, { status: "SELESAI" });
+      await api.patch(`/produksi/${produksiId}/selesai`);
+      toast.success("Produksi ditandai selesai");
       await fetchDetail();
     } catch (err: any) {
       alert(
         err.response?.data?.message || "Gagal menyelesaikan produksi",
       );
+      toast.error("Gagal menyelesaikan produksi — coba lagi");
     } finally {
       setActionLoading(false);
     }
   };
 
   const handleBatal = async () => {
-    if (
-      !window.confirm("Batalkan produksi ini? Status akan menjadi BATAL.")
-    )
-      return;
     setActionLoading(true);
     try {
       await api.delete(`/produksi/${produksiId}`);
+      toast.success("Data berhasil dihapus");
+      setShowDeleteConfirm(false);
       await fetchDetail();
     } catch (err: any) {
-      alert(
-        err.response?.data?.message || "Gagal membatalkan produksi",
-      );
+      toast.error("Gagal menghapus data");
+      setShowDeleteConfirm(false);
     } finally {
       setActionLoading(false);
     }
@@ -117,8 +119,16 @@ export default function ProduksiDetailClient({ id }: { id: string }) {
       <ProduksiDetail
         produksi={produksi}
         onSelesaikan={produksi.status === "DRAFT" ? handleSelesaikan : undefined}
-        onBatal={produksi.status === "DRAFT" ? handleBatal : undefined}
+        onBatal={produksi.status === "DRAFT" ? () => setShowDeleteConfirm(true) : undefined}
         isActionLoading={actionLoading}
+      />
+      <ConfirmDeleteDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        onConfirm={handleBatal}
+        title="Batalkan produksi ini?"
+        description="Status akan menjadi BATAL."
+        isLoading={actionLoading}
       />
     </div>
   );

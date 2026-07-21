@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Produksi } from "@/types/produksi";
 import { Eye, MoreVertical, Edit3, XCircle } from "lucide-react";
+import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
+import { toast } from "sonner";
 import { api } from "@/lib/axios";
 
 interface ProduksiTableProps {
@@ -16,6 +18,7 @@ export function ProduksiTable({ data, onRefresh }: ProduksiTableProps) {
   const router = useRouter();
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const [actionLoading, setActionLoading] = useState<Set<number>>(new Set());
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
   const statusColor = (status: string) => {
     switch (status) {
@@ -30,18 +33,18 @@ export function ProduksiTable({ data, onRefresh }: ProduksiTableProps) {
     }
   };
 
-  const handleBatal = async (id: number) => {
-    if (!window.confirm("Batalkan produksi ini? Status akan menjadi BATAL."))
-      return;
-
+  const handleBatal = async () => {
+    if (deleteTargetId === null) return;
+    const id = deleteTargetId;
     setActionLoading((prev) => new Set(prev).add(id));
     try {
       await api.delete(`/produksi/${id}`);
+      toast.success("Data berhasil dihapus");
+      setDeleteTargetId(null);
       onRefresh();
     } catch (err: any) {
-      alert(
-        err.response?.data?.message || "Gagal membatalkan produksi",
-      );
+      toast.error("Gagal menghapus data");
+      setDeleteTargetId(null);
     } finally {
       setActionLoading((prev) => {
         const next = new Set(prev);
@@ -61,12 +64,14 @@ export function ProduksiTable({ data, onRefresh }: ProduksiTableProps) {
 
     setActionLoading((prev) => new Set(prev).add(id));
     try {
-      await api.patch(`/produksi/${id}`, { status: "SELESAI" });
+      await api.patch(`/produksi/${id}/selesai`);
+      toast.success("Produksi ditandai selesai");
       onRefresh();
     } catch (err: any) {
       alert(
         err.response?.data?.message || "Gagal menyelesaikan produksi",
       );
+      toast.error("Gagal menyelesaikan produksi — coba lagi");
     } finally {
       setActionLoading((prev) => {
         const next = new Set(prev);
@@ -203,7 +208,7 @@ export function ProduksiTable({ data, onRefresh }: ProduksiTableProps) {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setOpenDropdownId(null);
-                                handleBatal(item.id);
+                                setDeleteTargetId(item.id);
                               }}
                               disabled={actionLoading.has(item.id)}
                               className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[#EF4444] hover:bg-[#F5E6D8] transition-colors disabled:opacity-50 border-t border-[#F5E6D8]"
@@ -222,6 +227,13 @@ export function ProduksiTable({ data, onRefresh }: ProduksiTableProps) {
           ))}
         </tbody>
       </table>
+      <ConfirmDeleteDialog
+        open={deleteTargetId !== null}
+        onOpenChange={(open) => { if (!open) setDeleteTargetId(null); }}
+        onConfirm={handleBatal}
+        title="Batalkan produksi ini?"
+        description="Status akan menjadi BATAL."
+      />
     </div>
   );
 }
