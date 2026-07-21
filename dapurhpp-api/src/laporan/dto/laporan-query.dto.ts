@@ -19,5 +19,5 @@ export class LaporanQueryDto {
 
   @IsOptional()
   @IsString()
-  endDate?: string; 
+  endDate?: string;
 }

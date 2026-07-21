@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Req, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Req,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PengeluaranLainService } from './pengeluaran-lain.service';
 import { CreatePengeluaranLainDto } from './dto/create-pengeluaran-lain.dto';
@@ -22,7 +35,11 @@ export class PengeluaranLainController {
   }
 
   @Patch(':id')
-  update(@Req() req: any, @Param('id') id: string, @Body() dto: UpdatePengeluaranLainDto) {
+  update(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() dto: UpdatePengeluaranLainDto,
+  ) {
     return this.service.update(Number(id), req.user.id, dto);
   }
 
