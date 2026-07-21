@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { Supplier } from "@/types/supplier";
 import { SupplierTable } from "@/components/dashboard/supplier/SupplierTable";
 import { SupplierForm } from "@/components/dashboard/supplier/SupplierForm";
+import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
+import { toast } from "sonner";
 import { api } from "@/lib/axios";
 
 const ITEMS_PER_PAGE = 5;
@@ -19,6 +21,7 @@ export default function SupplierPageClient() {
   const [editTarget, setEditTarget] = useState<Supplier | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
   const fetchList = async () => {
     setIsLoading(true);
@@ -51,27 +54,33 @@ export default function SupplierPageClient() {
     try {
       if (editTarget) {
         await api.patch(`/supplier/${editTarget.id}`, data);
+        toast.success("Supplier berhasil disimpan");
       } else {
         await api.post("/supplier", data);
+        toast.success("Supplier berhasil disimpan");
       }
       handleCloseForm();
       fetchList();
     } catch (err: any) {
       alert(err.response?.data?.message || "Gagal menyimpan supplier");
+      toast.error("Gagal menyimpan supplier — coba lagi");
       throw err;
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("Yakin ingin menghapus supplier ini?")) return;
+  const handleDelete = async () => {
+    if (deleteTargetId === null) return;
     try {
-      await api.delete(`/supplier/${id}`);
+      await api.delete(`/supplier/${deleteTargetId}`);
+      toast.success("Data berhasil dihapus");
+      setDeleteTargetId(null);
       fetchList();
     } catch (err) {
       console.error("Gagal hapus:", err);
-      alert("Gagal menghapus supplier");
+      toast.error("Gagal menghapus data");
+      setDeleteTargetId(null);
     }
   };
 
@@ -156,7 +165,7 @@ export default function SupplierPageClient() {
                 <SupplierTable
                   data={paginatedList}
                   onEdit={handleOpenForm}
-                  onDelete={handleDelete}
+                  onDelete={(id) => setDeleteTargetId(id)}
                   onView={() => {}}
                 />
               </div>
@@ -197,6 +206,12 @@ export default function SupplierPageClient() {
         onSubmit={handleSubmit}
         initialData={editTarget}
         isLoading={isSubmitting}
+      />
+      <ConfirmDeleteDialog
+        open={deleteTargetId !== null}
+        onOpenChange={(open) => { if (!open) setDeleteTargetId(null); }}
+        onConfirm={handleDelete}
+        title="Hapus supplier ini?"
       />
     </div>
   );

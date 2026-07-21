@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { X, Calculator, ChefHat, Calendar, ArrowLeft } from "lucide-react";
 import { api } from "@/lib/axios";
+import { toast } from "sonner";
 import { formatLocalDate } from "@/lib/utils";
 import Link from "next/link";
 
@@ -91,11 +92,13 @@ reset({
     setError(null);
     try {
       await api.post("/produksi", data);
+      toast.success("Produksi berhasil dimulai");
       onSuccess();
       onClose();
     } catch (err: any) {
       const msg = err.response?.data?.message ?? "Gagal menyimpan produksi";
       setError(msg);
+      toast.error("Gagal memulai produksi — coba lagi");
     } finally {
       setIsSubmitting(false);
     }
