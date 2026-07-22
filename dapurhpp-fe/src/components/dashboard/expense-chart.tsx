@@ -32,25 +32,29 @@ export function ExpenseChart({
 }) {
   const [data, setData] = useState<ExpenseDataItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
+
+  const fetchExpense = async () => {
+    setLoading(true);
+    setFetchError(false);
+    try {
+      const res = await api.get<ExpenseDataItem[]>(
+        `/laporan/distribusi-hpp${buildLaporanQuery(dateParams ?? {})}`,
+      );
+      const withColors = res.data.map((d, i) => ({
+        ...d,
+        color: d.color ?? COLORS[i % COLORS.length],
+      }));
+      setData(withColors);
+    } catch (err) {
+      console.error("Gagal fetch distribusi HPP:", err);
+      setFetchError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function fetchExpense() {
-      setLoading(true);
-      try {
-        const res = await api.get<ExpenseDataItem[]>(
-          `/laporan/distribusi-hpp${buildLaporanQuery(dateParams ?? {})}`,
-        );
-        const withColors = res.data.map((d, i) => ({
-          ...d,
-          color: d.color ?? COLORS[i % COLORS.length],
-        }));
-        setData(withColors);
-      } catch (err) {
-        console.error("Gagal fetch distribusi HPP:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchExpense();
   }, [dateParams]);
 
@@ -64,10 +68,34 @@ export function ExpenseChart({
 
       {/* 1. STATE LOADING */}
       {loading ? (
-        <div className="flex items-center justify-center h-[180px] text-[#8A7362]">
-          Memuat grafik...
+        <div className="flex flex-col md:flex-row items-center gap-6 animate-pulse">
+          <div className="w-[180px] h-[180px] rounded-full bg-[#F5E6D8] flex-shrink-0" />
+          <div className="flex-1 space-y-3 w-full">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#F5E6D8]" />
+                <div className="h-4 bg-[#F5E6D8] rounded-lg flex-1" />
+                <div className="h-4 bg-[#F5E6D8] rounded-lg w-[80px]" />
+                <div className="h-4 bg-[#F5E6D8] rounded-lg w-[36px]" />
+              </div>
+            ))}
+          </div>
         </div>
-      ) : /* 2. STATE EMPTY (DATA KOSONG) */
+      ) : /* 2. STATE ERROR */
+      fetchError ? (
+        <div className="flex flex-col items-center justify-center h-[180px] text-[#8A7362]">
+          <svg className="w-12 h-12 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-sm mb-3">Gagal memuat data grafik</p>
+          <button
+            onClick={fetchExpense}
+            className="px-4 py-1.5 rounded-full bg-[#FF8A00] text-white text-xs font-medium hover:bg-[#E67E00] transition-colors"
+          >
+            Coba Lagi
+          </button>
+        </div>
+      ) : /* 3. STATE EMPTY (DATA KOSONG) */
       data.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-[180px] text-[#8A7362]">
           <svg

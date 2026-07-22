@@ -26,6 +26,7 @@ export default function ResepPageClient() {
       setResepList(res.data);
     } catch (err) {
       console.error("Gagal fetch resep:", err);
+      toast.error("Gagal memuat data resep");
     } finally {
       setIsLoading(false);
     }

@@ -37,6 +37,7 @@ export default function BahanBakuPageClient() {
       setBahanList(res.data);
     } catch (err) {
       console.error("Gagal fetch bahan baku:", err);
+      toast.error("Gagal memuat data bahan baku");
     } finally {
       setIsLoading(false);
     }
@@ -128,7 +129,7 @@ export default function BahanBakuPageClient() {
           </button>
         </div>
 
-        <div className="bg-white rounded-[24px] border border-[#DDC1AE] shadow-[0_8px_30px_rgba(109,76,65,0.08)] overflow-hidden">
+        <div className="bg-white rounded-[24px] border border-[#DDC1AE] shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
           <div className="p-6 border-b border-[#F5E6D8]">
             <div className="relative max-w-md">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#8A7362]" strokeWidth={1.75} />

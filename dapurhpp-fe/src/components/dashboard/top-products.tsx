@@ -22,21 +22,25 @@ export function TopProducts({
 }) {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    setFetchError(false);
+    try {
+      const res = await api.get<ProductItem[]>(
+        `/laporan/produk-terlaris${buildLaporanQuery(dateParams ?? {})}`,
+      );
+      setProducts(res.data);
+    } catch (err) {
+      console.error("Gagal fetch produk terlaris:", err);
+      setFetchError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function fetchProducts() {
-      setLoading(true);
-      try {
-        const res = await api.get<ProductItem[]>(
-          `/laporan/produk-terlaris${buildLaporanQuery(dateParams ?? {})}`,
-        );
-        setProducts(res.data);
-      } catch (err) {
-        console.error("Gagal fetch produk terlaris:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchProducts();
   }, [dateParams]);
 
@@ -67,6 +71,19 @@ export function TopProducts({
               </div>
             </div>
           ))
+        ) : fetchError ? (
+          <div className="flex flex-col items-center justify-center py-8 text-[#8A7362]">
+            <svg className="w-10 h-10 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm mb-3">Gagal memuat produk</p>
+            <button
+              onClick={fetchProducts}
+              className="px-4 py-1.5 rounded-full bg-[#FF8A00] text-white text-xs font-medium hover:bg-[#E67E00] transition-colors"
+            >
+              Coba Lagi
+            </button>
+          </div>
         ) : products.length === 0 ? (
           <p className="text-center text-[#8A7362] py-4">
             Belum ada data produk

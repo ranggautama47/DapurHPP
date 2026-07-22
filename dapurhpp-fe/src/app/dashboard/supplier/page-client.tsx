@@ -30,6 +30,7 @@ export default function SupplierPageClient() {
       setSupplierList(res.data);
     } catch (err) {
       console.error("Gagal fetch supplier:", err);
+      toast.error("Gagal memuat data supplier");
     } finally {
       setIsLoading(false);
     }

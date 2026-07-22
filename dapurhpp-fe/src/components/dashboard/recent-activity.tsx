@@ -33,21 +33,25 @@ const ICON_MAP: Record<
 export function RecentActivity({ dateParams }: { dateParams?: LaporanDateParams }) {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
+
+  const fetchActivities = async () => {
+    setLoading(true);
+    setFetchError(false);
+    try {
+      const res = await api.get<ActivityItem[]>(
+        `/laporan/aktivitas-terbaru${buildLaporanQuery(dateParams ?? {})}`,
+      );
+      setActivities(res.data);
+    } catch (err) {
+      console.error("Gagal fetch aktivitas:", err);
+      setFetchError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function fetchActivities() {
-      setLoading(true);
-      try {
-        const res = await api.get<ActivityItem[]>(
-          `/laporan/aktivitas-terbaru${buildLaporanQuery(dateParams ?? {})}`,
-        );
-        setActivities(res.data);
-      } catch (err) {
-        console.error("Gagal fetch aktivitas:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchActivities();
   }, [dateParams]);
 
@@ -86,6 +90,19 @@ export function RecentActivity({ dateParams }: { dateParams?: LaporanDateParams 
               </div>
             </div>
           ))
+        ) : fetchError ? (
+          <div className="flex flex-col items-center justify-center py-8 text-[#8A7362]">
+            <svg className="w-10 h-10 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm mb-3">Gagal memuat aktivitas</p>
+            <button
+              onClick={fetchActivities}
+              className="px-4 py-1.5 rounded-full bg-[#FF8A00] text-white text-xs font-medium hover:bg-[#E67E00] transition-colors"
+            >
+              Coba Lagi
+            </button>
+          </div>
         ) : activities.length === 0 ? (
           <p className="text-center text-[#8A7362] py-4">Belum ada aktivitas</p>
         ) : (

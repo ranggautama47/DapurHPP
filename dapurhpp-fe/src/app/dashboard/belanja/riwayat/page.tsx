@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Eye, RotateCcw, ArrowLeft } from "lucide-react";
 import { Belanja } from "@/types/belanja";
 import { api } from "@/lib/axios";
+import { toast } from "sonner";
 import Link from "next/link";
 
 export default function RiwayatBelanjaPage() {
@@ -34,6 +35,7 @@ export default function RiwayatBelanjaPage() {
       setData(res.data);
     } catch (err) {
       console.error("Gagal fetch riwayat:", err);
+      toast.error("Gagal memuat riwayat belanja");
     } finally {
       setIsLoading(false);
     }

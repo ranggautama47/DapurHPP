@@ -14,21 +14,24 @@ const formatRp = (v: number) =>
 export function ProfitChart({ dateParams }: { dateParams?: LaporanDateParams }) {
   const [data, setData] = useState<ProfitDataItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
+
+  const fetchProfit = async () => {
+    setLoading(true);
+    setFetchError(false);
+    try {
+      const res = await api.get<ProfitDataItem[]>(`/laporan/grafik-laba${buildLaporanQuery(dateParams ?? {})}`);
+      setData(res.data || []);
+    } catch (err) {
+      console.error("Gagal fetch grafik laba:", err);
+      setFetchError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    (async () => {
-      try {
-        const res = await api.get<ProfitDataItem[]>(`/laporan/grafik-laba${buildLaporanQuery(dateParams ?? {})}`);
-        if (!cancelled) setData(res.data || []);  // ← FIX 1: fallback ke []
-      } catch (err) {
-        if (!cancelled) console.error("Gagal fetch grafik laba:", err);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
+    fetchProfit();
   }, [dateParams]);
 
   const isEmpty = !data || data.length === 0 || data.every(d => (d.laba ?? 0) === 0);  // ← FIX 2: cek all-zero
@@ -51,7 +54,20 @@ export function ProfitChart({ dateParams }: { dateParams?: LaporanDateParams }) 
               ))}
             </div>
           </div>
-        ) : isEmpty ? (  // ← FIX 2: pakai isEmpty
+        ) : fetchError ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-[#8A7362]">
+            <svg className="w-12 h-12 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm mb-3">Gagal memuat grafik</p>
+            <button
+              onClick={fetchProfit}
+              className="px-4 py-1.5 rounded-full bg-[#FF8A00] text-white text-xs font-medium hover:bg-[#E67E00] transition-colors"
+            >
+              Coba Lagi
+            </button>
+          </div>
+        ) : isEmpty ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-[#8A7362]">
             <svg className="w-12 h-12 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
