@@ -34,28 +34,28 @@ export function DetailPerforma({ data, loading }: DetailPerformaProps) {
     : 0;
 
   return (
-    <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
-      <h3 className="font-[var(--font-playfair)] font-bold text-lg text-[#2A1711] mb-6">
+    <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-4 sm:p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)] overflow-hidden">
+      <h3 className="font-[var(--font-playfair)] font-bold text-base sm:text-lg text-[#2A1711] mb-4 sm:mb-6">
         Detail Performa
       </h3>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left">
+      <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+        <table className="w-full text-left min-w-[500px]">
           <thead>
             <tr className="border-b border-[#E8D5C4]">
-              <th className="bg-[#FFF8F6] px-4 py-3 text-[10px] uppercase tracking-[0.1em] text-[#8A7362] font-semibold">
+              <th className="bg-[#FFF8F6] px-3 py-2.5 text-[9px] sm:text-[10px] uppercase tracking-wider text-[#8A7362] font-semibold">
                 Periode
               </th>
-              <th className="bg-[#FFF8F6] px-4 py-3 text-[10px] uppercase tracking-[0.1em] text-[#8A7362] font-semibold text-right">
+              <th className="bg-[#FFF8F6] px-3 py-2.5 text-[9px] sm:text-[10px] uppercase tracking-wider text-[#8A7362] font-semibold text-right">
                 Pendapatan
               </th>
-              <th className="bg-[#FFF8F6] px-4 py-3 text-[10px] uppercase tracking-[0.1em] text-[#8A7362] font-semibold text-right">
+              <th className="bg-[#FFF8F6] px-3 py-2.5 text-[9px] sm:text-[10px] uppercase tracking-wider text-[#8A7362] font-semibold text-right">
                 HPP
               </th>
-              <th className="bg-[#FFF8F6] px-4 py-3 text-[10px] uppercase tracking-[0.1em] text-[#8A7362] font-semibold text-right">
+              <th className="bg-[#FFF8F6] px-3 py-2.5 text-[9px] sm:text-[10px] uppercase tracking-wider text-[#8A7362] font-semibold text-right">
                 Laba
               </th>
-              <th className="bg-[#FFF8F6] px-4 py-3 text-[10px] uppercase tracking-[0.1em] text-[#8A7362] font-semibold text-right">
+              <th className="bg-[#FFF8F6] px-3 py-2.5 text-[9px] sm:text-[10px] uppercase tracking-wider text-[#8A7362] font-semibold text-right">
                 Margin
               </th>
             </tr>
@@ -67,21 +67,21 @@ export function DetailPerforma({ data, loading }: DetailPerformaProps) {
                 : 0;
               return (
                 <tr key={idx} className="border-b border-[#F5E6D8] hover:bg-[#FFF8F6] transition-colors">
-                  <td className="px-4 py-3 text-xs font-[var(--font-be-vietnam)] text-[#2A1711]">
+                  <td className="px-3 py-2.5 text-xs text-[#2A1711]">
                     {item.label}
                   </td>
-                  <td className="px-4 py-3 text-xs font-[var(--font-roboto-mono)] text-[#2A1711] text-right">
+                  <td className="px-3 py-2.5 text-xs font-[var(--font-roboto-mono)] text-[#2A1711] text-right">
                     Rp {item.pendapatan.toLocaleString("id-ID")}
                   </td>
-                  <td className="px-4 py-3 text-xs font-[var(--font-roboto-mono)] text-[#564334] text-right">
+                  <td className="px-3 py-2.5 text-xs font-[var(--font-roboto-mono)] text-[#564334] text-right">
                     Rp {item.hpp.toLocaleString("id-ID")}
                   </td>
-                  <td className="px-4 py-3 text-xs font-[var(--font-roboto-mono)] text-[#2A1711] text-right">
+                  <td className="px-3 py-2.5 text-xs font-[var(--font-roboto-mono)] text-[#2A1711] text-right">
                     Rp {item.laba.toLocaleString("id-ID")}
                   </td>
-                  <td className="px-4 py-3 text-xs font-[var(--font-roboto-mono)] text-right">
+                  <td className="px-3 py-2.5 text-xs font-[var(--font-roboto-mono)] text-right">
                     <span className={margin >= 0 ? "text-[#06D6A0]" : "text-[#EF4444]"}>
-                      {margin.toFixed(2)}%
+                      {margin.toFixed(1)}%
                     </span>
                   </td>
                 </tr>
@@ -90,21 +90,21 @@ export function DetailPerforma({ data, loading }: DetailPerformaProps) {
           </tbody>
           <tfoot>
             <tr className="border-t-2 border-[#DDC1AE] bg-[#FFF8F6]">
-              <td className="px-4 py-3 text-xs font-bold font-[var(--font-be-vietnam)] text-[#2A1711]">
+              <td className="px-3 py-2.5 text-xs font-bold text-[#2A1711]">
                 Total
               </td>
-              <td className="px-4 py-3 text-xs font-bold font-[var(--font-roboto-mono)] text-[#2A1711] text-right">
+              <td className="px-3 py-2.5 text-xs font-bold font-[var(--font-roboto-mono)] text-[#2A1711] text-right">
                 Rp {totals.pendapatan.toLocaleString("id-ID")}
               </td>
-              <td className="px-4 py-3 text-xs font-bold font-[var(--font-roboto-mono)] text-[#564334] text-right">
+              <td className="px-3 py-2.5 text-xs font-bold font-[var(--font-roboto-mono)] text-[#564334] text-right">
                 Rp {totals.hpp.toLocaleString("id-ID")}
               </td>
-              <td className="px-4 py-3 text-xs font-bold font-[var(--font-roboto-mono)] text-[#2A1711] text-right">
+              <td className="px-3 py-2.5 text-xs font-bold font-[var(--font-roboto-mono)] text-[#2A1711] text-right">
                 Rp {totals.laba.toLocaleString("id-ID")}
               </td>
-              <td className="px-4 py-3 text-xs font-bold font-[var(--font-roboto-mono)] text-right">
+              <td className="px-3 py-2.5 text-xs font-bold font-[var(--font-roboto-mono)] text-right">
                 <span className={avgMargin >= 0 ? "text-[#06D6A0]" : "text-[#EF4444]"}>
-                  {avgMargin.toFixed(2)}%
+                  {avgMargin.toFixed(1)}%
                 </span>
               </td>
             </tr>

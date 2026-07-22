@@ -21,13 +21,13 @@ const items = [
 
 function Skeleton() {
   return (
-    <div className="animate-pulse space-y-4">
+    <div className="animate-pulse space-y-3">
       {Array.from({ length: 4 }).map((_, i) => (
         <div key={i} className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#F5E6D8]" />
-          <div className="flex-1 space-y-2">
-            <div className="h-3 w-28 bg-[#F5E6D8] rounded" />
-            <div className="h-4 w-20 bg-[#F5E6D8] rounded" />
+          <div className="w-9 h-9 rounded-xl bg-[#F5E6D8]" />
+          <div className="flex-1 space-y-1.5">
+            <div className="h-2.5 w-24 bg-[#F5E6D8] rounded" />
+            <div className="h-3 w-16 bg-[#F5E6D8] rounded" />
           </div>
         </div>
       ))}
@@ -39,23 +39,23 @@ export function RingkasanOperasional({ counts, loading }: RingkasanOperasionalPr
   if (loading) return <Skeleton />;
 
   return (
-    <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
-      <h3 className="font-[var(--font-playfair)] font-bold text-lg text-[#2A1711] mb-6">
+    <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-4 sm:p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
+      <h3 className="font-[var(--font-playfair)] font-bold text-base sm:text-lg text-[#2A1711] mb-4 sm:mb-6">
         Ringkasan Operasional
       </h3>
 
-      <div className="space-y-4">
+      <div className="grid grid-cols-2 sm:grid-cols-1 gap-3 sm:gap-4">
         {items.map((item) => (
-          <div key={item.key} className="flex items-center gap-3">
+          <div key={item.key} className="flex items-center gap-2.5 sm:gap-3">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0"
               style={{ backgroundColor: item.bg }}
             >
-              <item.icon size={18} strokeWidth={1.75} color={item.color} />
+              <item.icon className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={1.75} color={item.color} />
             </div>
             <div>
-              <p className="text-xs text-[#8A7362] font-medium">{item.label}</p>
-              <p className="font-[var(--font-roboto-mono)] font-bold text-sm text-[#2A1711]">
+              <p className="text-[10px] sm:text-xs text-[#8A7362] font-medium">{item.label}</p>
+              <p className="font-[var(--font-roboto-mono)] font-bold text-xs sm:text-sm text-[#2A1711]">
                 {counts[item.key]} kali
               </p>
             </div>
