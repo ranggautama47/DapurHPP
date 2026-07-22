@@ -48,7 +48,7 @@ const menuItems: MenuItem[] = [
 
 interface SidebarProps {
   isCollapsed: boolean;
-  onToggle: () => void;
+  onToggle?: () => void;
 }
 
 export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
@@ -76,7 +76,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
     <aside className="w-full">
       <div className="px-4 pt-6">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center">
             {!isCollapsed ? (
               <div className="relative h-9 w-[180px]">
                 <Image
@@ -105,21 +105,11 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           </div>
           <button
             onClick={onToggle}
-            className="p-2 rounded-full hover:bg-[#FFF8F6] transition-colors"
+            className="hidden lg:block p-2 rounded-full hover:bg-[#FFF8F6] transition-colors"
             title="Toggle sidebar"
           >
-            <svg
-              className="w-5 h-5"
-              stroke="currentColor"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
+            <svg className="w-5 h-5" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
         </div>
