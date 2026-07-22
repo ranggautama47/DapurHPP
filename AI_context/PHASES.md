@@ -232,22 +232,20 @@ Frontend
 PHASE 8 — Polish & Testing
 
 [✓] Ganti DATABASE_URL dari root ke dapurhpp_user
-[✓] Bug HPP salah (hargaTerakhir stale) — fixed & verified
-[✓] Bug P2002 unique constraint recreate bahan soft-deleted — fixed & verified
+[✓] Bug HPP salah (hargaTerakhir stale)
+[✓] Bug P2002 unique constraint recreate bahan soft-deleted
 [✓] Fix badge BATAL di Activity Log
-[✓] SweetAlert Fase 1+2 (delete confirm + create/update toast) — verified via screenshot
-[~] Loading states — AUDIT SELESAI, hasil: - 1 file baru: pengeluaran/loading.tsx (belum ada, 8/9 modul lain sudah) - 3 komponen upgrade dash/teks → skeleton: stats-cards.tsx, ActivityStatsCards.tsx,
-expense-chart.tsx
-[~] Error handling toast — AUDIT SELESAI, hasil: - 5 titik initial-page-fetch butuh toast.error() (bahan-baku, belanja/riwayat,
-resep, supplier page-client — 2 file) - Sisanya (chart/widget kecil + yg sudah py UI error sendiri) TIDAK perlu toast,
-jangan asal tambahin semua 12 titik - 1 titik perlu klarifikasi dulu: penjualan/ringkasan/page-client.tsx baris 174
-[ ] Empty states — HAMPIR SELESAI, cuma 1 titik: GrafikPerforma.tsx (baris 66) return
-data kosong tanpa UI, chart kemungkinan blank tanpa keterangan
-[ ] Responsive check — mobile first (375px)
+[✓] SweetAlert Fase 1+2
+[✓] Stok bahan baku: validasi + potong saat create + restore saat BATAL (transactional)
+[✓] FE tombol Selesai — endpoint baru terpisah, verified
+[✓] Empty states — 3 komponen chart (GrafikPerforma, ExpenseChart, DistribusiHpp)
+[✓] Loading states — pengeluaran/loading.tsx baru + 3 komponen upgrade skeleton
+[✓] Error handling toast — 5 titik initial-fetch + retry button 6 widget
+[✓] Responsive — sidebar mobile overlay, footer stack, tabel scroll horizontal
 [ ] Test alur lengkap: Login → Belanja → Resep → Produksi → Penjualan → Laporan
 [ ] Verifikasi kalkulasi HPP dengan angka nyata (baru Cabai rawit, bahan lain belum)
 [ ] Screenshot + video demo untuk portofolio
-[ ] CEK: stok bahan baku restore saat produksi BATAL — MASIH BELUM DIJAWAB (4x ditanya)
+[ ] Race condition test $transaction produksi
 
 STATUS RINGKASAN (update terbaru — Phase 7.5 tuntas)
 
