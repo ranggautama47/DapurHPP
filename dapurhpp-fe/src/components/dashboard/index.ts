@@ -5,3 +5,4 @@ export { ProfitChart } from "./profit-chart";
 export { ExpenseChart } from "./expense-chart";
 export { RecentActivity } from "./recent-activity";
 export { TopProducts } from "./top-products";
+export { NotificationPopover } from "./notification";

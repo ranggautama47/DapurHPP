@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuthStore } from "@/lib/auth-store";
+import { NotificationPopover } from "./notification";
 
 interface DashboardNavbarProps {
   onToggleSidebar: () => void;
@@ -49,20 +50,8 @@ export default function DashboardNavbar({ onToggleSidebar }: DashboardNavbarProp
             <span>{dateStr}</span>
           </div>
 
-          {/* Notifikasi - ikon bell solid dengan warna hitam */}
-          <div className="relative">
-            <button className="p-2 rounded-full hover:bg-[#FFF8F6] transition-colors text-[#2A1711]">
-              <svg
-                className="w-5 h-5"
-                viewBox="0 0 24 24"
-                fill="currentColor"   // <-- fill solid, warna mengikuti text color
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
-              </svg>
-              <div className="absolute top-1 right-1 w-2 h-2 bg-[#FF8A00] rounded-full" />
-            </button>
-          </div>
+          {/* Notifikasi - Bell dengan popover */}
+          <NotificationPopover />
 
           {/* Avatar User */}
           <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#FFE2DA] rounded-full flex items-center justify-center font-bold text-[#FF8A00]">
