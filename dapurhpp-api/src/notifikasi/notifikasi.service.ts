@@ -47,6 +47,35 @@ export class NotifikasiService {
     const weekEnd = new Date(now);
     weekEnd.setHours(23, 59, 59, 999);
 
+    // === STALE CLEANUP ===
+    const belanjaAda = await this.prisma.belanja.findFirst({
+      where: { userId, tanggal: { gte: weekStart, lte: weekEnd } },
+      select: { id: true },
+    });
+    if (belanjaAda) {
+      await this.prisma.notifikasi.deleteMany({
+        where: { userId, tipe: 'reminder_belanja' },
+      });
+    }
+
+    const penjualanAda = await this.prisma.penjualan.findFirst({
+      where: { userId, tanggal: { gte: todayStart, lte: todayEnd } },
+      select: { id: true },
+    });
+    if (penjualanAda) {
+      await this.prisma.notifikasi.deleteMany({
+        where: { userId, tipe: 'reminder_penjualan' },
+      });
+    }
+
+    await this.prisma.notifikasi.deleteMany({
+      where: {
+        userId,
+        tipe: { in: ['penjualan_hari_ini', 'omzet_hari_ini', 'produksi_selesai'] },
+        createdAt: { lt: todayStart },
+      },
+    });
+
     const candidates: {
       tipe: string;
       judul: string;
@@ -244,7 +273,6 @@ export class NotifikasiService {
     }
 
     const draftIds = new Set(produksiDraftList.map((p) => p.id));
-    const selesaiIds = new Set(produksiSelesaiHariIni.map((p) => p.id));
     const allProdIds = await this.prisma.produksi.findMany({
       where: { userId },
       select: { id: true },

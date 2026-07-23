@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import {
   Popover,
   PopoverTrigger,
@@ -10,6 +10,7 @@ import { useNotifications } from "@/hooks/use-notifications";
 import NotificationItem from "./notification-item";
 import NotificationEmpty from "./notification-empty";
 import { useNotifStore } from "@/lib/notification-store";
+import { X } from "lucide-react";
 
 export default function NotificationPopover() {
   const {
@@ -22,6 +23,7 @@ export default function NotificationPopover() {
     markAllRead,
     remove,
   } = useNotifications();
+
   const hasGenerated = useRef(false);
   const open = useNotifStore((s) => s.isOpen);
   const setOpen = useNotifStore((s) => s.setOpen);
@@ -31,11 +33,11 @@ export default function NotificationPopover() {
     fetchAll();
   }, [fetchAll]);
 
-  // Generate notifications when popover opens (once per session)
+  // Generate notifications when opened (once per session)
   useEffect(() => {
     if (!hasGenerated.current) {
       generate().then(() => {
-        fetchAll(); // ← Fetch ulang setelah generate selesai
+        fetchAll();
       });
       hasGenerated.current = true;
     }
@@ -63,33 +65,57 @@ export default function NotificationPopover() {
 
       <PopoverContent
         align="end"
-        sideOffset={12}
-        className="w-[380px] sm:w-[420px] p-0 rounded-2xl overflow-hidden"
+        sideOffset={8}
+        className="w-[340px] sm:w-[380px] p-0 rounded-[20px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.16)] border border-[#E8D5C4] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"
       >
-        <div className="flex flex-col max-h-[480px]">
+        <div className="flex flex-col max-h-[min(520px,calc(100vh-120px))]">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 pt-4 pb-2 border-b border-[#E8D5C4]">
-            <div className="flex items-center gap-2">
-              <span className="text-base">🔔</span>
-              <h3 className="font-semibold text-sm text-[#2A1711]">
+          <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-[#E8D5C4] shrink-0">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-[#FFE9E4] flex items-center justify-center">
+                <svg
+                  className="w-4 h-4 text-[#FF8A00]"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
+                </svg>
+              </div>
+              <h3 className="font-[var(--font-playfair)] font-bold text-base text-[#2A1711]">
                 Notifikasi
               </h3>
+              {unreadCount > 0 && (
+                <span className="px-2 py-0.5 bg-[#FF8A00] text-white text-[10px] font-bold rounded-full">
+                  {unreadCount}
+                </span>
+              )}
             </div>
-            {unreadCount > 0 && (
+            <div className="flex items-center gap-1">
+              {unreadCount > 0 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    markAllRead();
+                  }}
+                  className="text-xs text-[#FF8A00] hover:text-[#E67A00] font-medium transition-colors px-2 py-1 rounded-lg hover:bg-[#FFF8F6]"
+                >
+                  Tandai Semua
+                </button>
+              )}
               <button
-                onClick={markAllRead}
-                className="text-xs text-[#FF8A00] hover:text-[#E67A00] font-medium transition-colors"
+                onClick={() => setOpen(false)}
+                className="p-1.5 rounded-full hover:bg-[#FFF8F6] text-[#8A7362] transition-colors"
               >
-                Tandai Semua
+                <X className="w-4 h-4" />
               </button>
-            )}
+            </div>
           </div>
 
-          {/* Body */}
-          <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1">
+          {/* Body — Scrollable */}
+          <div className="flex-1 overflow-y-auto px-3 py-2 space-y-1 min-h-0 scrollbar-hide overscroll-contain ">
             {isLoading && notifications.length === 0 ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="w-5 h-5 border-2 border-[#FF8A00] border-t-transparent rounded-full animate-spin" />
+              <div className="flex items-center justify-center py-16">
+                <div className="w-6 h-6 border-2 border-[#FF8A00] border-t-transparent rounded-full animate-spin" />
               </div>
             ) : notifications.length === 0 ? (
               <NotificationEmpty />
@@ -106,10 +132,10 @@ export default function NotificationPopover() {
           </div>
 
           {/* Footer */}
-          <div className="px-4 py-2 border-t border-[#E8D5C4]">
+          <div className="px-4 py-3 border-t border-[#E8D5C4] bg-white shrink-0">
             <button
               onClick={() => setOpen(false)}
-              className="w-full py-2 text-xs text-center text-[#8A7362] hover:text-[#2A1711] transition-colors"
+              className="w-full py-2.5 text-sm font-semibold text-center text-[#2A1711] bg-[#FFF8F6] hover:bg-[#FFE9E4] rounded-xl transition-colors"
             >
               Tutup
             </button>
