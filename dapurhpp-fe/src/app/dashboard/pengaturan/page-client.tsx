@@ -358,7 +358,7 @@ export default function PengaturanPageClient() {
                 disabled
                 className="w-full h-12 px-4 bg-[#FFF8F6] border border-[#DDC1AE] rounded-[16px] text-[#564334] opacity-60 cursor-not-allowed appearance-none"
               >
-                <option>Bahasa Indonesia</option>
+                <option>Bahasa Inggris</option>
               </select>
               <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                 <span className="text-[10px] bg-[#FFE9E4] text-[#FF8A00] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
@@ -435,7 +435,7 @@ export default function PengaturanPageClient() {
         <div className="space-y-0 max-w-xl">
           <div className="flex items-center justify-between py-2">
             <span className="text-[#564334]">Versi Aplikasi</span>
-            <span className="font-semibold text-[#2A1711]">v1.0.0</span>
+            <span className="font-semibold text-[#2A1711]">v1.2.0</span>
           </div>
 
           <div className="border-t border-[#EFE3D7]" />
