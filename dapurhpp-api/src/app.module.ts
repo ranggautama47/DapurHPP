@@ -14,6 +14,7 @@ import { PenjualanModule } from './penjualan/penjualan.module';
 import { PengeluaranLainModule } from './pengeluaran-lain/pengeluaran-lain.module';
 import { LaporanModule } from './laporan/laporan.module';
 import { AktivitasModule } from './aktivitas/aktivitas.module';
+import { NotifikasiModule } from './notifikasi/notifikasi.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AktivitasModule } from './aktivitas/aktivitas.module';
     PengeluaranLainModule,
     LaporanModule,
     AktivitasModule,
+    NotifikasiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
