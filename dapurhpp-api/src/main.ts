@@ -5,29 +5,36 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  try {
+    console.log('Initializing NestFactory...');
+    const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  app.enableCors({
-    origin: 'http://localhost:3000',
-    credentials: true,
-  });
+    app.enableCors({
+      origin: 'http://localhost:3000',
+      credentials: true,
+    });
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
 
-  app.setGlobalPrefix('api');
+    app.setGlobalPrefix('api');
 
-  // Serve uploaded files
-  app.useStaticAssets(join(process.cwd(), 'uploads'), {
-    prefix: '/uploads/',
-  });
+    // Serve uploaded files
+    app.useStaticAssets(join(process.cwd(), 'uploads'), {
+      prefix: '/uploads/',
+    });
 
-  await app.listen(process.env.PORT ?? 3001);
-  console.log('✅ DapurHPP API running on http://localhost:3001');
+    const port = process.env.PORT ?? 3001;
+    console.log(`Attempting to listen on port ${port}...`);
+    await app.listen(port);
+    console.log(`✅ DapurHPP API running on http://localhost:${port}`);
+  } catch (error) {
+    console.error('❌ Bootstrap failed with error:', error);
+  }
 }
 bootstrap();
