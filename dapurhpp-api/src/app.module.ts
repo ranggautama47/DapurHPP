@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
@@ -15,11 +17,16 @@ import { PengeluaranLainModule } from './pengeluaran-lain/pengeluaran-lain.modul
 import { LaporanModule } from './laporan/laporan.module';
 import { AktivitasModule } from './aktivitas/aktivitas.module';
 import { NotifikasiModule } from './notifikasi/notifikasi.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ThrottlerModule.forRoot({
+      throttlers: [{ ttl: 60000, limit: 10 }],
+    }),
     PrismaModule,
+    EmailModule,
     UsersModule,
     AuthModule,
     BahanBakuModule,
@@ -34,6 +41,12 @@ import { NotifikasiModule } from './notifikasi/notifikasi.module';
     NotifikasiModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
