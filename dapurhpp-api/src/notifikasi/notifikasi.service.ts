@@ -71,7 +71,9 @@ export class NotifikasiService {
     await this.prisma.notifikasi.deleteMany({
       where: {
         userId,
-        tipe: { in: ['penjualan_hari_ini', 'omzet_hari_ini', 'produksi_selesai'] },
+        tipe: {
+          in: ['penjualan_hari_ini', 'omzet_hari_ini', 'produksi_selesai'],
+        },
         createdAt: { lt: todayStart },
       },
     });
@@ -96,7 +98,13 @@ export class NotifikasiService {
     ] = await Promise.all([
       this.prisma.bahanBaku.findMany({
         where: { userId, deletedAt: null },
-        select: { id: true, nama: true, stok: true, stokMinimal: true, satuan: true },
+        select: {
+          id: true,
+          nama: true,
+          stok: true,
+          stokMinimal: true,
+          satuan: true,
+        },
       }),
       this.prisma.produksi.findMany({
         where: { userId, status: 'DRAFT' },
@@ -104,15 +112,27 @@ export class NotifikasiService {
       }),
       this.prisma.penjualan.findMany({
         where: { userId, tanggal: { gte: todayStart, lte: todayEnd } },
-        select: { id: true, produksi: { select: { resep: { select: { nama: true } } } }, terjual: true },
+        select: {
+          id: true,
+          produksi: { select: { resep: { select: { nama: true } } } },
+          terjual: true,
+        },
       }),
       this.prisma.penjualan.aggregate({
         where: { userId, tanggal: { gte: todayStart, lte: todayEnd } },
         _sum: { totalPendapatan: true },
       }),
       this.prisma.produksi.findMany({
-        where: { userId, status: 'SELESAI', createdAt: { gte: todayStart, lte: todayEnd } },
-        select: { id: true, resep: { select: { nama: true } }, hasilNyata: true },
+        where: {
+          userId,
+          status: 'SELESAI',
+          createdAt: { gte: todayStart, lte: todayEnd },
+        },
+        select: {
+          id: true,
+          resep: { select: { nama: true } },
+          hasilNyata: true,
+        },
       }),
       this.prisma.belanja.findFirst({
         where: { userId, tanggal: { gte: weekStart, lte: weekEnd } },
@@ -169,8 +189,13 @@ export class NotifikasiService {
 
     // Info: penjualan hari ini
     if (penjualanHariIni.length > 0) {
-      const totalTerjual = penjualanHariIni.reduce((sum, p) => sum + p.terjual, 0);
-      const hash = this.makeHash(`penjualan-hari-${todayStart.toISOString().slice(0, 10)}`);
+      const totalTerjual = penjualanHariIni.reduce(
+        (sum, p) => sum + p.terjual,
+        0,
+      );
+      const hash = this.makeHash(
+        `penjualan-hari-${todayStart.toISOString().slice(0, 10)}`,
+      );
       candidates.push({
         tipe: 'penjualan_hari_ini',
         judul: `Penjualan hari ini`,
@@ -185,7 +210,9 @@ export class NotifikasiService {
     // Info: omzet hari ini
     const omzet = Number(penjualanAgg._sum.totalPendapatan ?? 0);
     if (omzet > 0) {
-      const hash = this.makeHash(`omzet-hari-${todayStart.toISOString().slice(0, 10)}`);
+      const hash = this.makeHash(
+        `omzet-hari-${todayStart.toISOString().slice(0, 10)}`,
+      );
       candidates.push({
         tipe: 'omzet_hari_ini',
         judul: `Omzet hari ini`,
@@ -213,7 +240,9 @@ export class NotifikasiService {
 
     // Reminder: belum ada belanja minggu ini
     if (!belanjaMingguIni) {
-      const hash = this.makeHash(`reminder-belanja-minggu-${weekStart.toISOString().slice(0, 10)}`);
+      const hash = this.makeHash(
+        `reminder-belanja-minggu-${weekStart.toISOString().slice(0, 10)}`,
+      );
       candidates.push({
         tipe: 'reminder_belanja',
         judul: `Belum ada belanja minggu ini`,
@@ -227,7 +256,9 @@ export class NotifikasiService {
 
     // Reminder: belum ada penjualan hari ini
     if (penjualanHariIni.length === 0) {
-      const hash = this.makeHash(`reminder-penjualan-hari-${todayStart.toISOString().slice(0, 10)}`);
+      const hash = this.makeHash(
+        `reminder-penjualan-hari-${todayStart.toISOString().slice(0, 10)}`,
+      );
       candidates.push({
         tipe: 'reminder_penjualan',
         judul: `Belum ada penjualan hari ini`,
@@ -269,7 +300,8 @@ export class NotifikasiService {
     for (const b of bahanBakuList) {
       const stokNum = Number(b.stok);
       if (stokNum > 0) staleHashes.add(this.makeHash(`stok-habis-${b.id}`));
-      if (stokNum > Number(b.stokMinimal)) staleHashes.add(this.makeHash(`stok-hampir-habis-${b.id}`));
+      if (stokNum > Number(b.stokMinimal))
+        staleHashes.add(this.makeHash(`stok-hampir-habis-${b.id}`));
     }
 
     const draftIds = new Set(produksiDraftList.map((p) => p.id));
@@ -278,7 +310,8 @@ export class NotifikasiService {
       select: { id: true },
     });
     for (const p of allProdIds) {
-      if (!draftIds.has(p.id)) staleHashes.add(this.makeHash(`produksi-draft-${p.id}`));
+      if (!draftIds.has(p.id))
+        staleHashes.add(this.makeHash(`produksi-draft-${p.id}`));
     }
 
     if (staleHashes.size > 0) {
