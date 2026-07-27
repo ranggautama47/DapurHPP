@@ -54,8 +54,18 @@ export default function DashboardNavbar({ onToggleSidebar }: DashboardNavbarProp
           <NotificationPopover />
 
           {/* Avatar User */}
-          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#FFE2DA] rounded-full flex items-center justify-center font-bold text-[#FF8A00]">
-            {user?.name?.charAt(0).toUpperCase() || "M"}
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-[#FF8A00] overflow-hidden shrink-0">
+            {user?.avatarUrl ? (
+              <img
+                src={`${(process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api").replace(/\/api$/, "")}${user.avatarUrl}`}
+                alt={user.name || "Avatar"}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-[#FFE2DA] flex items-center justify-center">
+                {user?.name?.charAt(0).toUpperCase() || "M"}
+              </div>
+            )}
           </div>
         </div>
       </div>

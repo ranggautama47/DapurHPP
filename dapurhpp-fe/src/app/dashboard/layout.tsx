@@ -3,12 +3,17 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import DashboardNavbar from "@/components/dashboard/dashboard-navbar";
+import { useAuthStore } from "@/lib/auth-store";
+import { api } from "@/lib/axios";
+import { FontSizeProvider } from "@/context/font-size-context";
+import { VerificationBanner } from "@/components/dashboard/verification-banner";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { user, setUser } = useAuthStore();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -21,6 +26,15 @@ export default function DashboardLayout({
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
+
+  // Sync data profil lengkap dari database — SATU KALI saat mount dashboard
+  useEffect(() => {
+    if (!user) return;
+    api
+      .get("/users/profile")
+      .then((res) => setUser({ ...user, ...res.data }))
+      .catch(() => {}); // silent fail — user tetap bisa pakai dashboard
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const currentYear = new Date().getFullYear();
 
@@ -73,8 +87,10 @@ export default function DashboardLayout({
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <DashboardNavbar onToggleSidebar={handleToggle} />
 
+        <VerificationBanner />
+
         <main className="flex-1 overflow-y-auto p-6">
-          {children}
+          <FontSizeProvider>{children}</FontSizeProvider>
         </main>
 
         <footer className="flex-shrink-0 bg-white border-t border-[#DDC1AE] flex flex-col sm:flex-row items-center justify-between gap-1 px-4 sm:px-6 py-2 text-xs text-center sm:text-left text-[#8A7362] font-[var(--font-be-vietnam)]">

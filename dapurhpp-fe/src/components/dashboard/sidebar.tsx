@@ -1,6 +1,7 @@
 "use client";
-import { usePathname } from "next/navigation";
+
 import { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation"; // 1. Gabung import dari next/navigation
 import Link from "next/link";
 import Image from "next/image";
 import { useAuthStore, setTokenCookie } from "@/lib/auth-store";
@@ -53,6 +54,7 @@ interface SidebarProps {
 
 export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter(); // 2. INISIALISASI ROUTER DI SINI
   const { user, logout } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [userName, setUserName] = useState("Loading...");
@@ -69,6 +71,12 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       setUserInitial("P");
     }
   }, [user]);
+
+  const handleLogout = () => {
+    logout();
+    setTokenCookie(null);
+    router.replace("/"); // 3. GUNAKAN REPLACE BUKAN PUSH
+  };
 
   if (!mounted) return null;
 
@@ -108,8 +116,18 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
             className="hidden lg:block p-2 rounded-full hover:bg-[#FFF8F6] transition-colors"
             title="Toggle sidebar"
           >
-            <svg className="w-5 h-5" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            <svg
+              className="w-5 h-5"
+              stroke="currentColor"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
             </svg>
           </button>
         </div>
@@ -142,32 +160,44 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           })}
         </nav>
 
-        {/* 5. USER INFO YANG SUDAH DINAMIS & LOGOUT */}
         <div className="mt-8 pt-4 border-t border-[#F5E6D8]">
-          {/* Sembunyikan profil jika sidebar sedang collapse agar rapi */}
           {!isCollapsed && (
             <div className="flex items-center gap-3 mb-4 px-2">
-              <div className="w-10 h-10 bg-[#FFE2DA] rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-[#FF8A00] font-bold">{userInitial}</span>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+                {user?.avatarUrl ? (
+                  <img
+                    src={`${(process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api").replace(/\/api$/, "")}${user.avatarUrl}`}
+                    alt={userName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-[#FFE2DA] flex items-center justify-center">
+                    <span className="text-[#FF8A00] font-bold">
+                      {userInitial}
+                    </span>
+                  </div>
+                )}
               </div>
               <div className="space-y-0.5 overflow-hidden">
-                {/* Variabel state userName dipanggil di sini */}
                 <p
                   className="font-semibold text-[#2A1711] truncate"
                   title={userName}
                 >
                   {userName}
                 </p>
-                <p className="text-xs text-[#564334]">Pemilik Usaha</p>
+                {/* Mengubah subtitle statis menjadi dinamis membaca namaUsaha dari database */}
+                <p
+                  className="text-xs text-[#564334] truncate"
+                  title={user?.namaUsaha || "Pemilik Usaha"}
+                >
+                  {user?.namaUsaha || "Pemilik Usaha"}
+                </p>
               </div>
             </div>
           )}
 
           <button
-            onClick={() => {
-              logout();
-              setTokenCookie(null);
-            }}
+            onClick={handleLogout}
             className={`w-full flex items-center ${isCollapsed ? "justify-center" : "justify-start"} px-3 py-2.5 text-left text-[#BA1A1A] hover:bg-[#FFF8F6] transition-colors rounded-xl`}
           >
             <LogOut size={18} strokeWidth={1.75} />

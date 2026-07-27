@@ -227,16 +227,26 @@ const onSubmit = async (data: LoginFormData) => {
                 <SocialButton label="Apple" disabled />
               </div>
               
-              {/* Footer link */}
-              <p className="mt-8 text-center text-sm font-[var(--font-be-vietnam)] text-[#5D4037]">
-                Belum punya akun?{" "}
-                <Link
-                  href="/register"
-                  className="text-[#BF360C] font-semibold hover:text-[#9A2B00] underline underline-offset-4 decoration-[#BF360C]/30 hover:decoration-[#BF360C] transition-all"
-                >
-                  Daftar Sekarang
-                </Link>
-              </p>
+              {/* Footer links */}
+              <div className="space-y-4 mt-8">
+                <p className="text-center text-sm font-[var(--font-be-vietnam)] text-[#5D4037]">
+                  <Link
+                    href="/forgot-password"
+                    className="text-[#BF360C] font-semibold hover:text-[#9A2B00] underline underline-offset-4 decoration-[#BF360C]/30 hover:decoration-[#BF360C] transition-all"
+                  >
+                    Lupa Password?
+                  </Link>
+                </p>
+                <p className="text-center text-sm font-[var(--font-be-vietnam)] text-[#5D4037]">
+                  Belum punya akun?{" "}
+                  <Link
+                    href="/register"
+                    className="text-[#BF360C] font-semibold hover:text-[#9A2B00] underline underline-offset-4 decoration-[#BF360C]/30 hover:decoration-[#BF360C] transition-all"
+                  >
+                    Daftar Sekarang
+                  </Link>
+                </p>
+              </div>
             </div>
           </div>
         </div>

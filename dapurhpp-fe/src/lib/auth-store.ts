@@ -6,6 +6,14 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  emailVerified: boolean;
+  namaUsaha: string | null;
+  nomorHp: string | null;
+  fontSize: string;
+  notifAplikasi: boolean;
+  notifStok: boolean;
+  notifPenjualan: boolean;
+  avatarUrl: string | null;
   createdAt: string;
   updatedAt: string;
 }

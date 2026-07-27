@@ -111,3 +111,27 @@
     display: none;
   }
 }
+
+/* ============================================
+   Font Size Global via CSS Variable
+   Source of truth: database → authStore → FontSizeContext
+   ============================================ */
+:root {
+  --font-scale: 1;
+}
+
+[data-font-size="kecil"] {
+  --font-scale: 0.875;
+}
+
+[data-font-size="sedang"] {
+  --font-scale: 1;
+}
+
+[data-font-size="besar"] {
+  --font-scale: 1.125;
+}
+
+html {
+  font-size: calc(16px * var(--font-scale));
+}
