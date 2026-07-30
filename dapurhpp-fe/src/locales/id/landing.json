@@ -1,0 +1,290 @@
+{
+  "hero": {
+    "badge": "Aplikasi Hitung HPP & Manajemen Dapur",
+    "title": "Kelola HPP Dapur Jadi Lebih Mudah & Akurat",
+    "subtitle": "Hitung harga pokok produksi, kelola bahan baku, dan pantau laba rugi usaha kuliner Anda dalam satu aplikasi.",
+    "buttons": {
+      "startFree": "Mulai Gratis",
+      "learnMore": "Pelajari Lebih Lanjut"
+    },
+    "checklist": {
+      "easy": "Mudah Digunakan",
+      "accurate": "Akurat & Otomatis",
+      "trusted": "Aman & Terpercaya"
+    }
+  },
+  "features": {
+    "headingPrefix": "Fitur Lengkap untuk",
+    "headingHighlight": "Kelola Usaha",
+    "items": {
+      "ingredients": {
+        "title": "Kelola Bahan Baku",
+        "description": "Catat dan pantau harga bahan baku dengan mudah"
+      },
+      "recipes": {
+        "title": "Resep & HPP Otomatis",
+        "description": "Hitung HPP per resep secara otomatis dan akurat"
+      },
+      "purchases": {
+        "title": "Belanja & Riwayat Harga",
+        "description": "Catat belanja bahan dan lihat riwayat harga"
+      },
+      "production": {
+        "title": "Produksi",
+        "description": "Catat produksi harian dan hitung hasil produksi"
+      },
+      "sales": {
+        "title": "Penjualan",
+        "description": "Catat penjualan dan pantau stok secara otomatis"
+      },
+      "profit": {
+        "title": "Laba Rugi",
+        "description": "Lihat laporan laba rugi dan grafik keuntungan"
+      }
+    }
+  },
+  "benefits": {
+    "title": "Mengapa Memilih Kami?",
+    "subtitle": "Solusi cerdas untuk pertumbuhan bisnis kuliner Anda.",
+    "items": [
+      {
+        "title": "Efisiensi Waktu",
+        "description": "Otomatisasi perhitungan yang menghemat waktu operasional."
+      },
+      {
+        "title": "Keputusan Berbasis Data",
+        "description": "Analisis data yang membantu Anda mengambil keputusan tepat."
+      },
+      {
+        "title": "Skalabilitas",
+        "description": "Siap mendukung pertumbuhan bisnis dari skala mikro hingga besar."
+      }
+    ]
+  },
+  "testimonials": {
+    "title": "Dipercaya oleh Banyak UMKM",
+    "list": [
+      {
+        "quote": "Aplikasi ini sangat membantu saya dalam menentukan harga jual yang pas.",
+        "name": "Budi Santoso",
+        "role": "Pemilik Cafe Kopi"
+      },
+      {
+        "quote": "Sangat memudahkan pengelolaan stok dan hitung HPP jadi cepat.",
+        "name": "Siti Aminah",
+        "role": "Owner Catering Rumahan"
+      }
+    ]
+  },
+  "cta": {
+    "title": "Siap Mengembangkan Bisnis Anda?",
+    "subtitle": "Mulai kelola HPP dan operasional dapur Anda sekarang juga.",
+    "button": "Daftar Sekarang"
+  },
+  "footer": {
+    "tagline": "Solusi manajemen dapur cerdas dan HPP untuk UMKM kuliner.",
+    "sections": {
+      "products": "Produk",
+      "company": "Perusahaan",
+      "help": "Bantuan",
+      "contact": "Kontak"
+    },
+    "links": {
+      "product": "Produk",
+      "pricing": "Harga",
+      "update": "Pembaruan",
+      "about": "Tentang Kami",
+      "careers": "Karir",
+      "contact": "Kontak",
+      "helpCenter": "Pusat Bantuan",
+      "guides": "Panduan",
+      "faq": "FAQ",
+      "privacy": "Kebijakan Privasi",
+      "terms": "Syarat & Ketentuan"
+    },
+    "copyright": "© {year} DapurHPP. Hak cipta dilindungi undang-undang."
+  },
+  "pages": {
+    "produk": {
+      "title": "Produk",
+      "subtitle": "Semua fitur yang kamu butuhkan untuk kelola bisnis kuliner.",
+      "features": {
+        "title": "Fitur Unggulan",
+        "items": [
+          "Kalkurasi HPP Otomatis",
+          "Manajemen Bahan Baku",
+          "Laporan Laba Rugi",
+          "Riwayat Harga Bahan",
+          "Manajemen Produksi",
+          "Pencatatan Penjualan"
+        ],
+        "itemDesc": "Deskripsi fitur {name} untuk UMKM kuliner."
+      },
+      "pricing": {
+        "title": "Harga",
+        "plans": [
+          { "plan": "Gratis", "price": "Rp 0", "desc": "Untuk UMKM yang baru mulai." },
+          { "plan": "Pro", "price": "Rp 99.000/bln", "desc": "Untuk bisnis yang sudah berkembang." }
+        ]
+      },
+      "updates": {
+        "title": "Update Terbaru",
+        "items": [
+          { "ver": "v1.2.0", "date": "Juli 2026", "desc": "Tambah fitur laporan mingguan otomatis." },
+          { "ver": "v1.1.0", "date": "Juni 2026", "desc": "Perbaikan kalkulasi HPP multi-bahan." },
+          { "ver": "v1.0.0", "date": "Mei 2026", "desc": "Rilis perdana DapurHPP." }
+        ]
+      }
+    },
+    "perusahaan": {
+      "title": "Perusahaan",
+      "subtitle": "Misi kami mempermudah UMKM kuliner mengelola bisnis dengan cerdas.",
+      "aboutUs": {
+        "title": "Tentang Kami",
+        "paragraphs": [
+          "DapurHPP lahir dari pengalaman nyata melihat UMKM gorengan kesulitan menghitung modal, HPP, dan keuntungan secara akurat. Banyak yang masih mencatat manual di kertas, ragu harga bahan naik turun, dan tak tahu apakah usahanya untung atau rugi.",
+          "Kami hadir sebagai solusi digital yang sederhana, otomatis, dan terpercaya. Dengan DapurHPP, para pengusaha gorengan bisa fokus menggoreng dan melayani pelanggan — biarkan kami yang urus perhitungan angka-angkanya."
+        ],
+        "imageAlt": "Tim DapurHPP"
+      },
+      "career": {
+        "title": "Karir",
+        "positions": [
+          { "title": "Fullstack Developer", "type": "Full-time", "location": "Remote / Jakarta", "status": "Buka", "desc": "Deskripsi lowongan untuk posisi Fullstack Developer di DapurHPP." },
+          { "title": "UI/UX Designer", "type": "Full-time", "location": "Remote / Bandung", "status": "Buka", "desc": "Deskripsi lowongan untuk posisi UI/UX Designer di DapurHPP." }
+        ]
+      },
+      "contact": {
+        "title": "Kontak",
+        "comingSoon": "Segera Hadir",
+        "form": {
+          "nameLabel": "Nama",
+          "namePlaceholder": "Nama Anda",
+          "emailLabel": "Email",
+          "emailPlaceholder": "email@contoh.com",
+          "messageLabel": "Pesan",
+          "messagePlaceholder": "Tulis pesan Anda di sini...",
+          "submit": "Kirim Pesan"
+        }
+      }
+    },
+    "bantuan": {
+      "title": "Bantuan",
+      "subtitle": "Temukan jawaban dan panduan penggunaan DapurHPP di sini.",
+      "helpCenter": {
+        "title": "Pusat Bantuan",
+        "searchPlaceholder": "Cari artikel bantuan...",
+        "categories": [
+          { "title": "Akun", "desc": "Registrasi, login, reset password, dan pengaturan profil." },
+          { "title": "HPP & Resep", "desc": "Cara menghitung HPP, manajemen resep, dan bahan baku." },
+          { "title": "Billing", "desc": "Paket langganan, pembayaran, dan manajemen tagihan." }
+        ]
+      },
+      "guides": {
+        "title": "Panduan Penggunaan",
+        "steps": [
+          "Daftar akun baru di halaman Registrasi, lalu login.",
+          "Tambahkan bahan baku beserta harganya di menu Bahan Baku.",
+          "Buat resep gorengan Anda di menu Resep — HPP akan terhitung otomatis.",
+          "Catat belanja bahan di menu Belanja untuk update harga terkini.",
+          "Masukkan data produksi dan penjualan harian untuk melihat laporan laba rugi."
+        ]
+      },
+      "faq": {
+        "title": "Pertanyaan Sering Diajukan (FAQ)",
+        "items": [
+          {
+            "q": "Apakah DapurHPP bisa dipakai untuk usaha selain gorengan?",
+            "a": "Ya, logika kalkulasi HPP berlaku untuk berbagai jenis makanan, namun fitur awal difokuskan untuk gorengan."
+          },
+          {
+            "q": "Bagaimana cara reset password jika lupa?",
+            "a": "Klik 'Lupa Kata Sandi?' di halaman login, masukkan email terdafat, dan ikuti tautan reset yang dikirim ke email Anda."
+          },
+          {
+            "q": "Apakah data resep dan keuangan saya aman?",
+            "a": "Ya. Semua data dienkripsi dan hanya bisa diakses oleh akun Anda. Kami tidak menjual atau membagikan data ke pihak ketiga."
+          },
+          {
+            "q": "Bisakah saya ekspor laporan ke Excel/PDF?",
+            "a": "Fitur ekspor sedang dalam pengembangan dan akan segera hadir di update mendatang."
+          }
+        ]
+      }
+    },
+    "privacy": {
+      "backToHome": "Kembali ke Beranda",
+      "legalBadge": "DapurHPP Legal",
+      "title": "Kebijakan Privasi",
+      "lastUpdated": "Terakhir Diperbarui: Juli 2026",
+      "cards": [
+        { "title": "Data Aman", "desc": "Formulasi resep dan harga bahan Anda dilindungi dengan enkripsi ketat." },
+        { "title": "Kepemilikan Penuh", "desc": "Data produksi dan riwayat laba rugi murni milik UMKM Anda sendiri." },
+        { "title": "Transparansi", "desc": "Kami tidak akan pernah menjual atau membagikan rahasia dapur bisnis Anda." }
+      ],
+      "sections": [
+        {
+          "title": "1. Informasi yang Kami Kumpulkan",
+          "body": "DapurHPP mengumpulkan data yang Anda masukkan secara sadar untuk keperluan kalkulasi bisnis kuliner Anda, yang mencakup:",
+          "items": [
+            "Informasi Akun: Nama Lengkap, Alamat Email, Kata Sandi (dienkripsi dengan Bcrypt), dan Nama Bisnis Kuliner Anda.",
+            "Data Operasional Dapur: Daftar Bahan Baku, Supplier, Formula Resep, Biaya Belanja, Data Produksi, Snapshot Harga Jual, serta riwayat Pengeluaran Lain."
+          ]
+        },
+        {
+          "title": "2. Penggunaan Informasi Anda",
+          "body": "Semua data operasional yang Anda masukkan ke dalam sistem diolah semata-mata untuk memberikan visualisasi finansial yang akurat bagi Anda sendiri, antara lain:",
+          "items": [
+            "Menghitung Harga Pokok Produksi (HPP) gorengan secara dinamis dan real-time berdasarkan belanja terbaru.",
+            "Menyajikan grafik ringkasan keuntungan, akumulasi kerugian, serta performa penjualan berkila pada dasbor Anda.",
+            "Memvalidasi kepemilikan data (JWT Identity Verification Check) agar pengguna lain tidak dapat mengintip resep dapur Anda."
+          ]
+        },
+        {
+          "title": "3. Keamanan Informasi Finansial",
+          "body": "Kami mengimplementasikan protokol pengamanan standar industri menggunakan JWT Token Ownership berbasis Guard di NestJS untuk menjaga agar API endpoints aman dari manipulasi eksternal. Password Anda diproteksi menggunakan hashing salt searah sehingga mustahil dibaca secara manual bahkan oleh tim administrator DapurHPP.",
+          "items": []
+        },
+        {
+          "title": "4. Hak Akses Data UMKM Anda",
+          "body": "Sebagai pemilik bisnis, Anda memiliki kendali penuh atas data Anda sendiri. Anda dapat melakukan penambahan, perubahan resep, maupun penghapusan records operasional (termasuk mekanisme *soft-delete* pada master bahan baku agar tidak merusak kalkulasi data transaksi masa lalu).",
+          "items": []
+        }
+      ]
+    },
+    "terms": {
+      "backToHome": "Kembali ke Beranda",
+      "legalBadge": "DapurHPP Legal",
+      "title": "Syarat & Ketentuan",
+      "lastUpdated": "Terakhir Diperbarui: Juli 2026",
+      "intro": "Selamat datang di DapurHPP. Dengan mendaftar, mengakses, atau menggunakan platform kami, Anda dianggap menyetujui seluruh ketentuan dan aturan main bisnis yang kami tetapkan di bawah ini.",
+      "sections": [
+        {
+          "title": "1. Ketentuan Pendaftaran Akun",
+          "body": "Layanan ini dirancang khusus untuk mempermudah perhitungan manajerial pelaku usaha UMKM kuliner. Anda diwajibkan untuk:",
+          "items": [
+            "Menyediakan alamat email aktif dan valid guna keperluan otentikasi login JWT.",
+            "Menjaga kerahasiaan kredensial password Anda demi mencegah penyalahgunaan hak akses oleh pihak lain.",
+            "Satu akun direkomendasikan digunakan untuk satu kesatuan entitas bisnis kuliner (UMKM) agar keaslian perhitungan laba bersih terjaga."
+          ]
+        },
+        {
+          "title": "2. Akurasi Kalkulasi HPP & Angka Finansial",
+          "body": "Sistem DapurHPP menghitung Harga Pokok Produksi (HPP) secara otomatis berdasarkan rumus matematis dinamis yang mengacu pada variabel input data belanja terbaru Anda.",
+          "note": "Catatan Penting: Hasil akhir kalkulasi laba/rugi sangat bergantung pada ketepatan dan kedisiplinan pengguna dalam memasukkan riwayat belanja riil dan snapshot penjualan operasional. DapurHPP menyediakan modul alat hitung dan tidak bertanggung jawab atas selisih uang kas fisik akibat kelalaian input data transaksi atau kesalahan manajemen internal warung Anda.",
+          "items": []
+        },
+        {
+          "title": "3. Kebijakan Batasan Penggunaan Umum",
+          "body": "Pengguna dilarang keras mencoba melakukan tindakan eksploitasi, penetrasi celah keamanan (cyber attack) pada sistem backend API NestJS kami, merusak struktur database MySQL via SQL Injection, atau memalsukan JWT token payload untuk memperoleh akses ilegal ke data milik pengguna lain. Pelanggaran terhadap poin ini akan berakibat pada pemblokiran akun secara permanen.",
+          "items": []
+        },
+        {
+          "title": "4. Perubahan Layanan & Pembaruan Aturan",
+          "body": "Platform DapurHPP terus dikembangkan guna memberikan modul laporan keuangan dan grafik performa yang makin komprehensif bagi pengusaha gorengan Indonesia. Oleh karena itu, syarat dan ketentuan ini sewaktu-waktu dapat disesuaikan tanpa pemberitahuan tertulis sebelumnya, dan perubahan akan langsung mengikat setelah dipublikasikan pada halaman ini.",
+          "items": []
+        }
+      ]
+    }
+  }
+}

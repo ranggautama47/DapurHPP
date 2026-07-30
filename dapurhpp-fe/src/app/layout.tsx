@@ -3,6 +3,7 @@ import { Playfair_Display, Be_Vietnam_Pro, Roboto_Mono } from "next/font/google"
 import "./globals.css";
 import { Toaster } from "sonner";
 import { LoadingProvider } from "@/components/provider/loading-provider";
+import { LanguageProvider } from "@/context/language-context";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -35,22 +36,24 @@ export default function RootLayout({
   return (
     <html lang="id" className={`${playfair.variable} ${beVietnam.variable} ${robotoMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-[#FFF8F6]">
-        <LoadingProvider>
-          {children}
-        </LoadingProvider>
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: {
-              borderRadius: "24px",
-              border: "1px solid #DDC1AE",
-              fontSize: "14px",
-              fontFamily: "var(--font-be-vietnam)",
-            },
-            duration: 4000,
-          }}
-          richColors
-        />
+        <LanguageProvider>
+          <LoadingProvider>
+            {children}
+          </LoadingProvider>
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              style: {
+                borderRadius: "24px",
+                border: "1px solid #DDC1AE",
+                fontSize: "14px",
+                fontFamily: "var(--font-be-vietnam)",
+              },
+              duration: 4000,
+            }}
+            richColors
+          />
+        </LanguageProvider>
       </body>
     </html>
   );
