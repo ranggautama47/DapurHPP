@@ -1,0 +1,42 @@
+{
+  "unauthorized": {
+    "title": "Sesi Berakhir",
+    "description": "Sesi Anda telah berakhir. Silakan masuk kembali untuk melanjutkan.",
+    "button": "Masuk Lagi"
+  },
+  "forbidden": {
+    "title": "Akses Ditolak",
+    "description": "Anda tidak memiliki izin untuk mengakses halaman ini.",
+    "button": "Kembali"
+  },
+  "notFound": {
+    "title": "Tidak Ditemukan",
+    "description": "Data yang Anda cari tidak dapat ditemukan.",
+    "button": "Kembali"
+  },
+  "rateLimit": {
+    "title": "Terlalu Banyak Permintaan",
+    "description": "Untuk menjaga performa server, silakan tunggu beberapa saat sebelum mencoba lagi.",
+    "button": "Coba Lagi"
+  },
+  "serverError": {
+    "title": "Kesalahan Server",
+    "description": "Terjadi kesalahan pada server kami. Tim teknis sudah kami informasikan.",
+    "button": "Muat Ulang"
+  },
+  "network": {
+    "title": "Koneksi Terputus",
+    "description": "Tidak dapat terhubung ke server. Periksa koneksi internet Anda dan coba lagi.",
+    "button": "Coba Lagi"
+  },
+  "unknown": {
+    "title": "Kesalahan Tidak Diketahui",
+    "description": "Terjadi kesalahan yang tidak terduga. Silakan coba lagi atau hubungi dukungan jika berlanjut.",
+    "button": "Coba Lagi"
+  },
+  "sessionExpired": {
+    "title": "Sesi Habis",
+    "description": "Keamanan Anda penting. Sesi telah berakhir, silakan masuk kembali.",
+    "button": "Masuk Lagi"
+  }
+}

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { LoadingProvider } from "@/components/provider/loading-provider";
 import { LanguageProvider } from "@/context/language-context";
+import { GlobalErrorDialog } from "@/components/ui/global-error-dialog";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -53,6 +54,7 @@ export default function RootLayout({
             }}
             richColors
           />
+          <GlobalErrorDialog />
         </LanguageProvider>
       </body>
     </html>

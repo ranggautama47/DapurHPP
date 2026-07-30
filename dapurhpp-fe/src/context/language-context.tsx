@@ -11,6 +11,7 @@ interface TranslationData {
   settings: Record<string, any>;
   master: Record<string, any>;
   landing: Record<string, any>;
+  errors: Record<string, any>;
 }
 
 interface LanguageContextType {
@@ -31,13 +32,14 @@ async function loadTranslations(locale: Locale): Promise<TranslationData> {
     return translationsCache[locale]!;
   }
 
-  const [common, auth, dashboard, settings, master, landing] = await Promise.all([
+  const [common, auth, dashboard, settings, master, landing, errors] = await Promise.all([
     import(`../locales/${locale}/common.json`).catch(() => ({ default: {} })),
     import(`../locales/${locale}/auth.json`).catch(() => ({ default: {} })),
     import(`../locales/${locale}/dashboard.json`).catch(() => ({ default: {} })),
     import(`../locales/${locale}/settings.json`).catch(() => ({ default: {} })),
     import(`../locales/${locale}/master.json`).catch(() => ({ default: {} })),
     import(`../locales/${locale}/landing.json`).catch(() => ({ default: {} })),
+    import(`../locales/${locale}/errors.json`).catch(() => ({ default: {} })),
   ]);
 
   const data: TranslationData = {
@@ -47,6 +49,7 @@ async function loadTranslations(locale: Locale): Promise<TranslationData> {
     settings: settings.default || {},
     master: master.default || {},
     landing: landing.default || {},
+    errors: errors.default || {},
   };
 
   translationsCache[locale] = data;
@@ -120,7 +123,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   );
 }
 
-const TOP_LEVEL_NAMESPACES = ["common", "auth", "dashboard", "settings", "master", "landing"];
+const TOP_LEVEL_NAMESPACES = ["common", "auth", "dashboard", "settings", "master", "landing", "errors"];
 
 export function useTranslation(namespace?: string): LanguageContextType {
   const context = useContext(LanguageContext);
