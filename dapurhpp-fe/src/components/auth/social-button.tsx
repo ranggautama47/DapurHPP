@@ -3,11 +3,13 @@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface SocialButtonProps {
-  label: "Google" | "Apple";
+  label: string;
   disabled?: boolean;
+  ariaLabelPrefix?: string;
+  tooltipText?: string;
 }
 
-export function SocialButton({ label, disabled = true }: SocialButtonProps) {
+export function SocialButton({ label, disabled = true, ariaLabelPrefix, tooltipText }: SocialButtonProps) {
   const Icon = label === "Google" ? (
     <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
       <path
@@ -44,14 +46,14 @@ export function SocialButton({ label, disabled = true }: SocialButtonProps) {
               ${disabled
                 ? "opacity-50 cursor-not-allowed scale-100 hover:scale-100"
                 : "hover:scale-105 hover:bg-[#3D251C] focus:outline-none focus:ring-2 focus:ring-[#FF8A00] focus:ring-offset-2"}`}
-            aria-label={`Masuk dengan ${label}`}
+            aria-label={`${ariaLabelPrefix || "Masuk dengan"} ${label}`}
             aria-disabled={disabled}
           >
             {Icon}
           </button>
         </TooltipTrigger>
         <TooltipContent side="top" className="bg-[#2A1711] text-white text-xs px-2 py-1 rounded shadow-lg">
-          Segera Hadir
+          {tooltipText || "Segera Hadir"}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

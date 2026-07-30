@@ -12,20 +12,15 @@ import { toast } from "sonner";
 import { Navbar } from "@/components/navbar";
 import { HeroSection } from "@/components/hero-section";
 import { Footer } from "@/components/footer";
+import { useTranslation } from "@/context/language-context";
 
-const resetPasswordSchema = z
-  .object({
-    newPassword: z.string().min(1, "Kata sandi baru wajib diisi").min(8, "Kata sandi minimal 8 karakter"),
-    confirmPassword: z.string().min(1, "Konfirmasi kata sandi wajib diisi"),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Kata sandi tidak cocok",
-    path: ["confirmPassword"],
-  });
-
-type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+type ResetPasswordFormData = {
+  newPassword: string;
+  confirmPassword: string;
+};
 
 function ResetPasswordFormContent() {
+  const { t } = useTranslation("auth");
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
@@ -33,6 +28,21 @@ function ResetPasswordFormContent() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isTokenValid, setIsTokenValid] = useState<boolean | null>(null);
   const [token, setToken] = useState<string | null>(null);
+
+  const resetPasswordSchema = z
+    .object({
+      newPassword: z
+        .string()
+        .min(1, t("resetPassword.errors.passwordRequired"))
+        .min(8, t("resetPassword.errors.passwordMin")),
+      confirmPassword: z
+        .string()
+        .min(1, t("resetPassword.errors.confirmRequired")),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: t("resetPassword.errors.passwordMismatch"),
+      path: ["confirmPassword"],
+    });
 
   useEffect(() => {
     const tokenFromUrl = searchParams.get("token");
@@ -65,12 +75,12 @@ function ResetPasswordFormContent() {
         token,
         newPassword: data.newPassword,
       });
-      toast.success("Password berhasil direset. Silakan login dengan password baru.");
+      toast.success(t("resetPassword.successMessage"));
       router.push("/login");
     } catch (err: any) {
-      const message = err.response?.data?.message || "Token tidak valid atau sudah kedaluwarsa";
+      const message = err.response?.data?.message || t("resetPassword.errorMessage");
       toast.error(message);
-      if (message.includes("kedaluwarsa") || message.includes("tidak valid")) {
+      if (message.includes("kedaluwarsa") || message.includes("tidak valid") || message.includes("invalid") || message.includes("expired")) {
         setIsTokenValid(false);
       }
     } finally {
@@ -84,7 +94,7 @@ function ResetPasswordFormContent() {
         <div className="w-12 h-12 rounded-full bg-[#BF360C]/10 flex items-center justify-center mx-auto mb-4">
           <Loader2 className="w-6 h-6 text-[#BF360C] animate-spin" />
         </div>
-        <p className="text-[#5D4037] font-[var(--font-be-vietnam)]">Memvalidasi tautan...</p>
+        <p className="text-[#5D4037] font-[var(--font-be-vietnam)]">{t("resetPassword.validating")}</p>
       </div>
     );
   }
@@ -96,23 +106,22 @@ function ResetPasswordFormContent() {
           <AlertCircle className="w-8 h-8 text-[#C62828]" />
         </div>
         <h2 className="font-[var(--font-playfair)] font-bold text-[1.75rem] leading-[2.25rem] text-[#2A1711] mb-4">
-          Link Tidak Valid
+          {t("resetPassword.invalidLinkTitle")}
         </h2>
         <p className="text-[#5D4037] font-[var(--font-be-vietnam)] text-base leading-relaxed mb-8">
-          Tautan pengaturan ulang kata sandi tidak valid atau sudah kedaluwarsa.
-          Silakan minta tautan baru.
+          {t("resetPassword.invalidLinkText")}
         </p>
         <Link
           href="/forgot-password"
           className="inline-flex items-center justify-center gap-2 w-full pl-8 pr-2 py-2 rounded-full bg-[#BF360C] text-white font-[var(--font-be-vietnam)] font-semibold text-lg transition-all duration-500 hover:bg-[#9A2B00] shadow-lg shadow-[#BF360C]/20"
         >
-          <span className="flex-1 text-center tracking-wide">Minta Link Baru</span>
+          <span className="flex-1 text-center tracking-wide">{t("resetPassword.requestNewLink")}</span>
           <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-[#2A1711]">
             <ArrowUpRight strokeWidth={2.5} className="w-5 h-5 text-white" />
           </div>
         </Link>
         <p className="mt-6 text-sm font-[var(--font-be-vietnam)] text-[#5D4037]">
-          Atau <Link href="/login" className="text-[#BF360C] font-semibold hover:text-[#9A2B00] underline underline-offset-4 decoration-[#BF360C]/30 hover:decoration-[#BF360C] transition-all">kembali ke login</Link>
+          {t("resetPassword.orText")} <Link href="/login" className="text-[#BF360C] font-semibold hover:text-[#9A2B00] underline underline-offset-4 decoration-[#BF360C]/30 hover:decoration-[#BF360C] transition-all">{t("resetPassword.backToLogin")}</Link>
         </p>
       </div>
     );
@@ -125,16 +134,16 @@ function ResetPasswordFormContent() {
         <div className="bg-[#FAF6F0] rounded-[2rem] border border-[#EADAC9] px-6 py-10 md:p-8 relative">
           <div className="space-y-6 relative z-10">
             <h2 className="font-[var(--font-playfair)] font-bold text-[1.75rem] leading-[2.25rem] text-[#2A1711] pr-16 md:pr-24">
-              Atur Ulang Password
+              {t("resetPassword.title")}
             </h2>
             <p className="text-[#5D4037] font-[var(--font-be-vietnam)] text-base leading-relaxed">
-              Masukkan kata sandi baru Anda. Pastikan kata sandi minimal 8 karakter.
+              {t("resetPassword.subtitle")}
             </p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
               <div className="space-y-2">
                 <label htmlFor="newPassword" className="block text-xs font-bold uppercase tracking-[0.1em] text-[#5D4037] ml-2">
-                  Kata Sandi Baru
+                  {t("resetPassword.newPasswordLabel")}
                 </label>
                 <div className="relative">
                   <input
@@ -143,7 +152,7 @@ function ResetPasswordFormContent() {
                     {...register("newPassword")}
                     className={`w-full pl-6 pr-14 py-4 bg-white border-2 border-[#D9C4B1] rounded-full text-[#2A1711] text-base placeholder-[#BCAAA4] transition-all duration-300 focus:outline-none focus:border-[#BF360C] focus:ring-4 focus:ring-[#BF360C]/10
                     ${errors.newPassword ? "border-[#BA1A1A] focus:border-[#BA1A1A] focus:ring-[#BA1A1A]/20" : ""}`}
-                    placeholder="••••••••"
+                    placeholder={t("resetPassword.newPasswordPlaceholder")}
                     aria-invalid={!!errors.newPassword ? "true" : "false"}
                     disabled={isLoading}
                   />
@@ -154,7 +163,7 @@ function ResetPasswordFormContent() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 flex items-center pr-5 text-[#8D6E63] hover:text-[#BF360C] transition-colors duration-300"
-                    aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                    aria-label={showPassword ? t("resetPassword.hidePasswordAria") : t("resetPassword.showPasswordAria")}
                   >
                     {showPassword ? (
                       <EyeOff className="w-5 h-5" strokeWidth={1.5} />
@@ -173,7 +182,7 @@ function ResetPasswordFormContent() {
 
               <div className="space-y-2">
                 <label htmlFor="confirmPassword" className="block text-xs font-bold uppercase tracking-[0.1em] text-[#5D4037] ml-2">
-                  Konfirmasi Kata Sandi Baru
+                  {t("resetPassword.confirmPasswordLabel")}
                 </label>
                 <div className="relative">
                   <input
@@ -182,7 +191,7 @@ function ResetPasswordFormContent() {
                     {...register("confirmPassword")}
                     className={`w-full pl-6 pr-14 py-4 bg-white border-2 border-[#D9C4B1] rounded-full text-[#2A1711] text-base placeholder-[#BCAAA4] transition-all duration-300 focus:outline-none focus:border-[#BF360C] focus:ring-4 focus:ring-[#BF360C]/10
                     ${errors.confirmPassword ? "border-[#BA1A1A] focus:border-[#BA1A1A] focus:ring-[#BA1A1A]/20" : ""}`}
-                    placeholder="••••••••"
+                    placeholder={t("resetPassword.confirmPasswordPlaceholder")}
                     aria-invalid={!!errors.confirmPassword ? "true" : "false"}
                     disabled={isLoading}
                   />
@@ -193,7 +202,7 @@ function ResetPasswordFormContent() {
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute inset-y-0 right-0 flex items-center pr-5 text-[#8D6E63] hover:text-[#BF360C] transition-colors duration-300"
-                    aria-label={showConfirmPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                    aria-label={showConfirmPassword ? t("resetPassword.hidePasswordAria") : t("resetPassword.showPasswordAria")}
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="w-5 h-5" strokeWidth={1.5} />
@@ -219,10 +228,10 @@ function ResetPasswordFormContent() {
                   {isLoading ? (
                     <span className="flex items-center justify-center gap-2">
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Memproses...
+                      {t("resetPassword.resetting")}
                     </span>
                   ) : (
-                    "Simpan Password Baru"
+                    t("resetPassword.resetButton")
                   )}
                 </span>
                 <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-[#2A1711] transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105 group-hover:translate-x-1 group-hover:-translate-y-[1px]">
@@ -232,7 +241,7 @@ function ResetPasswordFormContent() {
             </form>
 
             <p className="mt-8 text-center text-sm font-[var(--font-be-vietnam)] text-[#5D4037]">
-              Kembali ke <Link href="/login" className="text-[#BF360C] font-semibold hover:text-[#9A2B00] underline underline-offset-4 decoration-[#BF360C]/30 hover:decoration-[#BF360C] transition-all">Masuk</Link>
+              {t("resetPassword.backToLoginAlt")} <Link href="/login" className="text-[#BF360C] font-semibold hover:text-[#9A2B00] underline underline-offset-4 decoration-[#BF360C]/30 hover:decoration-[#BF360C] transition-all">{t("forgotPassword.backToLoginLink")}</Link>
             </p>
           </div>
         </div>
@@ -242,6 +251,8 @@ function ResetPasswordFormContent() {
 }
 
 export default function ResetPasswordPage() {
+  const { t } = useTranslation("auth");
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -258,7 +269,7 @@ export default function ResetPasswordPage() {
                 <div className="w-12 h-12 rounded-full bg-[#BF360C]/10 flex items-center justify-center mx-auto mb-4">
                   <Loader2 className="w-6 h-6 text-[#BF360C] animate-spin" />
                 </div>
-                <p className="text-[#5D4037] font-[var(--font-be-vietnam)]">Memuat halaman...</p>
+                <p className="text-[#5D4037] font-[var(--font-be-vietnam)]">{t("resetPassword.loadingPage")}</p>
               </div>
             }>
               <ResetPasswordFormContent />

@@ -3,6 +3,7 @@
 import { forwardRef, useState } from "react";
 import { Controller, Control } from "react-hook-form";
 import { Eye, EyeOff, Mail, Lock, AlertCircle } from "lucide-react";
+import { useTranslation } from "@/context/language-context";
 
 interface PasswordInputProps {
   name: string;
@@ -13,8 +14,10 @@ interface PasswordInputProps {
 }
 
 export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
-  ({ name, control, label, placeholder = "••••••••", error }, ref) => {
+  ({ name, control, label, placeholder, error }, ref) => {
+    const { t } = useTranslation("auth");
     const [showPassword, setShowPassword] = useState(false);
+    const inputPlaceholder = placeholder || t("passwordInput.defaultPlaceholder");
 
     return (
       <div className="w-full">
@@ -40,7 +43,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
                     focus:outline-none focus:border-[#FF8A00] focus:ring-2 focus:ring-[#FF8A00]/20
                     disabled:bg-[#F5F0EB] disabled:cursor-not-allowed
                     ${error ? "border-[#BA1A1A] focus:border-[#BA1A1A] focus:ring-[#BA1A1A]/20" : ""}`}
-                  placeholder={placeholder}
+                  placeholder={inputPlaceholder}
                   aria-invalid={error ? "true" : "false"}
                   aria-describedby={error ? `${name}-error` : undefined}
                 />
@@ -51,7 +54,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             className="absolute inset-y-0 right-0 flex items-center pr-4 text-[#8A7362] hover:text-[#FF8A00] transition-colors"
-            aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+            aria-label={showPassword ? t("passwordInput.hidePasswordAria") : t("passwordInput.showPasswordAria")}
             aria-pressed={showPassword}
           >
             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -79,7 +82,10 @@ interface EmailInputProps {
 }
 
 export const EmailInput = forwardRef<HTMLInputElement, EmailInputProps>(
-  ({ name, control, label, placeholder = "nama@bisnisanda.com", error }, ref) => {
+  ({ name, control, label, placeholder, error }, ref) => {
+    const { t } = useTranslation("auth");
+    const inputPlaceholder = placeholder || t("emailInput.defaultPlaceholder");
+
     return (
       <div className="w-full">
         <label htmlFor={name} className="block text-xs font-semibold uppercase tracking-wider text-[#FFEDE8] mb-2">
@@ -104,7 +110,7 @@ export const EmailInput = forwardRef<HTMLInputElement, EmailInputProps>(
                     focus:outline-none focus:border-[#FF8A00] focus:ring-2 focus:ring-[#FF8A00]/20
                     disabled:bg-[#F5F0EB] disabled:cursor-not-allowed
                     ${error ? "border-[#BA1A1A] focus:border-[#BA1A1A] focus:ring-[#BA1A1A]/20" : ""}`}
-                  placeholder={placeholder}
+                  placeholder={inputPlaceholder}
                   aria-invalid={error ? "true" : "false"}
                   aria-describedby={error ? `${name}-error` : undefined}
                 />
