@@ -1,12 +1,14 @@
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 
+import { AppModule } from './app.module';
+
+const logger = new Logger('Bootstrap');
+
 async function bootstrap() {
   try {
-    console.log('Initializing NestFactory...');
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
     app.enableCors({
@@ -29,12 +31,16 @@ async function bootstrap() {
       prefix: '/uploads/',
     });
 
-    const port = process.env.PORT ?? 3001;
-    console.log(`Attempting to listen on port ${port}...`);
+    const port = Number(process.env.PORT) || 3001;
+
     await app.listen(port);
-    console.log(`✅ DapurHPP API running on http://localhost:${port}`);
+
+    logger.log(`🚀 DapurHPP API is running at ${await app.getUrl()}`);
   } catch (error) {
-    console.error('❌ Bootstrap failed with error:', error);
+    logger.error('Application failed to start.', error);
+
+    process.exit(1);
   }
 }
+
 bootstrap();
