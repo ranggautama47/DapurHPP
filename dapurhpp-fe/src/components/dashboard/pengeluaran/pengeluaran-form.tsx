@@ -7,24 +7,9 @@ import { api } from "@/lib/axios";
 import { toast } from "sonner";
 import { formatLocalDate } from "@/lib/utils";
 import { detectKategori } from "@/lib/pengeluaran-lain";
+import { useTranslation } from "@/context/language-context";
 import type { Pengeluaran } from "@/types/pengeluaran";
 import type { Kategori } from "@/types/pengeluaran";
-
-const KATEGORI_LIST: { value: Kategori; label: string }[] = [
-  { value: "UTILITAS", label: "Utilitas" },
-  { value: "KEMASAN", label: "Kemasan" },
-  { value: "TRANSPORTASI", label: "Transportasi" },
-  { value: "KEBERSIHAN", label: "Kebersihan" },
-  { value: "LAINNYA", label: "Lainnya" },
-];
-const formSchema = z.object({
-  tanggal: z.string().min(1, "Pilih tanggal"),
-  nama: z.string().min(1, "Masukkan nama pengeluaran"),
-  kategori: z.string().min(1, "Pilih kategori"),
-  jumlah: z.number().min(1, "Minimal Rp 1"),
-});
-
-type FormData = z.infer<typeof formSchema>;
 
 interface PengeluaranFormProps {
   editingItem: Pengeluaran | null;
@@ -37,7 +22,27 @@ export function PengeluaranForm({
   onClose,
   onSuccess,
 }: PengeluaranFormProps) {
+  const { t, language } = useTranslation("master");
+  const localeStr = language === "id" ? "id-ID" : "en-US";
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const KATEGORI_LIST: { value: Kategori; label: string }[] = [
+    { value: "UTILITAS", label: t("expenses.categories.utilities") },
+    { value: "KEMASAN", label: t("expenses.categories.packaging") },
+    { value: "TRANSPORTASI", label: t("expenses.categories.transport") },
+    { value: "KEBERSIHAN", label: t("expenses.categories.cleaning") },
+    { value: "LAINNYA", label: t("expenses.categories.other") },
+  ];
+
+  const formSchema = z.object({
+    tanggal: z.string().min(1, t("expenses.form.validation.dateRequired")),
+    nama: z.string().min(1, t("expenses.form.validation.nameRequired")),
+    kategori: z.string().min(1, t("expenses.form.validation.categoryRequired")),
+    jumlah: z.number().min(1, t("expenses.form.validation.minAmount")),
+  });
+
+  type FormData = z.infer<typeof formSchema>;
 
   const {
     register,
@@ -88,15 +93,15 @@ export function PengeluaranForm({
       };
       if (editingItem) {
         await api.patch(`/pengeluaran-lain/${editingItem.id}`, payload);
+        toast.success(t("expenses.successUpdate"));
       } else {
         await api.post("/pengeluaran-lain", payload);
+        toast.success(t("expenses.successCreate"));
       }
-      toast.success("Pengeluaran berhasil disimpan");
       onSuccess();
       onClose();
     } catch (err: any) {
-      alert(err.response?.data?.message || "Gagal menyimpan pengeluaran");
-      toast.error("Gagal menyimpan pengeluaran — coba lagi");
+      toast.error(t("expenses.errorCreate"));
     } finally {
       setIsSubmitting(false);
     }
@@ -116,7 +121,7 @@ export function PengeluaranForm({
     <div className="bg-white rounded-[24px] border border-[#DDC1AE] shadow-[0_8px_30px_rgba(109,76,65,0.08)] p-6 lg:sticky lg:top-6">
       <div className="flex items-center justify-between mb-6">
         <h3 className="font-[var(--font-playfair)] font-bold text-xl text-[#2A1711]">
-          {editingItem ? "Edit Pengeluaran" : "Tambah Pengeluaran"}
+          {editingItem ? t("expenses.form.editTitle") : t("expenses.form.addTitle")}
         </h3>
         <button
           type="button"
@@ -128,10 +133,9 @@ export function PengeluaranForm({
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        {/* Tanggal */}
         <div>
           <label className="block text-xs font-semibold text-[#564334] mb-1.5">
-            Tanggal <span className="text-[#EF4444]">*</span>
+            {t("common.labels.date")} <span className="text-[#EF4444]">*</span>
           </label>
           <input
             type="date"
@@ -145,14 +149,13 @@ export function PengeluaranForm({
           )}
         </div>
 
-        {/* Nama Pengeluaran */}
         <div>
           <label className="block text-xs font-semibold text-[#564334] mb-1.5">
-            Nama Pengeluaran <span className="text-[#EF4444]">*</span>
+            {t("expenses.form.nameLabel")} <span className="text-[#EF4444]">*</span>
           </label>
           <input
             type="text"
-            placeholder="Contoh: Gas Elpiji"
+            placeholder={t("expenses.form.namePlaceholder")}
             {...register("nama")}
             className="w-full h-12 px-4 rounded-[16px] border-2 border-[#DDC1AE] bg-white text-[#2A1711] text-sm placeholder:text-[#8A7362] focus:outline-none focus:border-[#FF8A00] focus:ring-2 focus:ring-[#FF8A00]/20"
           />
@@ -161,10 +164,9 @@ export function PengeluaranForm({
           )}
         </div>
 
-        {/* Kategori (Frontend-only) */}
         <div>
           <label className="block text-xs font-semibold text-[#564334] mb-1.5">
-            Kategori <span className="text-[#EF4444]">*</span>
+            {t("expenses.form.categoryLabel")} <span className="text-[#EF4444]">*</span>
           </label>
           <div className="relative">
             <select
@@ -194,14 +196,13 @@ export function PengeluaranForm({
             </div>
           </div>
           <p className="text-[10px] text-[#8A7362] mt-1">
-            Kategori otomatis terdeteksi dari nama. Ubah jika perlu.
+            {t("expenses.form.categoryHint")}
           </p>
         </div>
 
-        {/* Jumlah */}
         <div>
           <label className="block text-xs font-semibold text-[#564334] mb-1.5">
-            Jumlah (Rp) <span className="text-[#EF4444]">*</span>
+            {t("expenses.form.amountLabel")} <span className="text-[#EF4444]">*</span>
           </label>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8A7362] text-sm font-medium">
@@ -209,7 +210,7 @@ export function PengeluaranForm({
             </span>
             <input
               type="number"
-              placeholder="Contoh: 25000"
+              placeholder={t("expenses.form.amountPlaceholder")}
               {...register("jumlah", { valueAsNumber: true })}
               className="w-full h-12 pl-10 pr-4 rounded-[16px] border-2 border-[#DDC1AE] bg-white text-[#2A1711] text-sm placeholder:text-[#8A7362] focus:outline-none focus:border-[#FF8A00] focus:ring-2 focus:ring-[#FF8A00]/20"
             />
@@ -227,14 +228,14 @@ export function PengeluaranForm({
             onClick={handleClose}
             className="flex-1 h-12 rounded-full border-2 border-[#DDC1AE] text-[#564334] font-semibold text-sm hover:bg-[#FFF8F6] transition-all"
           >
-            Batal
+            {t("common.buttons.cancel")}
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
             className="flex-1 h-12 rounded-full bg-[#FF8A00] text-white font-semibold text-sm hover:bg-[#E67E00] disabled:opacity-50 transition-all shadow-[0_4px_12px_rgba(255,138,0,0.25)]"
           >
-            {isSubmitting ? "Menyimpan..." : editingItem ? "Update" : "Simpan"}
+            {isSubmitting ? t("common.status.loading") : editingItem ? t("expenses.form.updateButton") : t("common.buttons.save")}
           </button>
         </div>
       </form>

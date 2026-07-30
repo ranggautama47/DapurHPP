@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale/id";
+import { enUS } from "date-fns/locale/en-US";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { StatsCards } from "@/components/dashboard/stats-cards";
 import { ProfitChart } from "@/components/dashboard/profit-chart";
@@ -13,11 +14,15 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import type { LaporanDateParams } from "@/lib/laporan-query";
 import type { DateRange } from "react-day-picker";
+import { useTranslation } from "@/context/language-context";
 
 export default function DashboardPage() {
+  const { t, locale } = useTranslation("dashboard");
   const [mode, setMode] = useState<"single" | "range">("single");
   const [singleDate, setSingleDate] = useState<Date | undefined>(new Date());
   const [range, setRange] = useState<DateRange | undefined>(undefined);
+
+  const dateLocale = locale === "en" ? enUS : id;
 
   const dateParams: LaporanDateParams =
     mode === "range" && range?.from && range?.to
@@ -28,10 +33,10 @@ export default function DashboardPage() {
 
   const labelText =
     mode === "range" && range?.from && range?.to
-      ? `${format(range.from, "d MMM", { locale: id })} – ${format(range.to, "d MMM yyyy", { locale: id })}`
+      ? `${format(range.from, "d MMM", { locale: dateLocale })} – ${format(range.to, "d MMM yyyy", { locale: dateLocale })}`
       : singleDate
-        ? format(singleDate, "EEEE, d MMMM yyyy", { locale: id })
-        : "Pilih tanggal";
+        ? format(singleDate, "EEEE, d MMMM yyyy", { locale: dateLocale })
+        : t("datePicker.selectDate");
 
   return (
     <div className="space-y-6">
@@ -54,7 +59,7 @@ export default function DashboardPage() {
                   mode === "single" ? "bg-[#FF8A00] text-white" : "text-[#564334] hover:bg-[#FFF8F6]"
                 }`}
               >
-                Tanggal Tunggal
+                {t("datePicker.singleDate")}
               </button>
               <button
                 onClick={() => setMode("range")}
@@ -62,7 +67,7 @@ export default function DashboardPage() {
                   mode === "range" ? "bg-[#FF8A00] text-white" : "text-[#564334] hover:bg-[#FFF8F6]"
                 }`}
               >
-                Rentang Tanggal
+                {t("datePicker.dateRange")}
               </button>
             </div>
             {mode === "single" ? (

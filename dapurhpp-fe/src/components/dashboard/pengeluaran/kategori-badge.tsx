@@ -1,3 +1,4 @@
+import { useTranslation } from "@/context/language-context";
 import type { Kategori } from "@/types/pengeluaran";
 
 const kategoriColors: Record<Kategori, string> = {
@@ -9,19 +10,20 @@ const kategoriColors: Record<Kategori, string> = {
 };
 
 const kategoriLabels: Record<Kategori, string> = {
-  UTILITAS: "Utilitas",
-  KEMASAN: "Kemasan",
-  TRANSPORTASI: "Transportasi",
-  KEBERSIHAN: "Kebersihan",
-  LAINNYA: "Lainnya",
+  UTILITAS: "expenses.categories.utilities",
+  KEMASAN: "expenses.categories.packaging",
+  TRANSPORTASI: "expenses.categories.transport",
+  KEBERSIHAN: "expenses.categories.cleaning",
+  LAINNYA: "expenses.categories.other",
 };
 
 export function KategoriBadge({ kategori }: { kategori: Kategori }) {
+  const { t } = useTranslation("master");
   return (
     <span
       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${kategoriColors[kategori]}`}
     >
-      {kategoriLabels[kategori]}
+      {t(kategoriLabels[kategori])}
     </span>
   );
 }

@@ -2,8 +2,9 @@
 
 import { Trash2 } from "lucide-react";
 import type { NotifItem } from "@/lib/notification-store";
+import { useTranslation } from "@/context/language-context";
 
-function timeAgo(dateStr: string): string {
+function timeAgo(dateStr: string, t: (key: string, params?: Record<string, string>) => string): string {
   const now = Date.now();
   const then = new Date(dateStr).getTime();
   const diff = now - then;
@@ -11,11 +12,11 @@ function timeAgo(dateStr: string): string {
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
 
-  if (mins < 1) return "Baru saja";
-  if (mins < 60) return `${mins} menit lalu`;
-  if (hours < 24) return `${hours} jam lalu`;
-  if (days === 1) return "Kemarin";
-  return `${days} hari lalu`;
+  if (mins < 1) return t("notification.timeAgo.justNow");
+  if (mins < 60) return t("notification.timeAgo.minutesAgo", { minutes: String(mins) });
+  if (hours < 24) return t("notification.timeAgo.hoursAgo", { hours: String(hours) });
+  if (days === 1) return t("notification.timeAgo.yesterday");
+  return t("notification.timeAgo.daysAgo", { days: String(days) });
 }
 
 function getIconBg(tipe: string): string {
@@ -35,6 +36,7 @@ interface Props {
 }
 
 export default function NotificationItem({ item, onMarkRead, onDelete }: Props) {
+  const { t } = useTranslation("master");
   const iconBg = getIconBg(item.tipe);
 
   return (
@@ -61,7 +63,7 @@ export default function NotificationItem({ item, onMarkRead, onDelete }: Props) 
           </p>
         )}
         <p className="text-[10px] text-[#B8A08E] mt-1 font-medium">
-          {timeAgo(item.createdAt)}
+          {timeAgo(item.createdAt, t)}
         </p>
       </div>
       <button
@@ -70,7 +72,7 @@ export default function NotificationItem({ item, onMarkRead, onDelete }: Props) 
           onDelete(item.id);
         }}
         className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 shrink-0 p-2 rounded-lg hover:bg-[#FEE2E2] text-[#8A7362] hover:text-[#EF4444] self-center"
-        aria-label="Hapus notifikasi"
+        aria-label={t("notification.deleteLabel")}
       >
         <Trash2 className="w-4 h-4" />
       </button>

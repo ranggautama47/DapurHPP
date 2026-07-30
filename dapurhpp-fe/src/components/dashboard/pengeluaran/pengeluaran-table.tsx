@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Pencil, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "@/context/language-context";
 import type { Pengeluaran, Kategori } from "@/types/pengeluaran";
 import { formatRupiah, detectKategori } from "@/lib/pengeluaran-lain";
 import { KategoriBadge } from "./kategori-badge";
@@ -19,6 +20,9 @@ export function PengeluaranTable({
   onEdit,
   onDelete,
 }: PengeluaranTableProps) {
+  const { t, language } = useTranslation("master");
+  const localeStr = language === "id" ? "id-ID" : "en-US";
+
   const [page, setPage] = useState(1);
   const totalPages = Math.max(1, Math.ceil(data.length / ITEMS_PER_PAGE));
   const paginatedData = useMemo(
@@ -37,7 +41,7 @@ export function PengeluaranTable({
       <div className="bg-white rounded-[24px] border border-[#DDC1AE] shadow-[0_8px_30px_rgba(109,76,65,0.08)] overflow-hidden">
         <div className="p-8 text-center text-[#8A7362]">
           <div className="w-8 h-8 border-4 border-[#FFE9E4] border-t-[#FF8A00] rounded-full animate-spin mx-auto mb-3" />
-          Memuat data...
+          {t("expenses.table.loading")}
         </div>
       </div>
     );
@@ -63,10 +67,10 @@ export function PengeluaranTable({
             </svg>
           </div>
           <p className="text-[#564334] text-lg font-medium mb-1">
-            Belum ada pengeluaran
+            {t("expenses.table.emptyState")}
           </p>
           <p className="text-[#8A7362] text-sm">
-            Tambah pengeluaran baru menggunakan form di samping
+            {t("expenses.table.emptyHint")}
           </p>
         </div>
       </div>
@@ -83,19 +87,19 @@ export function PengeluaranTable({
                 No
               </th>
               <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334]">
-                Tanggal
+                {t("common.labels.date")}
               </th>
               <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334]">
-                Nama Pengeluaran
+                {t("expenses.table.nameColumn")}
               </th>
               <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334]">
-                Kategori
+                {t("expenses.table.categoryColumn")}
               </th>
               <th className="px-4 py-4 text-right text-xs font-semibold uppercase tracking-[0.1em] text-[#564334]">
-                Jumlah
+                {t("expenses.table.amountColumn")}
               </th>
               <th className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] w-20">
-                Aksi
+                {t("common.labels.actions")}
               </th>
             </tr>
           </thead>
@@ -111,7 +115,7 @@ export function PengeluaranTable({
                   <td className="px-4 py-3.5 text-[#8A7362] text-sm">{no}</td>
                   <td className="px-4 py-3.5 text-[#2A1711] text-sm font-medium whitespace-nowrap">
                     {new Date(item.tanggal).toLocaleDateString(
-                      "id-ID",
+                      localeStr,
                       { day: "numeric", month: "short", year: "numeric" },
                     )}
                   </td>
@@ -129,14 +133,14 @@ export function PengeluaranTable({
                       <button
                         onClick={() => onEdit(item)}
                         className="p-1.5 rounded-full hover:bg-[#FFF3E5] text-[#FF8A00] transition-colors"
-                        title="Edit"
+                        title={t("common.buttons.edit")}
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => onDelete(item.id)}
                         className="p-1.5 rounded-full hover:bg-[#FEE2E2] text-[#EF4444] transition-colors"
-                        title="Hapus"
+                        title={t("common.buttons.delete")}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -149,17 +153,15 @@ export function PengeluaranTable({
         </table>
       </div>
 
-      {/* Total Row */}
       <div className="border-t border-[#DDC1AE] bg-[#FFF8F6] px-4 py-3 flex items-center justify-between">
         <span className="text-xs text-[#8A7362]">
-          Menampilkan {paginatedData.length} dari {data.length} data
+          {t("expenses.table.showing")} {paginatedData.length} {t("expenses.table.of")} {data.length} {t("expenses.table.data")}
         </span>
         <span className="font-[var(--font-roboto-mono)] font-bold text-[#2A1711]">
-          Total: {formatRupiah(totalJumlah)}
+          {t("expenses.table.totalLabel")} {formatRupiah(totalJumlah)}
         </span>
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="border-t border-[#DDC1AE] px-4 py-3 flex items-center justify-between">
           <button
@@ -170,7 +172,7 @@ export function PengeluaranTable({
             <ChevronLeft className="w-4 h-4" />
           </button>
           <span className="text-xs text-[#8A7362]">
-            Halaman {page} dari {totalPages}
+            {t("expenses.table.page")} {page} {t("expenses.table.ofPages")} {totalPages}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}

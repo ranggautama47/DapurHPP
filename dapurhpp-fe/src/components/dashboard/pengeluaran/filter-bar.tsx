@@ -1,15 +1,7 @@
-import { Calendar, Search } from "lucide-react";
+import { Calendar, Search, RotateCcw } from "lucide-react";
 import { useRef } from "react";
+import { useTranslation } from "@/context/language-context";
 import type { Kategori } from "@/types/pengeluaran";
-
-const KATEGORI_LIST: { value: Kategori | "Semua"; label: string }[] = [
-  { value: "Semua", label: "Semua Kategori" },
-  { value: "UTILITAS", label: "Utilitas" },
-  { value: "KEMASAN", label: "Kemasan" },
-  { value: "TRANSPORTASI", label: "Transportasi" },
-  { value: "KEBERSIHAN", label: "Kebersihan" },
-  { value: "LAINNYA", label: "Lainnya" },
-];
 
 interface FilterBarProps {
   tanggal: string;
@@ -21,6 +13,7 @@ interface FilterBarProps {
   onTanggalAkhirChange: (val: string) => void;
   onKategoriChange: (val: Kategori | "Semua") => void;
   onApply: () => void;
+  onReset: () => void;
 }
 
 export function FilterBar({
@@ -33,16 +26,28 @@ export function FilterBar({
   onTanggalAkhirChange,
   onKategoriChange,
   onApply,
+  onReset,
 }: FilterBarProps) {
+  const { t, language } = useTranslation("master");
+  const localeStr = language === "id" ? "id-ID" : "en-US";
   const dateInputRef = useRef<HTMLInputElement>(null);
+
+  const KATEGORI_LIST: { value: Kategori | "Semua"; label: string }[] = [
+    { value: "Semua", label: t("expenses.filter.allCategories") },
+    { value: "UTILITAS", label: t("expenses.categories.utilities") },
+    { value: "KEMASAN", label: t("expenses.categories.packaging") },
+    { value: "TRANSPORTASI", label: t("expenses.categories.transport") },
+    { value: "KEBERSIHAN", label: t("expenses.categories.cleaning") },
+    { value: "LAINNYA", label: t("expenses.categories.other") },
+  ];
 
   return (
     <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-5 shadow-[0_8px_30px_rgba(109,76,65,0.08)] mb-6">
       <div className="flex flex-wrap items-end gap-4">
-        {/* Tanggal Single */}
+        {/* Single Date */}
         <div className="flex-1 min-w-[140px]">
           <label className="block text-xs font-semibold text-[#564334] mb-1.5">
-            Tanggal
+            {t("common.labels.date")}
           </label>
           <div className="relative">
             <button
@@ -54,14 +59,16 @@ export function FilterBar({
               <span>
                 {tanggal
                   ? new Date(tanggal + "T00:00:00").toLocaleDateString(
-                      "id-ID",
+                      localeStr,
                       {
                         day: "numeric",
                         month: "long",
                         year: "numeric",
                       },
                     )
-                  : "Pilih tanggal"}
+                  : t("expenses.form.datePlaceholder", {
+                      defaultValue: "Pilih tanggal",
+                    })}
               </span>
             </button>
             <input
@@ -74,10 +81,10 @@ export function FilterBar({
           </div>
         </div>
 
-        {/* Dari Tanggal */}
+        {/* Tanggal Mulai */}
         <div className="flex-1 min-w-[140px]">
           <label className="block text-xs font-semibold text-[#564334] mb-1.5">
-            Dari Tanggal
+            {t("expenses.filter.fromDate")}
           </label>
           <input
             type="date"
@@ -87,10 +94,10 @@ export function FilterBar({
           />
         </div>
 
-        {/* Sampai Tanggal */}
+        {/* Tanggal Akhir */}
         <div className="flex-1 min-w-[140px]">
           <label className="block text-xs font-semibold text-[#564334] mb-1.5">
-            Sampai Tanggal
+            {t("expenses.filter.toDate")}
           </label>
           <input
             type="date"
@@ -103,7 +110,7 @@ export function FilterBar({
         {/* Kategori */}
         <div className="flex-1 min-w-[140px]">
           <label className="block text-xs font-semibold text-[#564334] mb-1.5">
-            Kategori
+            {t("common.labels.category")}
           </label>
           <select
             value={kategori}
@@ -120,14 +127,24 @@ export function FilterBar({
           </select>
         </div>
 
-        {/* Tombol Terapkan */}
-        <button
-          onClick={onApply}
-          className="h-12 px-6 rounded-full bg-[#FF8A00] text-white font-semibold text-sm hover:bg-[#E67E00] transition-all flex items-center gap-2 shadow-[0_4px_12px_rgba(255,138,0,0.25)]"
-        >
-          <Search className="w-4 h-4" />
-          Terapkan Filter
-        </button>
+        {/* Tombol Filter & Reset */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onApply}
+            className="h-12 px-6 rounded-full bg-[#FF8A00] text-white font-semibold text-sm hover:bg-[#E67E00] transition-all flex items-center gap-2 shadow-[0_4px_12px_rgba(255,138,0,0.25)]"
+          >
+            <Search className="w-4 h-4" />
+            {t("expenses.filter.applyFilter")}
+          </button>
+          <button
+            type="button"
+            onClick={onReset}
+            className="h-12 px-4 rounded-full border-2 border-[#DDC1AE] text-[#564334] font-semibold text-sm hover:bg-[#FFF8F6] transition-all flex items-center gap-1.5"
+            title="Reset Filter"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </div>
   );

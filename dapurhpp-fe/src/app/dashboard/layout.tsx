@@ -7,12 +7,14 @@ import { useAuthStore } from "@/lib/auth-store";
 import { api } from "@/lib/axios";
 import { FontSizeProvider } from "@/context/font-size-context";
 import { VerificationBanner } from "@/components/dashboard/verification-banner";
+import { useTranslation } from "@/context/language-context";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation("dashboard");
   const { user, setUser } = useAuthStore();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -27,14 +29,13 @@ export default function DashboardLayout({
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  // Sync data profil lengkap dari database — SATU KALI saat mount dashboard
   useEffect(() => {
     if (!user) return;
     api
       .get("/users/profile")
       .then((res) => setUser({ ...user, ...res.data }))
-      .catch(() => {}); // silent fail — user tetap bisa pakai dashboard
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+      .catch(() => {});
+  }, []);
 
   const currentYear = new Date().getFullYear();
 
@@ -48,7 +49,6 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#FFF8F6]">
-      {/* Desktop sidebar */}
       <aside
         className={`hidden lg:flex flex-shrink-0 h-full bg-white border-r border-[#DDC1AE] overflow-y-auto transition-all duration-300 ${
           isCollapsed ? "w-[88px]" : "w-[280px]"
@@ -60,10 +60,8 @@ export default function DashboardLayout({
         />
       </aside>
 
-      {/* Mobile sidebar overlay */}
       {isMobile && (
         <>
-          {/* Backdrop */}
           {isMobileOpen && (
             <div
               className="fixed inset-0 bg-black/50 z-40 transition-opacity"
@@ -83,7 +81,6 @@ export default function DashboardLayout({
         </>
       )}
 
-      {/* Kanan: navbar + konten + footer, flex column, tidak overflow horizontal */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <DashboardNavbar onToggleSidebar={handleToggle} />
 
@@ -94,8 +91,8 @@ export default function DashboardLayout({
         </main>
 
         <footer className="flex-shrink-0 bg-white border-t border-[#DDC1AE] flex flex-col sm:flex-row items-center justify-between gap-1 px-4 sm:px-6 py-2 text-xs text-center sm:text-left text-[#8A7362] font-[var(--font-be-vietnam)]">
-          <span> &copy; {currentYear} DapurHPP. Semua hak dilindungi.</span>
-          <span>Dibuat dengan ❤ untuk UMKM Gorengan</span>
+          <span>{t("layout.footerRights", { year: String(currentYear) })}</span>
+          <span>{t("layout.footerMadeWith")}</span>
         </footer>
       </div>
     </div>

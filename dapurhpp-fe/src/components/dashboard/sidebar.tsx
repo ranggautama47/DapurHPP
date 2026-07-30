@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation"; // 1. Gabung import dari next/navigation
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuthStore, setTokenCookie } from "@/lib/auth-store";
@@ -18,10 +18,11 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
+import { useTranslation } from "@/context/language-context";
 
 interface MenuItem {
   href: string;
-  label: string;
+  labelKey: string;
   icon: React.ComponentType<{
     size?: number;
     strokeWidth?: number;
@@ -31,20 +32,20 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: Home },
-  { href: "/dashboard/belanja", label: "Belanja", icon: ShoppingCart },
-  { href: "/dashboard/bahan-baku", label: "Bahan Baku", icon: Package },
-  { href: "/dashboard/resep", label: "Resep", icon: BookOpen },
-  { href: "/dashboard/produksi", label: "Produksi", icon: ChefHat },
-  { href: "/dashboard/penjualan", label: "Penjualan", icon: TrendingUp },
-  { href: "/dashboard/supplier", label: "Supplier", icon: Truck },
+  { href: "/dashboard", labelKey: "sidebar.dashboard", icon: Home },
+  { href: "/dashboard/belanja", labelKey: "sidebar.purchases", icon: ShoppingCart },
+  { href: "/dashboard/bahan-baku", labelKey: "sidebar.ingredients", icon: Package },
+  { href: "/dashboard/resep", labelKey: "sidebar.recipes", icon: BookOpen },
+  { href: "/dashboard/produksi", labelKey: "sidebar.production", icon: ChefHat },
+  { href: "/dashboard/penjualan", labelKey: "sidebar.sales", icon: TrendingUp },
+  { href: "/dashboard/supplier", labelKey: "sidebar.suppliers", icon: Truck },
   {
     href: "/dashboard/pengeluaran",
-    label: "Pengeluaran Lain-lain",
+    labelKey: "sidebar.expenses",
     icon: Receipt,
   },
-  { href: "/dashboard/laporan", label: "Laporan", icon: BarChart2 },
-  { href: "/dashboard/pengaturan", label: "Pengaturan", icon: Settings },
+  { href: "/dashboard/laporan", labelKey: "sidebar.reports", icon: BarChart2 },
+  { href: "/dashboard/pengaturan", labelKey: "sidebar.settings", icon: Settings },
 ];
 
 interface SidebarProps {
@@ -53,8 +54,9 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
+  const { t } = useTranslation("dashboard");
   const pathname = usePathname();
-  const router = useRouter(); // 2. INISIALISASI ROUTER DI SINI
+  const router = useRouter();
   const { user, logout } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [userName, setUserName] = useState("Loading...");
@@ -67,15 +69,15 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       setUserName(user.name);
       setUserInitial(user.name.charAt(0).toUpperCase());
     } else {
-      setUserName("Pemilik Usaha");
+      setUserName(t("sidebar.defaultUser"));
       setUserInitial("P");
     }
-  }, [user]);
+  }, [user, t]);
 
   const handleLogout = () => {
     logout();
     setTokenCookie(null);
-    router.replace("/"); // 3. GUNAKAN REPLACE BUKAN PUSH
+    router.replace("/");
   };
 
   if (!mounted) return null;
@@ -114,7 +116,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           <button
             onClick={onToggle}
             className="hidden lg:block p-2 rounded-full hover:bg-[#FFF8F6] transition-colors"
-            title="Toggle sidebar"
+            title={t("sidebar.toggleSidebar")}
           >
             <svg
               className="w-5 h-5"
@@ -148,7 +150,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
                 {!isCollapsed ? (
                   <div className="flex items-center gap-3 w-full">
                     <item.icon size={20} strokeWidth={1.75} />
-                    <span className="whitespace-nowrap">{item.label}</span>
+                    <span className="whitespace-nowrap">{t(item.labelKey)}</span>
                   </div>
                 ) : (
                   <div className="flex items-center justify-center w-full">
@@ -185,12 +187,11 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
                 >
                   {userName}
                 </p>
-                {/* Mengubah subtitle statis menjadi dinamis membaca namaUsaha dari database */}
                 <p
                   className="text-xs text-[#564334] truncate"
-                  title={user?.namaUsaha || "Pemilik Usaha"}
+                  title={user?.namaUsaha || t("sidebar.defaultUser")}
                 >
-                  {user?.namaUsaha || "Pemilik Usaha"}
+                  {user?.namaUsaha || t("sidebar.defaultUser")}
                 </p>
               </div>
             </div>
@@ -202,7 +203,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           >
             <LogOut size={18} strokeWidth={1.75} />
             {!isCollapsed && (
-              <span className="text-sm font-medium ml-3">Logout</span>
+              <span className="text-sm font-medium ml-3">{t("sidebar.logout")}</span>
             )}
           </button>
         </div>

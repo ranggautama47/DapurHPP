@@ -7,27 +7,24 @@ import { toast } from "sonner";
 import { api } from "@/lib/axios";
 import { formatLocalDate } from "@/lib/utils";
 import type { Pengeluaran, Kategori } from "@/types/pengeluaran";
-import {
-  calculateStats,
-  filterByDateRange,
-  filterByKategori,
-  type PengeluaranStats,
-} from "@/lib/pengeluaran-lain";
+import { calculateStats, type PengeluaranStats } from "@/lib/pengeluaran-lain";
 import {
   StatsCards,
   FilterBar,
   PengeluaranTable,
   PengeluaranForm,
 } from "@/components/dashboard/pengeluaran";
+import { useTranslation } from "@/context/language-context";
 
 export default function PengeluaranPageClient() {
+  const { t } = useTranslation("master");
   const [allData, setAllData] = useState<Pengeluaran[]>([]);
   const [filteredData, setFilteredData] = useState<Pengeluaran[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Filter state
-  const [tanggal, setTanggal] = useState(formatLocalDate(new Date()));
+  const [tanggal, setTanggal] = useState("");
   const [tanggalMulai, setTanggalMulai] = useState("");
   const [tanggalAkhir, setTanggalAkhir] = useState("");
   const [kategori, setKategori] = useState<Kategori | "Semua">("Semua");
@@ -45,35 +42,57 @@ export default function PengeluaranPageClient() {
       setAllData(res.data);
       setFilteredData(res.data);
     } catch {
-      setError("Gagal memuat data pengeluaran");
+      setError(t("expenses.errorLoad"));
       setAllData([]);
       setFilteredData([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchAll();
   }, [fetchAll]);
 
+  // Logika Filter Presisi tanpa menimpa allData
   const applyFilter = useCallback(() => {
     let result = [...allData];
-    if (tanggalMulai && tanggalAkhir) {
-      result = filterByDateRange(result, tanggalMulai, tanggalAkhir);
+
+    // 1. Filter Rentang Tanggal (Dari - Sampai)
+    if (tanggalMulai || tanggalAkhir) {
+      result = result.filter((item) => {
+        const itemDate = item.tanggal ? item.tanggal.split("T")[0] : "";
+        if (tanggalMulai && itemDate < tanggalMulai) return false;
+        if (tanggalAkhir && itemDate > tanggalAkhir) return false;
+        return true;
+      });
+    } else if (tanggal) {
+      // 2. Filter Tanggal Tunggal (jika rentang tidak diisi)
+      result = result.filter((item) => {
+        const itemDate = item.tanggal ? item.tanggal.split("T")[0] : "";
+        return itemDate === tanggal;
+      });
     }
-    result = filterByKategori(result, kategori);
+
+    // 3. Filter Kategori
+    if (kategori && kategori !== "Semua") {
+      result = result.filter((item) => item.kategori === kategori);
+    }
+
     setFilteredData(result);
-  }, [allData, tanggalMulai, tanggalAkhir, kategori]);
+  }, [allData, tanggal, tanggalMulai, tanggalAkhir, kategori]);
 
   const handleApplyFilter = () => {
     applyFilter();
   };
 
-  // Reset filter when allData changes (after CRUD)
-  useEffect(() => {
+  const handleResetFilter = () => {
+    setTanggal("");
+    setTanggalMulai("");
+    setTanggalAkhir("");
+    setKategori("Semua");
     setFilteredData(allData);
-  }, [allData]);
+  };
 
   const todayStr = formatLocalDate(new Date());
   const stats: PengeluaranStats = calculateStats(allData, todayStr);
@@ -87,11 +106,11 @@ export default function PengeluaranPageClient() {
     if (deleteConfirm === null) return;
     try {
       await api.delete(`/pengeluaran-lain/${deleteConfirm}`);
-      toast.success("Data berhasil dihapus");
+      toast.success(t("expenses.successDelete"));
       setDeleteConfirm(null);
       await fetchAll();
     } catch {
-      toast.error("Gagal menghapus data");
+      toast.error(t("expenses.errorDelete"));
       setDeleteConfirm(null);
     }
   };
@@ -111,10 +130,12 @@ export default function PengeluaranPageClient() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="font-[var(--font-playfair)] font-bold text-3xl md:text-4xl text-[#2A1711] mb-2">
-            Pengeluaran Lain-lain
+            {t("expenses.title")}
           </h1>
           <p className="text-[#564334] text-lg">
-            Kelola semua pengeluaran operasional UMKM Anda
+            {t("expenses.subtitle", {
+              defaultValue: "Kelola operasional dan pengeluaran harian usaha",
+            })}
           </p>
         </div>
         <button
@@ -125,34 +146,25 @@ export default function PengeluaranPageClient() {
           className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#FF8A00] text-white font-semibold hover:bg-[#E67E00] transition-all shadow-[0_10px_30px_rgba(255,138,0,0.25)]"
         >
           <Plus className="w-5 h-5" />
-          Tambah Pengeluaran
+          {t("expenses.addTitle")}
         </button>
       </div>
 
       {/* Stats Cards */}
       <StatsCards stats={stats} loading={loading} />
 
-      {/* Filter */}
+      {/* Filter Bar */}
       <FilterBar
         tanggal={tanggal}
         tanggalMulai={tanggalMulai}
         tanggalAkhir={tanggalAkhir}
         kategori={kategori}
-        onTanggalChange={(v) => {
-          setTanggal(v);
-          if (v) {
-            api
-              .get<Pengeluaran[]>(`/pengeluaran-lain?tanggal=${v}`)
-              .then((res) => {
-                setAllData(res.data);
-              })
-              .catch(() => {});
-          }
-        }}
+        onTanggalChange={setTanggal}
         onTanggalMulaiChange={setTanggalMulai}
         onTanggalAkhirChange={setTanggalAkhir}
         onKategoriChange={setKategori}
         onApply={handleApplyFilter}
+        onReset={handleResetFilter}
       />
 
       {/* Error */}
@@ -163,9 +175,8 @@ export default function PengeluaranPageClient() {
         </div>
       )}
 
-      {/* Content: 2 columns */}
+      {/* Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: Table */}
         <div className="lg:col-span-2">
           <PengeluaranTable
             data={filteredData}
@@ -175,7 +186,6 @@ export default function PengeluaranPageClient() {
           />
         </div>
 
-        {/* Right: Form */}
         <div>
           {showForm && (
             <PengeluaranForm
@@ -191,10 +201,10 @@ export default function PengeluaranPageClient() {
                   <Receipt className="w-7 h-7 text-[#FF8A00]" />
                 </div>
                 <p className="text-[#564334] font-medium mb-1">
-                  Belum ada pengeluaran dipilih
+                  {t("expenses.noExpenseSelected")}
                 </p>
                 <p className="text-[#8A7362] text-sm mb-5">
-                  Klik tombol Tambah Pengeluaran untuk memulai
+                  {t("expenses.clickToAdd")}
                 </p>
                 <button
                   onClick={() => {
@@ -204,7 +214,7 @@ export default function PengeluaranPageClient() {
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#FF8A00] text-white font-semibold text-sm hover:bg-[#E67E00] transition-all"
                 >
                   <Plus className="w-4 h-4" />
-                  Tambah Pengeluaran
+                  {t("expenses.addTitle")}
                 </button>
               </div>
             </div>
@@ -214,9 +224,11 @@ export default function PengeluaranPageClient() {
 
       <ConfirmDeleteDialog
         open={deleteConfirm !== null}
-        onOpenChange={(open) => { if (!open) setDeleteConfirm(null); }}
+        onOpenChange={(open) => {
+          if (!open) setDeleteConfirm(null);
+        }}
         onConfirm={handleDelete}
-        title="Hapus pengeluaran ini?"
+        title={t("expenses.confirmDelete")}
       />
     </div>
   );

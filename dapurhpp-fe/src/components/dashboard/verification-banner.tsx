@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useAuthStore, User } from "@/lib/auth-store";
+import { useAuthStore } from "@/lib/auth-store";
 import { api } from "@/lib/axios";
-import { AlertCircle, X, Loader2, CheckCircle2 } from "lucide-react";
+import { AlertCircle, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "@/context/language-context";
 
 export function VerificationBanner() {
+  const { t } = useTranslation("dashboard");
   const { user, setUser } = useAuthStore();
   const [isSending, setIsSending] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -17,9 +19,9 @@ export function VerificationBanner() {
     setIsSending(true);
     try {
       await api.post("/auth/resend-verification", { email: user.email });
-      toast.success("Link verifikasi baru telah dikirim ke email Anda.");
+      toast.success(t("verification.success"));
     } catch {
-      toast.error("Gagal mengirim ulang. Silakan coba lagi.");
+      toast.error(t("verification.error"));
     } finally {
       setIsSending(false);
     }
@@ -31,7 +33,7 @@ export function VerificationBanner() {
         <div className="flex items-center gap-2">
           <AlertCircle className="w-4 h-4 text-[#FF8A00] flex-shrink-0" />
           <span className="text-[#5D4037] font-[var(--font-be-vietnam)]">
-            Verifikasi email Anda untuk mengaktifkan semua fitur.
+            {t("verification.notice")}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -43,16 +45,16 @@ export function VerificationBanner() {
             {isSending ? (
               <span className="flex items-center gap-1">
                 <Loader2 className="w-3 h-3 animate-spin" />
-                Mengirim...
+                {t("verification.sending")}
               </span>
             ) : (
-              "Kirim Ulang"
+              t("verification.resend")
             )}
           </button>
           <button
             onClick={() => setDismissed(true)}
             className="p-1 rounded-full hover:bg-[#FFE2DA] transition-colors"
-            aria-label="Tutup"
+            aria-label={t("verification.close")}
           >
             <X className="w-3.5 h-3.5 text-[#8A7362]" />
           </button>

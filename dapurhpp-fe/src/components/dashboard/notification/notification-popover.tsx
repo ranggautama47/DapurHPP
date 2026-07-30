@@ -11,8 +11,10 @@ import NotificationItem from "./notification-item";
 import NotificationEmpty from "./notification-empty";
 import { useNotifStore } from "@/lib/notification-store";
 import { X } from "lucide-react";
+import { useTranslation } from "@/context/language-context";
 
 export default function NotificationPopover() {
+  const { t } = useTranslation("master");
   const {
     notifications,
     unreadCount,
@@ -82,7 +84,7 @@ export default function NotificationPopover() {
                 </svg>
               </div>
               <h3 className="font-[var(--font-playfair)] font-bold text-base text-[#2A1711]">
-                Notifikasi
+                {t("notification.title")}
               </h3>
               {unreadCount > 0 && (
                 <span className="px-2 py-0.5 bg-[#FF8A00] text-white text-[10px] font-bold rounded-full">
@@ -99,7 +101,7 @@ export default function NotificationPopover() {
                   }}
                   className="text-xs text-[#FF8A00] hover:text-[#E67A00] font-medium transition-colors px-2 py-1 rounded-lg hover:bg-[#FFF8F6]"
                 >
-                  Tandai Semua
+                  {t("notification.markAllRead")}
                 </button>
               )}
               <button
@@ -137,7 +139,7 @@ export default function NotificationPopover() {
               onClick={() => setOpen(false)}
               className="w-full py-2.5 text-sm font-semibold text-center text-[#2A1711] bg-[#FFF8F6] hover:bg-[#FFE9E4] rounded-xl transition-colors"
             >
-              Tutup
+              {t("common.buttons.close")}
             </button>
           </div>
         </div>

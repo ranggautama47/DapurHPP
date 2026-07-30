@@ -1,4 +1,5 @@
 import { Package, Calendar, BarChart3, TrendingUp } from "lucide-react";
+import { useTranslation } from "@/context/language-context";
 import type { PengeluaranStats } from "@/lib/pengeluaran-lain";
 import { formatRupiah } from "@/lib/pengeluaran-lain";
 
@@ -7,34 +8,36 @@ interface StatsCardsProps {
   loading: boolean;
 }
 
-const cards = [
-  {
-    label: "Total Pengeluaran Hari Ini",
-    key: "totalHariIni" as const,
-    icon: Package,
-    color: "text-[#06D6A0] bg-[#E6FBF7]",
-  },
-  {
-    label: "Total Pengeluaran Minggu Ini",
-    key: "totalMingguIni" as const,
-    icon: Calendar,
-    color: "text-[#FF8A00] bg-[#FFF3E5]",
-  },
-  {
-    label: "Total Pengeluaran Bulan Ini",
-    key: "totalBulanIni" as const,
-    icon: BarChart3,
-    color: "text-[#8B5CF6] bg-[#F3EEFF]",
-  },
-  {
-    label: "Rata-rata per Hari Bulan Ini",
-    key: "rataRataHari" as const,
-    icon: TrendingUp,
-    color: "text-[#10B981] bg-[#E6FBF7]",
-  },
-];
-
 export function StatsCards({ stats, loading }: StatsCardsProps) {
+  const { t } = useTranslation("master");
+
+  const cards = [
+    {
+      label: t("expenses.stats.today"),
+      key: "totalHariIni" as const,
+      icon: Package,
+      color: "text-[#06D6A0] bg-[#E6FBF7]",
+    },
+    {
+      label: t("expenses.stats.thisWeek"),
+      key: "totalMingguIni" as const,
+      icon: Calendar,
+      color: "text-[#FF8A00] bg-[#FFF3E5]",
+    },
+    {
+      label: t("expenses.stats.thisMonth"),
+      key: "totalBulanIni" as const,
+      icon: BarChart3,
+      color: "text-[#8B5CF6] bg-[#F3EEFF]",
+    },
+    {
+      label: t("expenses.stats.avgDaily"),
+      key: "rataRataHari" as const,
+      icon: TrendingUp,
+      color: "text-[#10B981] bg-[#E6FBF7]",
+    },
+  ];
+
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       {cards.map((card) => {
