@@ -1,38 +1,24 @@
 "use client";
 
-const testimonials = [
-  {
-    rating: 5,
-    quote: "DapurHPP sangat membantu saya menghitung modal dan keuntungan. Sekarang usaha saya lebih terkendali!",
-    name: "Ibu Siti",
-    role: "Penjual Gorengan",
-    avatar: "👩",
-  },
-  {
-    rating: 5,
-    quote: "Aplikasi yang sederhana tapi sangat berguna. HPP otomatisnya akurat dan mudah dipahami.",
-    name: "Pak Budi",
-    role: "Pemilik Usaha Camilan",
-    avatar: "👨",
-  },
-  {
-    rating: 5,
-    quote: "Dengan DapurHPP, saya bisa pantau laba rugi setiap hari. Recommended!",
-    name: "Bu Rina",
-    role: "Usaha Aneka Gorengan",
-    avatar: "👩",
-  },
-];
+import { useTranslation } from "@/context/language-context";
 
 export function Testimonials() {
+  const { t } = useTranslation("landing");
+
+  const testimonials = Array.from({ length: 3 }, (_, i) => ({
+    rating: 5,
+    quote: t(`testimonials.list.${i < 2 ? i : 1}.quote`),
+    name: t(`testimonials.list.${i < 2 ? i : 1}.name`),
+    role: t(`testimonials.list.${i < 2 ? i : 1}.role`),
+    avatar: ["👩", "👨", "👩"][i],
+  }));
   return (
     <section className="py-16 md:py-24 bg-white">
       <div className="mx-auto max-w-[1500px] px-6">
         {/* Section Header */}
         <div className="text-center mb-12">
           <h2 className="font-[var(--font-playfair)] text-3xl md:text-4xl font-bold text-[#2A1711] mb-4">
-            Dipercaya oleh Banyak{" "}
-            <span className="text-[#FF8A00]">UMKM</span>
+            {t("testimonials.title")}
           </h2>
         </div>
 

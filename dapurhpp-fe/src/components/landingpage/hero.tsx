@@ -1,13 +1,15 @@
 "use client";
 import { useRouter } from "next/navigation";
-const checklists = [
-  { text: "Mudah Digunakan", icon: "✓" },
-  { text: "Akurat & Otomatis", icon: "✓" },
-  { text: "Aman & Terpercaya", icon: "✓" },
-];
+import { useTranslation } from "@/context/language-context";
 
 export function Hero() {
   const router = useRouter();
+  const { t } = useTranslation("landing");
+  const checklists = [
+    { text: t("hero.checklist.easy"), icon: "✓" },
+    { text: t("hero.checklist.accurate"), icon: "✓" },
+    { text: t("hero.checklist.trusted"), icon: "✓" },
+  ];
 
   const scrollToBenefits = () => {
     document.getElementById("benefits")?.scrollIntoView({
@@ -25,64 +27,62 @@ export function Hero() {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
           <div className="space-y-8">
-            {/* Badge */}
-            <div className="inline-flex items-center px-4 py-2 bg-[#FFE9E4] rounded-full text-[#914c00] text-sm font-semibold">
-              Aplikasi Hitung HPP & Keuntungan untuk UMKM Gorengan
-            </div>
+{/* Badge */}
+             <div className="inline-flex items-center px-4 py-2 bg-[#FFE9E4] rounded-full text-[#914c00] text-sm font-semibold">
+               {t("hero.badge")}
+             </div>
 
-            {/* Headline */}
-            <h1 className="font-[var(--font-playfair)] text-4xl md:text-5xl lg:text-6xl font-bold text-[#2A1711] leading-[1.15]">
-              Hitung Modal, HPP, dan Keuntungan Usaha Gorengan dengan{" "}
-              <span className="text-[#FF8A00]">Mudah</span>
-            </h1>
+             {/* Headline */}
+             <h1 className="font-[var(--font-playfair)] text-4xl md:text-5xl lg:text-6xl font-bold text-[#2A1711] leading-[1.15]">
+               {t("hero.title")}
+             </h1>
 
-            {/* Subheadline */}
-            <p className="text-[#564334] text-lg md:text-xl leading-relaxed max-w-xl">
-              DapurHPP membantu Anda mengelola bahan baku, produksi, penjualan,
-              dan mengetahui laba rugi usaha secara otomatis dan akurat.
-            </p>
+             {/* Subheadline */}
+             <p className="text-[#564334] text-lg md:text-xl leading-relaxed max-w-xl">
+               {t("hero.subtitle")}
+             </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-wrap gap-4">
-              <button
-                onClick={() => router.push("/login")}
-                className="inline-flex items-center gap-2 px-8 py-4 bg-[#FF8A00] text-white font-semibold rounded-full hover:bg-[#E67E00] hover:shadow-[0_4px_12px_rgba(255,138,0,0.3)] transition-all"
-              >
-                Mulai Gratis
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M14 5l7 7m0 0l-7 7m7-7H3"
-                  />
-                </svg>
-              </button>
-              <button
-                onClick={scrollToBenefits}
-                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-[#914c00] font-semibold rounded-full border-2 border-[#914c00] hover:bg-[#FFF8F6] transition-all"
-              >
-                Pelajari Lebih Lanjut
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                  />
-                </svg>
-              </button>
-            </div>
+{/* CTA Buttons */}
+             <div className="flex flex-wrap gap-4">
+               <button
+                 onClick={() => router.push("/login")}
+                 className="inline-flex items-center gap-2 px-8 py-4 bg-[#FF8A00] text-white font-semibold rounded-full hover:bg-[#E67E00] hover:shadow-[0_4px_12px_rgba(255,138,0,0.3)] transition-all"
+               >
+                 {t("hero.buttons.startFree")}
+                 <svg
+                   className="w-5 h-5"
+                   fill="none"
+                   stroke="currentColor"
+                   viewBox="0 0 24 24"
+                 >
+                   <path
+                     strokeLinecap="round"
+                     strokeLinejoin="round"
+                     strokeWidth={2}
+                     d="M14 5l7 7m0 0l-7 7m7-7H3"
+                   />
+                 </svg>
+               </button>
+               <button
+                 onClick={scrollToBenefits}
+                 className="inline-flex items-center gap-2 px-8 py-4 bg-white text-[#914c00] font-semibold rounded-full border-2 border-[#914c00] hover:bg-[#FFF8F6] transition-all"
+               >
+                 {t("hero.buttons.learnMore")}
+                 <svg
+                   className="w-5 h-5"
+                   fill="none"
+                   stroke="currentColor"
+                   viewBox="0 0 24 24"
+                 >
+                   <path
+                     strokeLinecap="round"
+                     strokeLinejoin="round"
+                     strokeWidth={2}
+                     d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                   />
+                 </svg>
+               </button>
+             </div>
 
             {/* Checklists */}
             <div className="flex flex-wrap gap-6">

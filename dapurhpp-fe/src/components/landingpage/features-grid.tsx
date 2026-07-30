@@ -1,55 +1,58 @@
 "use client";
 
+import { useTranslation } from "@/context/language-context";
 import { Package, FileText, ShoppingCart, Factory, ShoppingBag, TrendingUp } from "lucide-react";
 
-const features = [
-  {
-    icon: Package,
-    title: "Kelola Bahan Baku",
-    description: "Catat dan pantau harga bahan baku dengan mudah",
-    color: "#FF8A00",
-  },
-  {
-    icon: FileText,
-    title: "Resep & HPP Otomatis",
-    description: "Hitung HPP per resep secara otomatis dan akurat",
-    color: "#914c00",
-  },
-  {
-    icon: ShoppingCart,
-    title: "Belanja & Riwayat Harga",
-    description: "Catat belanja bahan dan lihat riwayat harga",
-    color: "#79564B",
-  },
-  {
-    icon: Factory,
-    title: "Produksi",
-    description: "Catat produksi harian dan hitung hasil produksi",
-    color: "#635E51",
-  },
-  {
-    icon: ShoppingBag,
-    title: "Penjualan",
-    description: "Catat penjualan dan pantau stok secara otomatis",
-    color: "#FF8A00",
-  },
-  {
-    icon: TrendingUp,
-    title: "Laba Rugi",
-    description: "Lihat laporan laba rugi dan grafik keuntungan",
-    color: "#22C55E",
-  },
-];
-
 export function FeaturesGrid() {
+  const { t } = useTranslation("landing");
+
+  const features = [
+    {
+      icon: Package,
+      title: t("features.items.ingredients.title"),
+      description: t("features.items.ingredients.description"),
+      color: "#FF8A00",
+    },
+    {
+      icon: FileText,
+      title: t("features.items.recipes.title"),
+      description: t("features.items.recipes.description"),
+      color: "#914c00",
+    },
+    {
+      icon: ShoppingCart,
+      title: t("features.items.purchases.title"),
+      description: t("features.items.purchases.description"),
+      color: "#79564B",
+    },
+    {
+      icon: Factory,
+      title: t("features.items.production.title"),
+      description: t("features.items.production.description"),
+      color: "#635E51",
+    },
+    {
+      icon: ShoppingBag,
+      title: t("features.items.sales.title"),
+      description: t("features.items.sales.description"),
+      color: "#FF8A00",
+    },
+    {
+      icon: TrendingUp,
+      title: t("features.items.profit.title"),
+      description: t("features.items.profit.description"),
+      color: "#22C55E",
+    },
+  ];
+
   return (
     <section className="py-16 md:py-24 bg-white">
       <div className="mx-auto max-w-[1500px] px-6">
         {/* Section Header */}
         <div className="text-center mb-12">
           <h2 className="font-[var(--font-playfair)] text-3xl md:text-4xl font-bold text-[#2A1711] mb-4">
-            Fitur Lengkap untuk{" "}
-            <span className="text-[#FF8A00]">Kelola Usaha</span>
+            {t("features.headingPrefix")}{" "}
+            <span className="text-[#FF8A00]">{t("features.headingHighlight")}</span>
           </h2>
         </div>
 

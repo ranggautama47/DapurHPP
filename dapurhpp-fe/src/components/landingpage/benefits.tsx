@@ -1,24 +1,16 @@
 "use client";
 
+import { useTranslation } from "@/context/language-context";
 import { CheckCircle2 } from "lucide-react";
 import Image from "next/image";
 
-const benefits = [
-  {
-    title: "Dirancang untuk UMKM Gorengan",
-    description: "Fitur khusus yang sesuai dengan kebutuhan usaha gorengan",
-  },
-  {
-    title: "Hitung Otomatis, Keputusan Lebih Cepat",
-    description: "Semua perhitungan dilakukan otomatis, hemat waktu dan tenaga",
-  },
-  {
-    title: "Pantau Usaha Kapan Saja",
-    description: "Akses data usaha Anda kapan saja dan dari mana saja",
-  },
-];
-
 export function Benefits() {
+  const { t } = useTranslation("landing");
+
+  const benefits = [0, 1, 2].map((i) => ({
+    title: t(`benefits.items.${i}.title`),
+    description: t(`benefits.items.${i}.description`),
+  }));
   return (
     <section
       id="benefits"
@@ -110,7 +102,7 @@ export function Benefits() {
           {/* Right - Content */}
           <div className="space-y-8">
             <h2 className="font-[var(--font-playfair)] text-3xl md:text-4xl font-bold text-[#2A1711] mb-4">
-              Mengapa Memilih <span className="text-[#FF8A00]">DapurHPP?</span>
+              {t("benefits.title")}
             </h2>
 
             <div className="space-y-6">
