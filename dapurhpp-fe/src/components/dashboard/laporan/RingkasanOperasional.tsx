@@ -1,6 +1,7 @@
 "use client";
 
 import { Package, ShoppingCart, ShoppingBag, FileText } from "lucide-react";
+import { useTranslation } from "@/context/language-context";
 
 interface RingkasanOperasionalProps {
   counts: {
@@ -13,10 +14,10 @@ interface RingkasanOperasionalProps {
 }
 
 const items = [
-  { key: "totalProduksi" as const, label: "Total Produksi", icon: Package, color: "#FF8A00", bg: "#FFF3E5" },
-  { key: "totalPenjualan" as const, label: "Total Penjualan", icon: ShoppingCart, color: "#06D6A0", bg: "#E6FBF7" },
-  { key: "totalBelanja" as const, label: "Total Belanja Bahan", icon: ShoppingBag, color: "#8B5CF6", bg: "#EDE9FE" },
-  { key: "totalPengeluaranLain" as const, label: "Total Pengeluaran Lain", icon: FileText, color: "#EF4444", bg: "#FEE2E2" },
+  { key: "totalProduksi" as const, labelKey: "reports.summary.totalProduction", icon: Package, color: "#FF8A00", bg: "#FFF3E5" },
+  { key: "totalPenjualan" as const, labelKey: "reports.summary.totalSales", icon: ShoppingCart, color: "#06D6A0", bg: "#E6FBF7" },
+  { key: "totalBelanja" as const, labelKey: "reports.summary.totalIngredientPurchases", icon: ShoppingBag, color: "#8B5CF6", bg: "#EDE9FE" },
+  { key: "totalPengeluaranLain" as const, labelKey: "reports.summary.totalOtherExpenses", icon: FileText, color: "#EF4444", bg: "#FEE2E2" },
 ];
 
 function Skeleton() {
@@ -36,12 +37,15 @@ function Skeleton() {
 }
 
 export function RingkasanOperasional({ counts, loading }: RingkasanOperasionalProps) {
+  const { t, language } = useTranslation("master");
+  const localeStr = language === "id" ? "id-ID" : "en-US";
+
   if (loading) return <Skeleton />;
 
   return (
     <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-4 sm:p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
       <h3 className="font-[var(--font-playfair)] font-bold text-base sm:text-lg text-[#2A1711] mb-4 sm:mb-6">
-        Ringkasan Operasional
+        {t("reports.operationalSummary")}
       </h3>
 
       <div className="grid grid-cols-2 sm:grid-cols-1 gap-3 sm:gap-4">
@@ -54,9 +58,9 @@ export function RingkasanOperasional({ counts, loading }: RingkasanOperasionalPr
               <item.icon className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={1.75} color={item.color} />
             </div>
             <div>
-              <p className="text-[10px] sm:text-xs text-[#8A7362] font-medium">{item.label}</p>
+              <p className="text-[10px] sm:text-xs text-[#8A7362] font-medium">{t(item.labelKey)}</p>
               <p className="font-[var(--font-roboto-mono)] font-bold text-xs sm:text-sm text-[#2A1711]">
-                {counts[item.key]} kali
+                {counts[item.key]} {t("reports.summary.times")}
               </p>
             </div>
           </div>

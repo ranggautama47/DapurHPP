@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
+import { useTranslation } from "@/context/language-context";
 import { useRouter } from "next/navigation";
 import {
   ChevronLeft,
@@ -19,6 +20,8 @@ import { ProduksiTable, ProduksiForm } from "@/components/dashboard/produksi";
 import { formatLocalDate } from "@/lib/utils";
 
 export default function ProduksiPageClient() {
+  const { t, language } = useTranslation("master");
+  const { t: tCommon } = useTranslation("common");
   const router = useRouter();
   const [produksiList, setProduksiList] = useState<Produksi[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -36,7 +39,7 @@ export default function ProduksiPageClient() {
       const res = await api.get<Produksi[]>(`/produksi?tanggal=${tanggal}`);
       setProduksiList(res.data);
     } catch (err) {
-      setFetchError("Gagal memuat data produksi.");
+      setFetchError(t("production.errorLoad"));
       setProduksiList([]);
     } finally {
       setIsLoading(false);
@@ -83,7 +86,9 @@ export default function ProduksiPageClient() {
     setCurrentDate(new Date(y, m - 1, d));
   };
 
-  const dateStr = currentDate.toLocaleDateString("id-ID", {
+  const dateLocale = language === "id" ? "id-ID" : "en-US";
+
+  const dateStr = currentDate.toLocaleDateString(dateLocale, {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -92,8 +97,8 @@ export default function ProduksiPageClient() {
 
   const dateInputValue = formatLocalDate(currentDate);
   const isToday =
-    new Date().toLocaleDateString("id-ID") ===
-    currentDate.toLocaleDateString("id-ID");
+    new Date().toLocaleDateString(dateLocale) ===
+    currentDate.toLocaleDateString(dateLocale);
 
   return (
     <div className="mx-auto max-w-[1500px]">
@@ -101,18 +106,16 @@ export default function ProduksiPageClient() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
           <h1 className="font-[var(--font-playfair)] font-bold text-3xl md:text-4xl text-[#2A1711] mb-2">
-            Produksi
+            {t("production.title")}
           </h1>
-          <p className="text-[#564334] text-lg">
-            Catat dan kelola hasil produksi gorengan Anda
-          </p>
+          <p className="text-[#564334] text-lg">{t("production.subtitle")}</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
           className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#FF8A00] text-white font-semibold hover:bg-[#E67E00] transition-all shadow-[0_10px_30px_rgba(255,138,0,0.25)]"
         >
           <Plus className="w-5 h-5" />
-          Tambah Produksi
+          {t("production.addTitle")}
         </button>
       </div>
 
@@ -134,7 +137,7 @@ export default function ProduksiPageClient() {
                 : "text-[#564334] hover:bg-[#FFF8F6]"
             }`}
           >
-            Hari Ini
+            {tCommon("buttons.today")}
           </button>
 
           <div className="relative">
@@ -174,13 +177,17 @@ export default function ProduksiPageClient() {
             <div className="p-2 rounded-xl bg-[#FFF3E5] text-[#FF8A00]">
               <ChefHat className="w-4 h-4" />
             </div>
-            <p className="text-xs text-[#8A7362] font-medium">Total Produksi</p>
+            <p className="text-xs text-[#8A7362] font-medium">
+              {t("reports.summary.totalProduction")}
+            </p>
           </div>
           <p className="font-[var(--font-roboto-mono)] font-bold text-2xl text-[#2A1711]">
             {totalBatch} Batch
           </p>
           <p className="text-xs text-[#06D6A0] mt-1">
-            ▲ {totalBatch} batch hari ini
+            {t("production.stats.todayProduction", {
+              count: String(totalBatch),
+            })}
           </p>
         </div>
 
@@ -189,12 +196,16 @@ export default function ProduksiPageClient() {
             <div className="p-2 rounded-xl bg-[#FFF3E5] text-[#FF8A00]">
               <Target className="w-4 h-4" />
             </div>
-            <p className="text-xs text-[#8A7362] font-medium">Total Estimasi</p>
+            <p className="text-xs text-[#8A7362] font-medium">
+              {t("production.estimatedYield")}
+            </p>
           </div>
           <p className="font-[var(--font-roboto-mono)] font-bold text-2xl text-[#2A1711]">
             {totalEstimasi.toLocaleString("id-ID")} pcs
           </p>
-          <p className="text-xs text-[#564334] mt-1">Total estimasi hasil</p>
+          <p className="text-xs text-[#564334] mt-1">
+            {t("production.stats.estimatedDescription")}
+          </p>
         </div>
 
         <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-5 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
@@ -203,7 +214,7 @@ export default function ProduksiPageClient() {
               <CheckCircle className="w-4 h-4" />
             </div>
             <p className="text-xs text-[#8A7362] font-medium">
-              Total Hasil Nyata
+              {t("production.actualYield")}
             </p>
           </div>
           <p className="font-[var(--font-roboto-mono)] font-bold text-2xl text-[#06D6A0]">
@@ -214,7 +225,9 @@ export default function ProduksiPageClient() {
               fulfillmentRate >= 90 ? "text-[#06D6A0]" : "text-[#FF8A00]"
             }`}
           >
-            {fulfillmentRate}% dari estimasi
+            {t("production.stats.fulfillmentLabel", {
+              percent: String(fulfillmentRate),
+            })}
           </p>
         </div>
 
@@ -223,12 +236,16 @@ export default function ProduksiPageClient() {
             <div className="p-2 rounded-xl bg-[#FFF3E5] text-[#FF8A00]">
               <Wallet className="w-4 h-4" />
             </div>
-            <p className="text-xs text-[#8A7362] font-medium">Total Modal</p>
+            <p className="text-xs text-[#8A7362] font-medium">
+              {t("production.totalCost")}
+            </p>
           </div>
           <p className="font-[var(--font-roboto-mono)] font-bold text-2xl text-[#FF8A00]">
             Rp {totalModal.toLocaleString("id-ID")}
           </p>
-          <p className="text-xs text-[#564334] mt-1">Total modal produksi</p>
+          <p className="text-xs text-[#564334] mt-1">
+            {t("production.stats.costDescription")}
+          </p>
         </div>
       </div>
 
@@ -244,20 +261,20 @@ export default function ProduksiPageClient() {
         {isLoading ? (
           <div className="p-8 text-center text-[#8A7362]">
             <div className="w-8 h-8 border-4 border-[#FFE9E4] border-t-[#FF8A00] rounded-full animate-spin mx-auto mb-3" />
-            Memuat data...
+            {t("production.loading")}
           </div>
         ) : produksiList.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <ChefHat className="w-16 h-16 text-[#DDC1AE] mb-4" />
             <p className="text-[#564334] text-lg font-medium mb-2">
-              Belum ada produksi hari ini
+              {t("production.emptyState")}
             </p>
             <p className="text-[#8A7362] text-sm mb-6">{dateStr}</p>
             <button
               onClick={() => setShowForm(true)}
               className="px-6 py-2.5 rounded-full bg-[#FF8A00] text-white font-medium hover:bg-[#E67E00]"
             >
-              Tambah Produksi
+              {t("production.addTitle")}
             </button>
           </div>
         ) : (

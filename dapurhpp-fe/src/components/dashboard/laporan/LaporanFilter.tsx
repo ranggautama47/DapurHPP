@@ -1,6 +1,7 @@
 "use client";
 
 import { FilterState, FilterPeriod } from "@/types/laporan";
+import { useTranslation } from "@/context/language-context";
 
 interface LaporanFilterProps {
   filter: FilterState;
@@ -10,13 +11,13 @@ interface LaporanFilterProps {
   isCustomApplied: boolean;
 }
 
-const presets: { label: string; value: FilterPeriod }[] = [
-  { label: "Hari Ini", value: 1 },
-  { label: "7 Hari", value: 7 },
-  { label: "30 Hari", value: 30 },
-  { label: "3 Bulan", value: 90 },
-  { label: "6 Bulan", value: 180 },
-  { label: "Custom", value: "custom" },
+const presets: { labelKey: string; value: FilterPeriod }[] = [
+  { labelKey: "reports.presets.today", value: 1 },
+  { labelKey: "reports.presets.7days", value: 7 },
+  { labelKey: "reports.presets.30days", value: 30 },
+  { labelKey: "reports.presets.3months", value: 90 },
+  { labelKey: "reports.presets.6months", value: 180 },
+  { labelKey: "reports.custom", value: "custom" },
 ];
 
 export function LaporanFilter({
@@ -26,12 +27,14 @@ export function LaporanFilter({
   onApplyCustom,
   isCustomApplied,
 }: LaporanFilterProps) {
+  const { t, language } = useTranslation("master");
+  const localeStr = language === "id" ? "id-ID" : "en-US";
   const isCustom = filter.period === "custom";
 
   return (
     <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-4 sm:p-6 mb-6 sm:mb-8 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
       <p className="font-[var(--font-be-vietnam)] font-semibold text-xs sm:text-sm text-[#564334] mb-3 sm:mb-4">
-        Filter Periode
+        {t("reports.filterPeriod")}
       </p>
 
       {/* Preset Buttons Grid di mobile */}
@@ -48,7 +51,7 @@ export function LaporanFilter({
                   : "bg-white border border-[#DDC1AE] text-[#564334] rounded-full px-3 py-2 text-xs sm:text-sm hover:bg-[#FFF8F6] transition-all text-center"
               }
             >
-              {preset.label}
+              {t(preset.labelKey)}
             </button>
           );
         })}
@@ -58,7 +61,7 @@ export function LaporanFilter({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
           <div>
             <label className="block text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-[#8A7362] mb-1">
-              Dari Tanggal
+              {t("reports.fromDate")}
             </label>
             <input
               type="date"
@@ -70,7 +73,7 @@ export function LaporanFilter({
           </div>
           <div>
             <label className="block text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-[#8A7362] mb-1">
-              Sampai Tanggal
+              {t("reports.toDate")}
             </label>
             <input
               type="date"
@@ -86,7 +89,7 @@ export function LaporanFilter({
           disabled={!isCustom || isCustomApplied}
           className="w-full sm:w-auto bg-[#FF8A00] text-white rounded-full px-6 py-2.5 font-semibold text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#E67E00] transition-all whitespace-nowrap"
         >
-          Terapkan Filter
+          {t("reports.applyFilter")}
         </button>
       </div>
     </div>

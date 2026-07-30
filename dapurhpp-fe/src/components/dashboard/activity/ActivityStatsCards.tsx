@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/axios";
 import { buildAktivitasQuery, type AktivitasQueryParams } from "@/lib/aktivitas-query";
+import { useTranslation } from "@/context/language-context";
 
 interface StatsResponse {
   today: number;
@@ -21,13 +22,15 @@ interface StatsResponse {
 }
 
 const ICON_CONFIG = {
-  today: { icon: Clock, bg: "#D0F4DE", color: "#06D6A0", label: "Total Aktivitas Hari Ini" },
-  week: { icon: Calendar, bg: "#FFF3E0", color: "#FFB020", label: "Aktivitas Minggu Ini" },
-  month: { icon: CalendarDays, bg: "#EAF2D7", color: "#606C38", label: "Aktivitas Bulan Ini" },
-  topType: { icon: BarChart2, bg: "#F3E8FF", color: "#6B21A8", label: "Jenis Aktivitas Terbanyak" },
+  today: { icon: Clock, bg: "#D0F4DE", color: "#06D6A0" },
+  week: { icon: Calendar, bg: "#FFF3E0", color: "#FFB020" },
+  month: { icon: CalendarDays, bg: "#EAF2D7", color: "#606C38" },
+  topType: { icon: BarChart2, bg: "#F3E8FF", color: "#6B21A8" },
 };
 
 export function ActivityStatsCards() {
+  const { t, language } = useTranslation("master");
+  const localeStr = language === "id" ? "id-ID" : "en-US";
   const [stats, setStats] = useState<StatsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
@@ -57,24 +60,28 @@ export function ActivityStatsCards() {
   const cards = [
     {
       ...ICON_CONFIG.today,
+      label: t("activity.stats.today"),
       value: stats?.today ?? 0,
-      suffix: "aktivitas",
+      suffix: t("activity.suffix"),
       subLabel: undefined as string | undefined,
     },
     {
       ...ICON_CONFIG.week,
+      label: t("activity.stats.thisWeek"),
       value: stats?.thisWeek ?? 0,
-      suffix: "aktivitas",
+      suffix: t("activity.suffix"),
       subLabel: undefined as string | undefined,
     },
     {
       ...ICON_CONFIG.month,
+      label: t("activity.stats.thisMonth"),
       value: stats?.thisMonth ?? 0,
-      suffix: "aktivitas",
+      suffix: t("activity.suffix"),
       subLabel: undefined as string | undefined,
     },
     {
       ...ICON_CONFIG.topType,
+      label: t("activity.stats.mostActiveType"),
       value: stats?.topType?.count ?? 0,
       suffix: "x",
       subLabel: topTypeLabel,
@@ -87,12 +94,12 @@ export function ActivityStatsCards() {
         <svg className="w-12 h-12 mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <p className="text-base mb-4">Gagal memuat statistik aktivitas</p>
+        <p className="text-base mb-4">{t("activity.statsLoadError")}</p>
         <button
           onClick={fetchStats}
           className="px-5 py-2 rounded-full bg-[#FF8A00] text-white text-sm font-medium hover:bg-[#E67E00] transition-colors"
         >
-          Coba Lagi
+          {t("common.buttons.retry")}
         </button>
       </div>
     );
@@ -139,7 +146,7 @@ export function ActivityStatsCards() {
                 className="text-2xl font-bold font-[var(--font-roboto-mono)] text-[#2A1711]"
                 style={{ color: card.color }}
               >
-                {card.value.toLocaleString("id-ID")}
+                {card.value.toLocaleString(localeStr)}
                 <span className="text-lg font-normal text-[#8A7362] ml-1">
                   {card.suffix}
                 </span>

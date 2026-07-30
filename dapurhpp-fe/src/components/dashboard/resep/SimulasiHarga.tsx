@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X, TrendingUp, Info } from "lucide-react";
 import { Resep } from "@/types/resep";
+import { useTranslation } from "@/context/language-context";
 
 interface SimulasiHargaProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface SimulasiHargaProps {
 const presetMargins = [10, 20, 30, 40];
 
 export function SimulasiHarga({ isOpen, onClose, resep }: SimulasiHargaProps) {
+  const { t, language } = useTranslation("master");
   const [targetMargin, setTargetMargin] = useState<number | "custom">(20);
   const [customMargin, setCustomMargin] = useState(25);
 
@@ -21,6 +23,8 @@ export function SimulasiHarga({ isOpen, onClose, resep }: SimulasiHargaProps) {
   const hargaJualPerPcs = hppPerPcs * (1 + margin / 100);
   const untungPerPcs = hargaJualPerPcs - hppPerPcs;
   const untungPerBatch = untungPerPcs * resep.estimasiHasil;
+
+  const locale = language === "id" ? "id-ID" : "en-US";
 
   if (!isOpen) return null;
 
@@ -35,35 +39,35 @@ export function SimulasiHarga({ isOpen, onClose, resep }: SimulasiHargaProps) {
               <button
                 onClick={onClose}
                 className="p-1 rounded-full hover:bg-[#FFF8F6] text-[#564334] transition-colors"
-                aria-label="Kembali"
+                aria-label={t("recipes.simulation.closeAria")}
               >
                 <X className="w-5 h-5" strokeWidth={1.75} />
               </button>
               <h2 className="font-[var(--font-playfair)] font-bold text-xl text-[#2A1711]">
-                Simulasi Harga Jual
+                {t("recipes.simulation.title")}
               </h2>
             </div>
           </div>
 
           <p className="text-sm text-[#8A7362] mb-5">
-            Hitung harga jual berdasarkan target margin keuntungan yang diinginkan.
+            {t("recipes.simulation.description")}
           </p>
 
           {/* Info Resep */}
           <div className="bg-[#FFF8F6] rounded-[16px] border border-[#F5E6D8] p-4 mb-5">
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <p className="text-xs text-[#8A7362] font-[var(--font-be-vietnam)] mb-0.5">Resep</p>
+                <p className="text-xs text-[#8A7362] font-[var(--font-be-vietnam)] mb-0.5">{t("recipes.simulation.recipeInfo")}</p>
                 <p className="font-semibold text-sm text-[#2A1711] truncate">{resep.nama}</p>
               </div>
               <div>
-                <p className="text-xs text-[#8A7362] font-[var(--font-be-vietnam)] mb-0.5">HPP / pcs</p>
+                <p className="text-xs text-[#8A7362] font-[var(--font-be-vietnam)] mb-0.5">{t("recipes.simulation.hppPerPcs")}</p>
                 <p className="font-[var(--font-roboto-mono)] font-bold text-sm text-[#FF8A00]">
-                  Rp {hppPerPcs.toLocaleString("id-ID")}
+                  Rp {hppPerPcs.toLocaleString(locale)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-[#8A7362] font-[var(--font-be-vietnam)] mb-0.5">Hasil / Batch</p>
+                <p className="text-xs text-[#8A7362] font-[var(--font-be-vietnam)] mb-0.5">{t("recipes.simulation.yieldPerBatch")}</p>
                 <p className="font-[var(--font-roboto-mono)] font-semibold text-sm text-[#2A1711]">
                   {resep.estimasiHasil} pcs
                 </p>
@@ -74,7 +78,7 @@ export function SimulasiHarga({ isOpen, onClose, resep }: SimulasiHargaProps) {
           {/* Target Margin */}
           <div className="mb-5">
             <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#5D4037] mb-3 ml-1">
-              Target Margin
+              {t("recipes.simulation.targetMargin")}
             </p>
             <div className="flex flex-wrap gap-2">
               {presetMargins.map((m) => (
@@ -98,7 +102,7 @@ export function SimulasiHarga({ isOpen, onClose, resep }: SimulasiHargaProps) {
                     : "bg-white border border-[#DDC1AE] text-[#564334] hover:bg-[#FFF8F6]"
                 }`}
               >
-                Custom
+                {t("recipes.simulation.customMargin")}
               </button>
             </div>
             {targetMargin === "custom" && (
@@ -110,7 +114,7 @@ export function SimulasiHarga({ isOpen, onClose, resep }: SimulasiHargaProps) {
                   className="w-24 px-3 py-2 bg-white border-2 border-[#DDC1AE] rounded-full text-sm text-[#2A1711] focus:outline-none focus:border-[#FF8A00]"
                   min="0"
                   max="1000"
-                  placeholder="25"
+                  placeholder={t("recipes.simulation.customPlaceholder")}
                 />
                 <span className="text-sm text-[#564334] font-semibold">%</span>
               </div>
@@ -120,36 +124,36 @@ export function SimulasiHarga({ isOpen, onClose, resep }: SimulasiHargaProps) {
           {/* Hasil Perhitungan */}
           <div className="bg-white rounded-[16px] border-2 border-[#06D6A0]/30 shadow-[0_4px_16px_rgba(6,214,160,0.1)] p-5 mb-5">
             <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#06D6A0] mb-4">
-              Hasil Perhitungan
+              {t("recipes.simulation.resultsTitle")}
             </p>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-[#564334] font-[var(--font-be-vietnam)]">
-                  Harga Jual / pcs
+                  {t("recipes.simulation.sellingPricePerPcs")}
                 </span>
                 <span className="font-[var(--font-roboto-mono)] font-bold text-xl text-[#2A1711]">
-                  Rp {Math.round(hargaJualPerPcs).toLocaleString("id-ID")}
+                  Rp {Math.round(hargaJualPerPcs).toLocaleString(locale)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-[#564334] font-[var(--font-be-vietnam)]">
-                  Untung / pcs
+                  {t("recipes.simulation.profitPerPcs")}
                 </span>
                 <span className="font-[var(--font-roboto-mono)] font-semibold text-[#06D6A0]">
-                  Rp {Math.round(untungPerPcs).toLocaleString("id-ID")}
+                  Rp {Math.round(untungPerPcs).toLocaleString(locale)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-[#564334] font-[var(--font-be-vietnam)]">
-                  Untung / Batch
+                  {t("recipes.simulation.profitPerBatch")}
                 </span>
                 <span className="font-[var(--font-roboto-mono)] font-semibold text-[#06D6A0]">
-                  Rp {Math.round(untungPerBatch).toLocaleString("id-ID")}
+                  Rp {Math.round(untungPerBatch).toLocaleString(locale)}
                 </span>
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-[#F5E6D8]">
                 <span className="text-sm text-[#564334] font-[var(--font-be-vietnam)]">
-                  Margin
+                  {t("recipes.simulation.marginLabel")}
                 </span>
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#D0F4DE] text-[#06D6A0]">
                   {margin.toFixed(1)}%
@@ -161,19 +165,19 @@ export function SimulasiHarga({ isOpen, onClose, resep }: SimulasiHargaProps) {
           {/* Rumus */}
           <div className="bg-[#FFF8F6] rounded-[16px] border border-[#F5E6D8] p-4 mb-5">
             <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#8A7362] mb-2">
-              Rumus
+              {t("recipes.simulation.formulaTitle")}
             </p>
             <div className="flex items-center justify-center gap-2 text-sm font-[var(--font-roboto-mono)]">
               <span className="px-3 py-1.5 bg-white rounded-lg border border-[#DDC1AE] text-[#564334]">
-                HPP Rp {Math.round(hppPerPcs).toLocaleString("id-ID")}
+                {t("recipes.simulation.formulaHpp")} Rp {Math.round(hppPerPcs).toLocaleString(locale)}
               </span>
-              <span className="text-[#8A7362]">+</span>
+              <span className="text-[#8A7362]">{t("recipes.simulation.formulaPlus")}</span>
               <span className="px-3 py-1.5 bg-white rounded-lg border border-[#DDC1AE] text-[#06D6A0]">
-                Untung Rp {Math.round(untungPerPcs).toLocaleString("id-ID")}
+                {t("recipes.simulation.formulaProfit")} Rp {Math.round(untungPerPcs).toLocaleString(locale)}
               </span>
-              <span className="text-[#8A7362]">=</span>
+              <span className="text-[#8A7362]">{t("recipes.simulation.formulaEquals")}</span>
               <span className="px-3 py-1.5 bg-[#2A1711] rounded-lg text-white font-bold">
-                Rp {Math.round(hargaJualPerPcs).toLocaleString("id-ID")}
+                Rp {Math.round(hargaJualPerPcs).toLocaleString(locale)}
               </span>
             </div>
           </div>
@@ -182,7 +186,7 @@ export function SimulasiHarga({ isOpen, onClose, resep }: SimulasiHargaProps) {
           <div className="flex items-start gap-2 text-xs text-[#8A7362]">
             <Info className="w-4 h-4 flex-shrink-0 mt-0.5" strokeWidth={1.75} />
             <p className="font-[var(--font-be-vietnam)]">
-              Simulasi ini hanya perkiraan berdasarkan HPP dari harga bahan baku terakhir. Harga jual aktual dapat disesuaikan dengan kondisi pasar, biaya operasional, dan strategi bisnis Anda.
+              {t("recipes.simulation.disclaimer")}
             </p>
           </div>
         </div>

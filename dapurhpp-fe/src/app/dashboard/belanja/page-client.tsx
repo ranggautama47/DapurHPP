@@ -3,30 +3,33 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Plus, 
-  ShoppingCart, 
-  Package, 
-  Users, 
-  Weight, 
-  Calendar, 
-  History 
+import {
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  ShoppingCart,
+  Package,
+  Users,
+  Weight,
+  Calendar,
+  History,
 } from "lucide-react";
 import { BelanjaRingkasan } from "@/types/belanja";
 import { api } from "@/lib/axios";
 import { BelanjaTable, BelanjaForm } from "@/components/dashboard/belanja";
 import { formatLocalDate } from "@/lib/utils";
+import { useTranslation } from "@/context/language-context";
 
 export default function BelanjaPageClient() {
   const router = useRouter();
+  const { t, language } = useTranslation("master");
+  const { t: tCommon } = useTranslation("common");
   const [ringkasan, setRingkasan] = useState<BelanjaRingkasan | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  
+
   // Ref untuk Date Picker
   const dateInputRef = useRef<HTMLInputElement>(null);
 
@@ -35,10 +38,12 @@ export default function BelanjaPageClient() {
     setFetchError(null);
     try {
       const tanggal = formatLocalDate(date);
-      const res = await api.get<BelanjaRingkasan>(`/belanja/ringkasan?tanggal=${tanggal}`);
+      const res = await api.get<BelanjaRingkasan>(
+        `/belanja/ringkasan?tanggal=${tanggal}`,
+      );
       setRingkasan(res.data);
     } catch (err) {
-      setFetchError("Gagal memuat data belanja.");
+      setFetchError(t("purchases.errorLoad"));
       setRingkasan(null);
     } finally {
       setIsLoading(false);
@@ -69,17 +74,21 @@ export default function BelanjaPageClient() {
     setCurrentDate(new Date(y, m - 1, d));
   };
 
-  const dateStr = currentDate.toLocaleDateString("id-ID", {
+  const dateLocale = language === "id" ? "id-ID" : "en-US";
+
+  const dateStr = currentDate.toLocaleDateString(dateLocale, {
     weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
   });
-  
+
   const dateInputValue = formatLocalDate(currentDate);
-  
+
   // Cek apakah hari ini untuk status aktif tombol
-  const isToday = new Date().toLocaleDateString("id-ID") === currentDate.toLocaleDateString("id-ID");
+  const isToday =
+    new Date().toLocaleDateString(dateLocale) ===
+    currentDate.toLocaleDateString(dateLocale);
 
   // Stats yang sudah diperbaiki errornya
   const stats = {
@@ -93,11 +102,12 @@ export default function BelanjaPageClient() {
     <div className="mx-auto max-w-[1500px]">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          {/* HEADER TIDAK DIGANTI SESUAI PERMINTAAN */}
           <h1 className="font-[var(--font-playfair)] font-bold text-3xl md:text-4xl text-[#2A1711] mb-2">
-            Belanja
+            {t("purchases.title")}
           </h1>
-          <p className="text-[#564334] text-lg">Kelola semua transaksi pembelian bahan baku</p>
+          <p className="text-[#564334] text-lg">
+            {t("purchases.subtitle")}
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <Link
@@ -105,14 +115,14 @@ export default function BelanjaPageClient() {
             className="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-[#DDC1AE] text-[#564334] font-semibold hover:bg-[#FFF8F6] hover:border-[#FF8A00] hover:text-[#FF8A00] transition-all"
           >
             <History className="w-5 h-5" />
-            Riwayat
+            {t("purchases.history")}
           </Link>
           <button
             onClick={() => setShowForm(true)}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#FF8A00] text-white font-semibold hover:bg-[#E67E00] transition-all shadow-[0_10px_30px_rgba(255,138,0,0.25)]"
           >
             <Plus className="w-5 h-5" />
-            Tambah Belanja
+            {t("purchases.addTitle")}
           </button>
         </div>
       </div>
@@ -130,20 +140,20 @@ export default function BelanjaPageClient() {
           <button
             onClick={handleToday}
             className={`px-4 py-2 rounded-full text-xs font-semibold font-[var(--font-be-vietnam)] transition-all ${
-              isToday 
-                ? "bg-[#FF8A00] text-white shadow-sm" 
+              isToday
+                ? "bg-[#FF8A00] text-white shadow-sm"
                 : "text-[#564334] hover:bg-[#FFF8F6]"
             }`}
           >
-            Hari Ini
+            {tCommon("buttons.today")}
           </button>
-          
+
           <div className="relative">
             <button
               onClick={() => dateInputRef.current?.showPicker()}
               className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold font-[var(--font-be-vietnam)] transition-all ${
-                !isToday 
-                  ? "bg-[#FF8A00] text-white shadow-sm" 
+                !isToday
+                  ? "bg-[#FF8A00] text-white shadow-sm"
                   : "text-[#564334] hover:bg-[#FFF8F6]"
               }`}
             >
@@ -176,22 +186,26 @@ export default function BelanjaPageClient() {
             <div className="p-2 rounded-xl bg-[#E6FBF7] text-[#06D6A0]">
               <ShoppingCart className="w-4 h-4" />
             </div>
-            <p className="text-xs text-[#8A7362] font-medium">Total Belanja</p>
+            <p className="text-xs text-[#8A7362] font-medium">
+              {t("purchases.totalAmount")}
+            </p>
           </div>
           <p className="font-[var(--font-roboto-mono)] font-bold text-2xl text-[#06D6A0] break-all">
             Rp {stats.totalBelanja.toLocaleString("id-ID")}
           </p>
         </div>
-        
+
         <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-5 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 rounded-xl bg-[#FFF3E5] text-[#FF8A00]">
               <Package className="w-4 h-4" />
             </div>
-            <p className="text-xs text-[#8A7362] font-medium">Jumlah Item</p>
+            <p className="text-xs text-[#8A7362] font-medium">
+              {t("purchases.items")}
+            </p>
           </div>
           <p className="font-[var(--font-roboto-mono)] font-bold text-2xl text-[#2A1711]">
-            {stats.jumlahItem} item
+            {stats.jumlahItem} {t("common.labels.quantity")}
           </p>
         </div>
 
@@ -200,10 +214,13 @@ export default function BelanjaPageClient() {
             <div className="p-2 rounded-xl bg-[#FFF3E5] text-[#FF8A00]">
               <Weight className="w-4 h-4" />
             </div>
-            <p className="text-xs text-[#8A7362] font-medium">Total Qty</p>
+            <p className="text-xs text-[#8A7362] font-medium">
+              {t("purchases.totalQty")}
+            </p>
           </div>
           <p className="font-[var(--font-roboto-mono)] font-bold text-2xl text-[#2A1711]">
-            {stats.totalQty.toLocaleString("id-ID")} unit
+            {stats.totalQty.toLocaleString("id-ID")}{" "}
+            {t("common.labels.quantity")}
           </p>
         </div>
 
@@ -212,10 +229,12 @@ export default function BelanjaPageClient() {
             <div className="p-2 rounded-xl bg-[#FFF3E5] text-[#FF8A00]">
               <Users className="w-4 h-4" />
             </div>
-            <p className="text-xs text-[#8A7362] font-medium">Supplier</p>
+            <p className="text-xs text-[#8A7362] font-medium">
+              {t("purchases.supplier")}
+            </p>
           </div>
           <p className="font-[var(--font-roboto-mono)] font-bold text-2xl text-[#2A1711]">
-            {stats.jumlahSupplier} supplier
+            {stats.jumlahSupplier} {t("purchases.supplier")}
           </p>
         </div>
       </div>
@@ -232,20 +251,20 @@ export default function BelanjaPageClient() {
         {isLoading ? (
           <div className="p-8 text-center text-[#8A7362]">
             <div className="w-8 h-8 border-4 border-[#FFE9E4] border-t-[#FF8A00] rounded-full animate-spin mx-auto mb-3" />
-            Memuat data...
+            {t("common.status.loading")}
           </div>
         ) : !ringkasan || ringkasan.list.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <ShoppingCart className="w-16 h-16 text-[#DDC1AE] mb-4" />
-            <p className="text-[#564334] text-lg font-medium mb-2">Belum ada belanja hari ini</p>
-            <p className="text-[#8A7362] text-sm mb-6">
-              {dateStr}
+            <p className="text-[#564334] text-lg font-medium mb-2">
+              {t("purchases.emptyState")}
             </p>
+            <p className="text-[#8A7362] text-sm mb-6">{dateStr}</p>
             <button
               onClick={() => setShowForm(true)}
               className="px-6 py-2.5 rounded-full bg-[#FF8A00] text-white font-medium hover:bg-[#E67E00]"
             >
-              Tambah Belanja
+              {t("purchases.addTitle")}
             </button>
           </div>
         ) : (

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { ChefHat } from "lucide-react";
 import { Resep } from "@/types/resep";
+import { useTranslation } from "@/context/language-context";
 
 interface ResepCardProps {
   resep: Resep;
@@ -10,6 +11,8 @@ interface ResepCardProps {
 
 export function ResepCard({ resep }: ResepCardProps) {
   const router = useRouter();
+  const { t, language } = useTranslation("master");
+  const localeStr = language === "id" ? "id-ID" : "en-US";
 
   const handleClick = () => {
     router.push(`/dashboard/resep/${resep.id}`);
@@ -43,22 +46,22 @@ export function ResepCard({ resep }: ResepCardProps) {
             {resep.nama}
           </h3>
           <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-[#D0F4DE] text-[#06D6A0] flex-shrink-0">
-            Aktif
+            {t("recipes.status.active")}
           </span>
         </div>
 
         <div className="space-y-2 pt-3 border-t border-[#F5E6D8]">
           <div className="flex items-center justify-between">
             <span className="text-sm text-[#564334] font-[var(--font-be-vietnam)]">
-              HPP / pcs
+              {t("recipes.detail.hppPerPcs", { defaultValue: "HPP / pcs" })}
             </span>
             <span className="font-[var(--font-roboto-mono)] font-bold text-lg text-[#FF8A00]">
-              Rp {(resep.hppPerPcs ?? 0).toLocaleString("id-ID")}
+              Rp {(resep.hppPerPcs ?? 0).toLocaleString(localeStr)}
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-[#8A7362] font-[var(--font-be-vietnam)]">
-              Hasil / Batch
+              {t("recipes.estimatedYield")}
             </span>
             <span className="font-[var(--font-be-vietnam)] font-medium text-[#564334]">
               {resep.estimasiHasil} pcs
@@ -67,7 +70,7 @@ export function ResepCard({ resep }: ResepCardProps) {
           {typeof resep.detailCount === "number" && (
             <div className="flex items-center justify-between text-sm">
               <span className="text-[#8A7362] font-[var(--font-be-vietnam)]">
-                Jumlah Bahan
+                {t("recipes.ingredients")}
               </span>
               <span className="font-[var(--font-be-vietnam)] font-medium text-[#564334]">
                 {resep.detailCount} item
@@ -77,7 +80,7 @@ export function ResepCard({ resep }: ResepCardProps) {
           {resep.catatan && (
             <div className="flex items-center gap-1.5 text-xs text-[#8A7362] pt-1 border-t border-[#F5E6D8]">
               <span className="inline-block w-1 h-1 rounded-full bg-[#FF8A00]" />
-              Ada catatan
+              {t("recipes.notes")}
             </div>
           )}
         </div>

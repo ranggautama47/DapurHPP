@@ -8,6 +8,7 @@ import { BahanBakuTable, BahanBakuForm } from "@/components/dashboard/bahan-baku
 import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
 import { toast } from "sonner";
 import { api } from "@/lib/axios";
+import { useTranslation } from "@/context/language-context";
 
 export default function BahanBakuPageClient() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function BahanBakuPageClient() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+  const { t } = useTranslation("master");
 
   const ITEMS_PER_PAGE = 7;
   const filteredList = bahanList.filter((b) =>
@@ -113,10 +115,10 @@ export default function BahanBakuPageClient() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="font-[var(--font-playfair)] font-bold text-3xl md:text-4xl text-[#2A1711] mb-2">
-              Master Bahan Baku
+              {t("ingredients.pageTitle")}
             </h1>
             <p className="text-[#564334] text-lg">
-              Kelola bahan baku untuk perhitungan HPP otomatis
+              {t("ingredients.subtitle")}
             </p>
           </div>
           <button
@@ -125,7 +127,7 @@ export default function BahanBakuPageClient() {
             disabled={isSubmitting}
           >
             <Plus className="w-5 h-5" strokeWidth={2} />
-            Tambah Bahan
+            {t("ingredients.addNew")}
           </button>
         </div>
 
@@ -137,7 +139,7 @@ export default function BahanBakuPageClient() {
                 type="search"
                 value={search}
                 onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
-                placeholder="Cari nama bahan..."
+                 placeholder={t("ingredients.searchPlaceholder")}
                 className="w-full pl-12 pr-4 py-3 bg-[#FFF8F6] border-2 border-[#F5E6D8] rounded-full text-[#2A1711] placeholder-[#BCAAA4] focus:outline-none focus:border-[#FF8A00] focus:ring-2 focus:ring-[#FF8A00]/20"
               />
             </div>
@@ -160,17 +162,17 @@ export default function BahanBakuPageClient() {
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <Package className="w-16 h-16 text-[#DDC1AE] mb-4" strokeWidth={1.5} />
               <p className="text-[#564334] text-lg font-[var(--font-be-vietnam)] mb-2">
-                Belum ada bahan baku
+                {t("ingredients.emptyState")}
               </p>
               <p className="text-[#8A7362] text-sm mb-6">
-                Tambahkan bahan baku pertama Anda untuk memulai
+                {t("ingredients.emptyHint")}
               </p>
               <button
                 onClick={handleOpenForm}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#FF8A00] text-white font-[var(--font-be-vietnam)] font-semibold text-base hover:bg-[#E67E00] hover:shadow-[0_4px_12px_rgba(255,138,0,0.3)] transition-all"
               >
                 <Plus className="w-5 h-5" strokeWidth={2} />
-                Tambah Bahan Pertama
+                {t("ingredients.addFirstButton")}
               </button>
             </div>
           ) : (

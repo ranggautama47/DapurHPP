@@ -1,6 +1,7 @@
 "use client";
 
 import { Save, Loader2 } from "lucide-react";
+import { useTranslation } from "@/context/language-context";
 import { AvatarUpload } from "./avatar-upload";
 
 interface ProfileSectionProps {
@@ -34,22 +35,24 @@ export function ProfileSection({
   savingProfile,
   onSimpanProfil,
 }: ProfileSectionProps) {
+  const { t } = useTranslation("settings");
+
   return (
     <section className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 mb-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)] hover:-translate-y-1 transition-all duration-300 ease-out">
       <h2 className="font-[var(--font-playfair)] font-bold text-2xl text-[#2A1711] mb-6">
-        Profil
+        {t("profile.title")}
       </h2>
 
       <div className="flex items-center gap-5 mb-8">
         <AvatarUpload
           avatarUrl={avatarUrl}
-          userName={userName || "Pemilik Usaha"}
+          userName={userName || t("profile.defaultName")}
           isUploading={isUploading}
           onFileSelect={onAvatarSelect}
         />
         <div>
           <p className="font-semibold text-[#2A1711] text-lg">
-            {userName || "Pemilik Usaha"}
+            {userName || t("profile.defaultName")}
           </p>
           <p className="text-sm text-[#8A7362]">{userEmail}</p>
         </div>
@@ -58,39 +61,39 @@ export function ProfileSection({
       <div className="space-y-4 max-w-2xl">
         <div>
           <label className="block text-sm font-semibold text-[#564334] mb-1.5">
-            Nama Lengkap
+            {t("profile.fullName")}
           </label>
           <input
             type="text"
             value={namaLengkap}
             onChange={(e) => setNamaLengkap(e.target.value)}
             className="w-full h-12 px-4 bg-white border border-[#DDC1AE] rounded-[16px] text-[#2A1711] placeholder-[#8A7362] focus:outline-none focus:ring-2 focus:ring-[#FF8A00] focus:border-transparent transition-all duration-200"
-            placeholder="Masukkan nama lengkap"
+            placeholder={t("profile.fullNamePlaceholder")}
           />
         </div>
         <div>
           <label className="block text-sm font-semibold text-[#564334] mb-1.5">
-            Nama Usaha
+            {t("profile.businessName")}
           </label>
           <input
             type="text"
             value={namaUsaha}
             onChange={(e) => setNamaUsaha(e.target.value)}
             className="w-full h-12 px-4 bg-white border border-[#DDC1AE] rounded-[16px] text-[#2A1711] placeholder-[#8A7362] focus:outline-none focus:ring-2 focus:ring-[#FF8A00] focus:border-transparent transition-all duration-200"
-            placeholder="Masukkan nama usaha"
+            placeholder={t("profile.businessNamePlaceholder")}
           />
         </div>
         <div>
           <label className="block text-sm font-semibold text-[#564334] mb-1.5">
-            No. HP{" "}
-            <span className="text-[#8A7362] font-normal">(opsional)</span>
+            {t("profile.phoneNumber")}{" "}
+            <span className="text-[#8A7362] font-normal">{t("profile.optional")}</span>
           </label>
           <input
             type="tel"
             value={noHp}
             onChange={(e) => setNoHp(e.target.value)}
             className="w-full h-12 px-4 bg-white border border-[#DDC1AE] rounded-[16px] text-[#2A1711] placeholder-[#8A7362] focus:outline-none focus:ring-2 focus:ring-[#FF8A00] focus:border-transparent transition-all duration-200"
-            placeholder="Masukkan nomor HP"
+            placeholder={t("profile.phoneNumberPlaceholder")}
           />
         </div>
         <button
@@ -103,7 +106,7 @@ export function ProfileSection({
           ) : (
             <Save className="w-4 h-4" />
           )}
-          Simpan Perubahan
+          {t("profile.saveButton")}
         </button>
       </div>
     </section>

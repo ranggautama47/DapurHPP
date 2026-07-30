@@ -2,13 +2,14 @@
 
 import { TrendingUp, ClipboardList, TrendingDown, Wallet, Percent } from "lucide-react";
 import { RingkasanLaporan } from "@/types/laporan";
+import { useTranslation } from "@/context/language-context";
 
 interface RingkasanCardsProps {
   data: RingkasanLaporan | null;
   loading: boolean;
 }
 
-function TrendBadge({ value, suffix = "%", invert = false }: { value: number; suffix?: string; invert?: boolean }) {
+function TrendBadge({ value, suffix = "%", invert = false, note }: { value: number; suffix?: string; invert?: boolean; note: string }) {
   const isGood = invert ? value <= 0 : value >= 0;
   return (
     <div className="flex items-center gap-1 flex-wrap text-xs">
@@ -16,7 +17,7 @@ function TrendBadge({ value, suffix = "%", invert = false }: { value: number; su
         {value >= 0 ? "↑" : "↓"} {Math.abs(value).toLocaleString("id-ID", { minimumFractionDigits: 1 })}{suffix}
       </span>
       <span className="text-[10px] sm:text-xs text-[#8A7362]">
-        dari periode sebelumnya
+        {note}
       </span>
     </div>
   );
@@ -36,6 +37,9 @@ function Skeleton() {
 }
 
 export function RingkasanCards({ data, loading }: RingkasanCardsProps) {
+  const { t, language } = useTranslation("master");
+  const localeStr = language === "id" ? "id-ID" : "en-US";
+
   if (loading) {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8">
@@ -48,8 +52,8 @@ export function RingkasanCards({ data, loading }: RingkasanCardsProps) {
 
   const cards = [
     {
-      label: "Total Pendapatan",
-      value: `Rp ${(data?.totalPendapatan ?? 0).toLocaleString("id-ID")}`,
+      labelKey: "reports.summary.totalRevenue",
+      value: `Rp ${(data?.totalPendapatan ?? 0).toLocaleString(localeStr)}`,
       tren: data?.tren.pendapatan ?? 0,
       invert: false,
       icon: TrendingUp,
@@ -57,8 +61,8 @@ export function RingkasanCards({ data, loading }: RingkasanCardsProps) {
       iconColor: "#06D6A0",
     },
     {
-      label: "Total HPP",
-      value: `Rp ${(data?.totalHpp ?? 0).toLocaleString("id-ID")}`,
+      labelKey: "reports.summary.totalHpp",
+      value: `Rp ${(data?.totalHpp ?? 0).toLocaleString(localeStr)}`,
       tren: data?.tren.hpp ?? 0,
       invert: true,
       icon: ClipboardList,
@@ -66,8 +70,8 @@ export function RingkasanCards({ data, loading }: RingkasanCardsProps) {
       iconColor: "#FF8A00",
     },
     {
-      label: "Total Pengeluaran",
-      value: `Rp ${(data?.totalPengeluaran ?? 0).toLocaleString("id-ID")}`,
+      labelKey: "reports.summary.totalExpenses",
+      value: `Rp ${(data?.totalPengeluaran ?? 0).toLocaleString(localeStr)}`,
       tren: data?.tren.pengeluaran ?? 0,
       invert: true,
       icon: TrendingDown,
@@ -75,8 +79,8 @@ export function RingkasanCards({ data, loading }: RingkasanCardsProps) {
       iconColor: "#EF4444",
     },
     {
-      label: "Laba Bersih",
-      value: `Rp ${(data?.totalLaba ?? 0).toLocaleString("id-ID")}`,
+      labelKey: "reports.summary.netProfit",
+      value: `Rp ${(data?.totalLaba ?? 0).toLocaleString(localeStr)}`,
       tren: data?.tren.laba ?? 0,
       invert: false,
       icon: Wallet,
@@ -84,8 +88,8 @@ export function RingkasanCards({ data, loading }: RingkasanCardsProps) {
       iconColor: "#8B5CF6",
     },
     {
-      label: "Margin Keuntungan",
-      value: `${(data?.margin ?? 0).toLocaleString("id-ID", { minimumFractionDigits: 2 })}%`,
+      labelKey: "reports.summary.profitMargin",
+      value: `${(data?.margin ?? 0).toLocaleString(localeStr, { minimumFractionDigits: 2 })}%`,
       tren: data?.tren.margin ?? 0,
       invert: false,
       icon: Percent,
@@ -104,7 +108,7 @@ export function RingkasanCards({ data, loading }: RingkasanCardsProps) {
           {/* Header Card: Judul & Icon */}
           <div className="flex items-center justify-between gap-2 mb-2">
             <p className="text-[10px] sm:text-xs text-[#8A7362] font-semibold uppercase tracking-wider line-clamp-1">
-              {card.label}
+              {t(card.labelKey)}
             </p>
             <div
               className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -120,7 +124,7 @@ export function RingkasanCards({ data, loading }: RingkasanCardsProps) {
           </p>
 
           {/* Footer Card: Persentase Tren & Teks Keterangan */}
-          <TrendBadge value={card.tren} invert={card.invert} />
+          <TrendBadge value={card.tren} invert={card.invert} note={t("reports.summary.fromPreviousPeriod")} />
         </div>
       ))}
     </div>

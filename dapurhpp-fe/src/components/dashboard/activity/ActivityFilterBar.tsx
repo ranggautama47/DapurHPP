@@ -6,8 +6,10 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Calendar as CalendarComp } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { id } from "date-fns/locale/id";
+import { enUS } from "date-fns/locale/en-US";
 import type { DateRange } from "react-day-picker";
 import type { AktivitasQueryParams } from "@/lib/aktivitas-query";
+import { useTranslation } from "@/context/language-context";
 
 interface ActivityFilterBarProps {
   search: string;
@@ -24,14 +26,6 @@ interface ActivityFilterBarProps {
   isLoading?: boolean;
 }
 
-const ACTIVITY_TYPES = [
-  { value: "all", label: "Semua Jenis" },
-  { value: "penjualan", label: "Penjualan" },
-  { value: "belanja", label: "Belanja Bahan" },
-  { value: "produksi", label: "Produksi" },
-  { value: "pengeluaran", label: "Pengeluaran Lain" },
-] as const;
-
 export function ActivityFilterBar({
   search,
   onSearchChange,
@@ -46,6 +40,18 @@ export function ActivityFilterBar({
   hasFilters,
   isLoading,
 }: ActivityFilterBarProps) {
+  const { t, language } = useTranslation("master");
+  const localeStr = language === "id" ? "id-ID" : "en-US";
+  const dateLocale = language === "id" ? id : enUS;
+
+  const ACTIVITY_TYPES = [
+    { value: "all", label: t("activity.filter.allTypes") },
+    { value: "penjualan", label: t("activity.filter.sale") },
+    { value: "belanja", label: t("activity.filter.shopping") },
+    { value: "produksi", label: t("activity.filter.production") },
+    { value: "pengeluaran", label: t("activity.filter.otherExpense") },
+  ] as const;
+
   const [isDatePopoverOpen, setIsDatePopoverOpen] = useState(false);
   const [dateMode, setDateMode] = useState<"single" | "range">("single");
   const [singleDate, setSingleDate] = useState<Date | undefined>(startDate);
@@ -59,10 +65,10 @@ export function ActivityFilterBar({
 
   const labelText =
     dateMode === "range" && range?.from && range?.to
-      ? `${format(range.from, "d MMM", { locale: id })} – ${format(range.to, "d MMM yyyy", { locale: id })}`
+      ? `${format(range.from, "d MMM", { locale: dateLocale })} – ${format(range.to, "d MMM yyyy", { locale: dateLocale })}`
       : singleDate
-      ? format(singleDate, "EEEE, d MMMM yyyy", { locale: id })
-      : "Pilih Tanggal";
+      ? format(singleDate, "EEEE, d MMMM yyyy", { locale: dateLocale })
+      : t("activity.filter.selectDate");
 
   const handleDateApply = () => {
     if (dateMode === "single" && singleDate) {
@@ -86,7 +92,7 @@ export function ActivityFilterBar({
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#8A7362]" />
           <input
             type="text"
-            placeholder="Cari aktivitas..."
+            placeholder={t("activity.filter.searchPlaceholder")}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             className="w-full pl-12 pr-4 py-3 bg-[#FFF8F6] border border-[#DDC1AE] rounded-full text-[#2A1711] placeholder-[#8A7362] font-[var(--font-be-vietnam)] text-sm focus:outline-none focus:ring-2 focus:ring-[#FF8A00] focus:border-transparent transition-all"
@@ -121,7 +127,7 @@ export function ActivityFilterBar({
                     : "text-[#564334] hover:bg-[#FFF8F6]"
                 }`}
               >
-                Tanggal Tunggal
+                {t("activity.filter.singleDate")}
               </button>
               <button
                 type="button"
@@ -132,7 +138,7 @@ export function ActivityFilterBar({
                     : "text-[#564334] hover:bg-[#FFF8F6]"
                 }`}
               >
-                Rentang Tanggal
+                {t("activity.filter.dateRange")}
               </button>
             </div>
             {dateMode === "single" ? (
@@ -155,14 +161,14 @@ export function ActivityFilterBar({
                 onClick={handleResetDate}
                 className="px-3 py-1.5 text-xs font-medium text-[#8A7362] hover:text-[#FF8A00] transition-colors"
               >
-                Hapus
+                {t("common.buttons.clear")}
               </button>
               <button
                 type="button"
                 onClick={handleDateApply}
                 className="px-4 py-1.5 rounded-full bg-[#FF8A00] text-white text-xs font-semibold font-[var(--font-be-vietnam)] hover:bg-[#E67E00] transition-colors"
               >
-                Terapkan
+                {t("activity.filter.applyFilter")}
               </button>
             </div>
           </PopoverContent>
@@ -180,8 +186,8 @@ export function ActivityFilterBar({
             >
               <Filter className="w-4 h-4" />
               <span>
-                {ACTIVITY_TYPES.find((t) => t.value === activityType)?.label ||
-                  "Jenis Aktivitas"}
+                {ACTIVITY_TYPES.find((a) => a.value === activityType)?.label ||
+                  t("activity.filter.activityType")}
               </span>
             </button>
           </PopoverTrigger>

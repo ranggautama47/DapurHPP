@@ -1,6 +1,7 @@
 "use client";
 
 import { Bell, Package, TrendingUp } from "lucide-react";
+import { useTranslation } from "@/context/language-context";
 import { Toggle } from "./toggle";
 
 interface NotificationSectionProps {
@@ -20,10 +21,12 @@ export function NotificationSection({
   onToggleStok,
   onTogglePenjualan,
 }: NotificationSectionProps) {
+  const { t } = useTranslation("settings");
+
   return (
     <section className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 mb-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)] hover:-translate-y-1 transition-all duration-300 ease-out">
       <h2 className="font-[var(--font-playfair)] font-bold text-2xl text-[#2A1711] mb-6">
-        Notifikasi
+        {t("notifications.title")}
       </h2>
 
       <div className="space-y-0 max-w-xl">
@@ -32,10 +35,10 @@ export function NotificationSection({
             <Bell className="w-5 h-5 text-[#564334] shrink-0" />
             <div>
               <p className="font-medium text-[#2A1711] text-sm">
-                Notifikasi dalam aplikasi
+                {t("notifications.appNotifications")}
               </p>
               <p className="text-xs text-[#8A7362]">
-                Terima notifikasi aktivitas akun
+                {t("notifications.appNotificationsDesc")}
               </p>
             </div>
           </div>
@@ -52,10 +55,10 @@ export function NotificationSection({
             <Package className="w-5 h-5 text-[#564334] shrink-0" />
             <div>
               <p className="font-medium text-[#2A1711] text-sm">
-                Reminder stok habis
+                {t("notifications.stockNotifications")}
               </p>
               <p className="text-xs text-[#8A7362]">
-                Pemberitahuan saat bahan baku habis
+                {t("notifications.stockNotificationsDesc")}
               </p>
             </div>
           </div>
@@ -72,10 +75,10 @@ export function NotificationSection({
             <TrendingUp className="w-5 h-5 text-[#564334] shrink-0" />
             <div>
               <p className="font-medium text-[#2A1711] text-sm">
-                Reminder penjualan
+                {t("notifications.salesNotifications")}
               </p>
               <p className="text-xs text-[#8A7362]">
-                Ringkasan penjualan harian
+                {t("notifications.salesNotificationsDesc")}
               </p>
             </div>
           </div>

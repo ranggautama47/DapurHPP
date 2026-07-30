@@ -2,6 +2,7 @@
 
 import { Pencil, Trash2, Truck } from "lucide-react";
 import { Supplier } from "@/types/supplier";
+import { useTranslation } from "@/context/language-context";
 
 interface SupplierTableProps {
   data: Supplier[];
@@ -11,12 +12,14 @@ interface SupplierTableProps {
 }
 
 export function SupplierTable({ data, onEdit, onDelete, onView }: SupplierTableProps) {
+  const { t } = useTranslation("master");
+
   if (data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <Truck className="w-16 h-16 text-[#DDC1AE] mb-4" />
-        <p className="text-[#564334] text-lg font-[var(--font-be-vietnam)] mb-4">Belum ada supplier</p>
-        <p className="text-[#8A7362] text-sm mb-6">Tambahkan supplier pertama Anda untuk memulai</p>
+        <p className="text-[#564334] text-lg font-[var(--font-be-vietnam)] mb-4">{t("suppliers.emptyState")}</p>
+        <p className="text-[#8A7362] text-sm mb-6">{t("suppliers.emptyHint")}</p>
       </div>
     );
   }
@@ -26,10 +29,10 @@ export function SupplierTable({ data, onEdit, onDelete, onView }: SupplierTableP
       <table className="w-full">
         <thead>
           <tr className="bg-[#FFF8F6] border-b border-[#DDC1AE]">
-            <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">NAMA SUPPLIER</th>
-            <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">TELEPON</th>
-            <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">ALAMAT</th>
-            <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">AKSI</th>
+            <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">{t("suppliers.columns.name")}</th>
+            <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">{t("suppliers.columns.phone")}</th>
+            <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">{t("suppliers.columns.address")}</th>
+            <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">{t("suppliers.columns.actions")}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-[#F5E6D8]">
@@ -58,7 +61,7 @@ export function SupplierTable({ data, onEdit, onDelete, onView }: SupplierTableP
                   <button
                     onClick={(e) => { e.stopPropagation(); onEdit(supplier); }}
                     className="p-2 rounded-full hover:bg-[#FFE9E4] text-[#FF8A00] transition-colors"
-                    aria-label="Edit supplier"
+                    aria-label={t("common.edit")}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -67,7 +70,7 @@ export function SupplierTable({ data, onEdit, onDelete, onView }: SupplierTableP
                   <button
                     onClick={(e) => { e.stopPropagation(); onDelete(supplier.id); }}
                     className="p-2 rounded-full hover:bg-[#FEE2E2] text-[#EF4444] transition-colors"
-                    aria-label="Hapus supplier"
+                    aria-label={t("common.delete")}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

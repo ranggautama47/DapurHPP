@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area } from "recharts";
 import { api } from "@/lib/axios";
 import { buildLaporanQuery, type LaporanDateParams } from "@/lib/laporan-query";
+import { useTranslation } from "@/context/language-context";
 
 interface ProfitDataItem { label: string; laba: number; }
 
@@ -12,6 +13,7 @@ const formatRp = (v: number) =>
   : "Rp " + v;
 
 export function ProfitChart({ dateParams }: { dateParams?: LaporanDateParams }) {
+  const { t } = useTranslation("dashboard");
   const [data, setData] = useState<ProfitDataItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
@@ -34,13 +36,13 @@ export function ProfitChart({ dateParams }: { dateParams?: LaporanDateParams }) 
     fetchProfit();
   }, [dateParams]);
 
-  const isEmpty = !data || data.length === 0 || data.every(d => (d.laba ?? 0) === 0);  // ← FIX 2: cek all-zero
+  const isEmpty = !data || data.length === 0 || data.every(d => (d.laba ?? 0) === 0);
 
   return (
     <div className="bg-white rounded-[24px] border border-[#E8D5C4] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
       <div className="flex items-center justify-between mb-6">
         <h3 className="font-[var(--font-playfair)] font-bold text-lg text-[#2A1711]">
-          Grafik Laba
+          {t("profitChart.title")}
         </h3>
       </div>
 
@@ -59,12 +61,12 @@ export function ProfitChart({ dateParams }: { dateParams?: LaporanDateParams }) 
             <svg className="w-12 h-12 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p className="text-sm mb-3">Gagal memuat grafik</p>
+            <p className="text-sm mb-3">{t("profitChart.fetchError")}</p>
             <button
               onClick={fetchProfit}
               className="px-4 py-1.5 rounded-full bg-[#FF8A00] text-white text-xs font-medium hover:bg-[#E67E00] transition-colors"
             >
-              Coba Lagi
+              {t("profitChart.retry")}
             </button>
           </div>
         ) : isEmpty ? (
@@ -72,7 +74,7 @@ export function ProfitChart({ dateParams }: { dateParams?: LaporanDateParams }) 
             <svg className="w-12 h-12 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
-            <p className="text-sm">Belum ada data untuk periode ini</p>
+            <p className="text-sm">{t("profitChart.emptyData")}</p>
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
@@ -87,7 +89,7 @@ export function ProfitChart({ dateParams }: { dateParams?: LaporanDateParams }) 
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#8A7362" }} axisLine={false} tickLine={false} dy={10} />
               <YAxis tickFormatter={formatRp} tick={{ fontSize: 11, fill: "#8A7362" }} axisLine={false} tickLine={false} width={70} />
               <Tooltip
-                formatter={(value: any) => ["Rp " + (value ?? 0).toLocaleString("id-ID"), "Laba"]}
+                formatter={(value: any) => ["Rp " + (value ?? 0).toLocaleString("id-ID"), t("profitChart.tooltipLabel")]}
                 contentStyle={{ borderRadius: 12, border: "1px solid #E8D5C4", fontSize: 12 }}
               />
               <Area type="monotone" dataKey="laba" stroke="#FF8A00" strokeWidth={2.5}

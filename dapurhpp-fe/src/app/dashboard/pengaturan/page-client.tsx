@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { api } from "@/lib/axios";
 import { useAuthStore, setTokenCookie, User } from "@/lib/auth-store";
 import { useFontSize } from "@/context/font-size-context";
+import { useTranslation } from "@/context/language-context";
 import { ChevronRight } from "lucide-react";
 import {
   ProfileSection,
@@ -38,6 +39,7 @@ export default function PengaturanPageClient() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const { fontSize, setFontSize } = useFontSize();
+  const { t } = useTranslation("settings");
 
   const [namaLengkap, setNamaLengkap] = useState(user?.name || "");
   const [namaUsaha, setNamaUsaha] = useState("");
@@ -101,7 +103,7 @@ export default function PengaturanPageClient() {
         setLastLoginAt(d.lastLoginAt);
         setCreatedAt(d.createdAt);
       } catch {
-        toast.error("Gagal memuat data profil");
+        toast.error(t("profile.loadError"));
       } finally {
         setLoadingProfile(false);
       }
@@ -119,14 +121,14 @@ export default function PengaturanPageClient() {
     setUpdatingEmail(true);
     try {
       const res = await api.patch("/users/email", { newEmail, currentPassword: emailCurrentPassword });
-      const msg = res.data?.message || "Link verifikasi telah dikirim ke email baru Anda.";
+      const msg = res.data?.message || t("security.email.success");
       toast.success(msg);
       setEditingEmail(false);
       setEmailCurrentPassword("");
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message || "Gagal mengubah email";
+          ?.message || t("security.email.error");
       toast.error(msg);
     } finally {
       setUpdatingEmail(false);
@@ -141,9 +143,9 @@ export default function PengaturanPageClient() {
         namaUsaha: namaUsaha || null,
         nomorHp: noHp || null,
       });
-      toast.success("Profil berhasil diperbarui");
+      toast.success(t("profile.success"));
     } catch {
-      toast.error("Gagal menyimpan profil");
+      toast.error(t("profile.error"));
     } finally {
       setSavingProfile(false);
     }
@@ -151,7 +153,7 @@ export default function PengaturanPageClient() {
 
   const handleUpdatePassword = async () => {
     if (passwordBaru !== konfirmasiPassword) {
-      toast.error("Konfirmasi password tidak cocok");
+      toast.error(t("security.changePassword.confirmMatchError"));
       return;
     }
     setUpdatingPassword(true);
@@ -160,14 +162,14 @@ export default function PengaturanPageClient() {
         currentPassword: passwordSaatIni,
         newPassword: passwordBaru,
       });
-      toast.success("Password berhasil diubah");
+      toast.success(t("security.changePassword.success"));
       setPasswordSaatIni("");
       setPasswordBaru("");
       setKonfirmasiPassword("");
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message || "Gagal mengubah password";
+          ?.message || t("security.changePassword.error");
       toast.error(msg);
     } finally {
       setUpdatingPassword(false);
@@ -179,7 +181,7 @@ export default function PengaturanPageClient() {
     setNotifAplikasi(v);
     api.patch("/users/profile", { notifAplikasi: v }).catch(() => {
       setNotifAplikasi(prev);
-      toast.error("Gagal memperbarui preferensi notifikasi");
+      toast.error(t("notifications.toggleError"));
     });
   };
 
@@ -188,7 +190,7 @@ export default function PengaturanPageClient() {
     setNotifStok(v);
     api.patch("/users/profile", { notifStok: v }).catch(() => {
       setNotifStok(prev);
-      toast.error("Gagal memperbarui preferensi notifikasi");
+      toast.error(t("notifications.toggleError"));
     });
   };
 
@@ -197,18 +199,18 @@ export default function PengaturanPageClient() {
     setNotifPenjualan(v);
     api.patch("/users/profile", { notifPenjualan: v }).catch(() => {
       setNotifPenjualan(prev);
-      toast.error("Gagal memperbarui preferensi notifikasi");
+      toast.error(t("notifications.toggleError"));
     });
   };
 
   const handleAvatarSelect = async (file: File) => {
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
-      toast.error("Tipe file tidak valid. Hanya JPG, PNG, dan WebP.");
+      toast.error(t("profile.fileTypeError"));
       return;
     }
     if (file.size > 2 * 1024 * 1024) {
-      toast.error("Ukuran file maksimal 2MB.");
+      toast.error(t("profile.fileSizeError"));
       return;
     }
 
@@ -224,9 +226,9 @@ export default function PengaturanPageClient() {
       if (user) {
         useAuthStore.getState().setUser({ ...user, avatarUrl: avatarPath });
       }
-      toast.success("Avatar berhasil diperbarui");
+      toast.success(t("profile.avatarSuccess"));
     } catch {
-      toast.error("Gagal mengupload avatar");
+      toast.error(t("profile.avatarError"));
     } finally {
       setIsUploading(false);
     }
@@ -252,14 +254,14 @@ export default function PengaturanPageClient() {
           href="/dashboard"
           className="hover:text-[#FF8A00] transition-colors duration-200"
         >
-          Beranda
+          {t("breadcrumb.home")}
         </Link>
         <ChevronRight className="w-3.5 h-3.5" />
-        <span className="text-[#564334] font-medium">Pengaturan</span>
+        <span className="text-[#564334] font-medium">{t("breadcrumb.settings")}</span>
       </nav>
 
       <h1 className="font-[var(--font-playfair)] font-bold text-3xl md:text-4xl text-[#2A1711] mb-8">
-        Pengaturan
+        {t("title")}
       </h1>
 
       <ProfileSection

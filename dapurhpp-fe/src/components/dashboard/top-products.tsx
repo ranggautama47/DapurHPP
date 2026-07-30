@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/axios";
 import Link from "next/link";
 import { buildLaporanQuery, type LaporanDateParams } from "@/lib/laporan-query";
+import { useTranslation } from "@/context/language-context";
 
 const BACKEND_URL = "http://localhost:3001";
 
@@ -20,6 +21,7 @@ export function TopProducts({
 }: {
   dateParams?: LaporanDateParams;
 }) {
+  const { t } = useTranslation("dashboard");
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
@@ -48,13 +50,13 @@ export function TopProducts({
     <div className="bg-white rounded-[24px] border border-[#E8D5C4] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-[var(--font-playfair)] font-bold text-lg text-[#2A1711]">
-          Produk Terlaris
+          {t("topProducts.title")}
         </h3>
         <Link
           href="/dashboard/laporan"
           className="text-sm text-[#FF8A00] font-medium hover:underline transition-colors hover:text-[#E67E00]"
         >
-          Lihat Semua
+          {t("topProducts.viewAll")}
         </Link>
       </div>
       <div className="space-y-3">
@@ -76,17 +78,17 @@ export function TopProducts({
             <svg className="w-10 h-10 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p className="text-sm mb-3">Gagal memuat produk</p>
+            <p className="text-sm mb-3">{t("topProducts.fetchError")}</p>
             <button
               onClick={fetchProducts}
               className="px-4 py-1.5 rounded-full bg-[#FF8A00] text-white text-xs font-medium hover:bg-[#E67E00] transition-colors"
             >
-              Coba Lagi
+              {t("topProducts.retry")}
             </button>
           </div>
         ) : products.length === 0 ? (
           <p className="text-center text-[#8A7362] py-4">
-            Belum ada data produk
+            {t("topProducts.emptyData")}
           </p>
         ) : (
           products.map((product, index) => (

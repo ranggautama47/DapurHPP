@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslation } from "@/context/language-context";
 import {
   Plus,
   Trash2,
@@ -17,22 +18,6 @@ import { BahanBaku } from "@/types/bahan-baku";
 import { Satuan, CreateResepDto, UpdateResepDto, Resep } from "@/types/resep";
 import { api } from "@/lib/axios";
 import { toast } from "sonner";
-
-const detailSchema = z.object({
-  bahanBakuId: z.number().min(1, "Pilih bahan"),
-  jumlah: z.number().min(0.001, "Min 0.001"),
-  satuan: z.string(),
-});
-
-const formSchema = z.object({
-  nama: z.string().min(2, "Nama minimal 2 karakter"),
-  estimasiHasil: z.number().min(1, "Minimal 1 pcs"),
-  hargaJual: z.any().optional(),
-  catatan: z.string().max(1000, "Maksimal 1000 karakter").optional(),
-  detailResep: z.array(detailSchema).min(1, "Minimal 1 bahan"),
-});
-
-type FormData = z.infer<typeof formSchema>;
 
 interface ResepFormProps {
   isOpen: boolean;
@@ -50,6 +35,24 @@ export function ResepForm({
   isLoading,
 }: ResepFormProps) {
   const isEdit = !!initialData;
+  const { t, language } = useTranslation("master");
+
+  const detailSchema = z.object({
+    bahanBakuId: z.number().min(1, t("recipes.form.selectIngredient")),
+    jumlah: z.number().min(0.001, t("recipes.form.quantityMin")),
+    satuan: z.string(),
+  });
+
+  const formSchema = z.object({
+    nama: z.string().min(2, t("recipes.form.nameMin")),
+    estimasiHasil: z.number().min(1, t("recipes.form.yieldMin")),
+    hargaJual: z.any().optional(),
+    catatan: z.string().max(1000, t("recipes.form.notesMax")).optional(),
+    detailResep: z.array(detailSchema).min(1, t("recipes.form.minIngredients")),
+  });
+
+  type FormData = z.infer<typeof formSchema>;
+
   const [bahanList, setBahanList] = useState<BahanBaku[]>([]);
   const [bahanLoading, setBahanLoading] = useState(true);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -156,10 +159,10 @@ export function ResepForm({
           const fd = new FormData();
           fd.append("file", selectedFile);
           await api.post(`/resep/${resepId}/upload-foto`, fd);
-          toast.success("Foto berhasil diunggah");
+          toast.success(t("recipes.form.uploadSuccess"));
         } catch (err) {
           console.error("Gagal upload foto:", err);
-          toast.error("Gagal mengunggah foto — coba lagi");
+          toast.error(t("recipes.form.uploadError"));
         } finally {
           setUploading(false);
         }
@@ -169,6 +172,8 @@ export function ResepForm({
 
   if (!isOpen) return null;
 
+  const locale = language === "id" ? "id-ID" : "en-US";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2A1711]/60 backdrop-blur-sm">
       <div className="relative w-full max-w-6xl bg-white rounded-[2.5rem] shadow-[0_24px_64px_-12px_rgba(42,23,17,0.4)] overflow-hidden flex flex-col max-h-[95vh] animate-in fade-in slide-in-from-bottom-8 duration-500">
@@ -177,12 +182,12 @@ export function ResepForm({
         <div className="flex-1 overflow-y-auto p-5 md:p-6">
           <div className="flex items-center justify-between mb-6 sticky top-0 bg-white/95 backdrop-blur-xs z-10 py-1">
             <h2 className="font-[var(--font-playfair)] font-bold text-2xl text-[#2A1711]">
-              {isEdit ? "Edit Resep" : "Tambah Resep"}
+              {isEdit ? t("recipes.editTitle") : t("recipes.addTitle")}
             </h2>
             <button
               onClick={onClose}
               className="p-2 rounded-full hover:bg-[#FFF8F6] text-[#564334] transition-colors"
-              aria-label="Tutup form"
+              aria-label={t("common.close")}
             >
               <X className="w-5 h-5" strokeWidth={1.75} />
             </button>
@@ -193,18 +198,18 @@ export function ResepForm({
               <div className="lg:col-span-2 space-y-5">
                 <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-5 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
                   <h3 className="font-[var(--font-playfair)] font-bold text-lg text-[#2A1711] mb-4">
-                    Informasi Resep
+                    {t("recipes.form.infoSection")}
                   </h3>
                   <div className="space-y-4">
                     <div className="space-y-1.5">
                       <label className="block text-xs font-bold uppercase tracking-[0.1em] text-[#5D4037] ml-2">
-                        Nama Resep
+                        {t("recipes.form.nameLabel")}
                       </label>
                       <input
                         type="text"
                         {...register("nama")}
                         className={`w-full pl-4 pr-4 py-3 bg-white border-2 rounded-full text-sm text-[#2A1711] placeholder-[#BCAAA4] focus:outline-none focus:border-[#BF360C] focus:ring-4 focus:ring-[#BF360C]/10 ${errors.nama ? "border-[#BA1A1A]" : "border-[#D9C4B1]"}`}
-                        placeholder="Contoh: Pisang Goreng Crispy"
+                        placeholder={t("recipes.form.namePlaceholder")}
                       />
                       {errors.nama && (
                         <p className="mt-1 flex items-center gap-1 text-xs text-[#BA1A1A] ml-2">
@@ -214,13 +219,13 @@ export function ResepForm({
                     </div>
                     <div className="space-y-1.5">
                       <label className="block text-xs font-bold uppercase tracking-[0.1em] text-[#5D4037] ml-2">
-                        Hasil / Batch (pcs)
+                        {t("recipes.form.yieldLabel")}
                       </label>
                       <input
                         type="number"
                         {...register("estimasiHasil", { valueAsNumber: true })}
                         className={`w-full pl-4 pr-4 py-3 bg-white border-2 rounded-full text-sm text-[#2A1711] placeholder-[#BCAAA4] focus:outline-none focus:border-[#BF360C] focus:ring-4 focus:ring-[#BF360C]/10 ${errors.estimasiHasil ? "border-[#BA1A1A]" : "border-[#D9C4B1]"}`}
-                        placeholder="Contoh: 50"
+                        placeholder={t("recipes.form.yieldPlaceholder")}
                         min="1"
                       />
                       {errors.estimasiHasil && (
@@ -232,14 +237,14 @@ export function ResepForm({
                     </div>
                     <div className="space-y-1.5">
                       <label className="block text-xs font-bold uppercase tracking-[0.1em] text-[#5D4037] ml-2">
-                        Harga Jual (Opsional)
+                        {t("recipes.form.sellingPriceLabel")}
                       </label>
                       <div className="relative">
                         <input
                           type="number"
                           {...register("hargaJual", { valueAsNumber: true })}
                           className="w-full pl-8 pr-4 py-3 bg-white border-2 border-[#D9C4B1] rounded-full text-sm text-[#2A1711] placeholder-[#BCAAA4] focus:outline-none focus:border-[#BF360C] focus:ring-4 focus:ring-[#BF360C]/10"
-                          placeholder="Contoh: 5000"
+                          placeholder={t("recipes.form.sellingPricePlaceholder")}
                           min="0"
                           step="100"
                         />
@@ -252,13 +257,13 @@ export function ResepForm({
                     </div>
                     <div className="space-y-1.5">
                       <label className="block text-xs font-bold uppercase tracking-[0.1em] text-[#5D4037] ml-2">
-                        Catatan (Opsional)
+                        {t("recipes.form.notesLabel")}
                       </label>
                       <textarea
                         {...register("catatan")}
                         rows={3}
                         className={`w-full px-4 py-3 bg-white border-2 rounded-2xl text-sm text-[#2A1711] placeholder-[#BCAAA4] focus:outline-none focus:border-[#BF360C] focus:ring-4 focus:ring-[#BF360C]/10 resize-none ${errors.catatan ? "border-[#BA1A1A]" : "border-[#D9C4B1]"}`}
-                        placeholder="Contoh: Resep favorit pelanggan..."
+                        placeholder={t("recipes.form.notesPlaceholder")}
                       />
                     </div>
                   </div>
@@ -267,7 +272,7 @@ export function ResepForm({
                 {/* Foto Resep */}
                 <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-5 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
                   <h3 className="font-[var(--font-playfair)] font-bold text-lg text-[#2A1711] mb-4">
-                    Foto Resep
+                    {t("recipes.form.photoSection")}
                   </h3>
                   <label className="group relative block w-full aspect-[4/3] rounded-2xl border-2 border-dashed border-[#D9C4B1] bg-[#FFF8F6] overflow-hidden cursor-pointer hover:border-[#FF8A00] hover:bg-[#FFF0E8] transition-all">
                     <input
@@ -298,10 +303,10 @@ export function ResepForm({
                           strokeWidth={1.5}
                         />
                         <p className="text-sm font-[var(--font-be-vietnam)] font-medium group-hover:text-[#FF8A00] transition-colors">
-                          Klik untuk upload foto
+                          {t("recipes.form.uploadPhoto")}
                         </p>
                         <p className="text-xs text-[#BCAAA4]">
-                          JPEG, PNG, WebP max 2MB
+                          {t("recipes.form.photoFormat")}
                         </p>
                       </div>
                     )}
@@ -325,15 +330,14 @@ export function ResepForm({
                 <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-5 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-[var(--font-playfair)] font-bold text-lg text-[#2A1711]">
-                      Bahan yang Digunakan
+                      {t("recipes.form.ingredientsSection")}
                     </h3>
                     <button
                       type="button"
                       onClick={handleAddBahan}
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#FF8A00] text-white text-xs font-semibold hover:bg-[#E67E00] transition-colors"
                     >
-                      <Plus className="w-4 h-4" strokeWidth={2.5} /> Tambah
-                      Bahan
+                      <Plus className="w-4 h-4" strokeWidth={2.5} /> {t("recipes.form.addIngredientButton")}
                     </button>
                   </div>
 
@@ -348,10 +352,10 @@ export function ResepForm({
                         strokeWidth={1.5}
                       />
                       <p className="text-sm text-[#564334] mb-1">
-                        Belum ada bahan
+                        {t("recipes.form.noIngredients")}
                       </p>
                       <p className="text-xs text-[#8A7362]">
-                        Klik "Tambah Bahan" untuk memulai
+                        {t("recipes.form.addIngredientHint")}
                       </p>
                     </div>
                   ) : (
@@ -360,19 +364,19 @@ export function ResepForm({
                         <thead>
                           <tr className="bg-[#FFF8F6] border-b border-[#DDC1AE]">
                             <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] w-8">
-                              NO
+                              {t("recipes.form.tableNo")}
                             </th>
                             <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] min-w-[190px]">
-                              BAHAN
+                              {t("recipes.form.tableIngredient")}
                             </th>
                             <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] w-28">
-                              QTY
+                              {t("recipes.form.tableQty")}
                             </th>
                             <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] w-28">
-                              HARGA SAT
+                              {t("recipes.form.tablePrice")}
                             </th>
                             <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] w-32">
-                              TOTAL
+                              {t("recipes.form.tableTotal")}
                             </th>
                             <th className="px-3 py-3 w-8" />
                           </tr>
@@ -428,9 +432,9 @@ export function ResepForm({
                                         );
                                       }}
                                       className="w-full min-w-[140px] px-3 py-2 bg-white border border-[#D9C4B1] rounded-xl text-sm text-[#2A1711] focus:outline-none focus:border-[#BF360C] appearance-none"
-                                      aria-label="Pilih bahan"
+                                      aria-label={t("recipes.form.selectIngredient")}
                                     >
-                                      <option value="">Pilih bahan</option>
+                                      <option value="">{t("recipes.form.selectIngredient")}</option>
                                       {bahanList.map((b) => (
                                         <option key={b.id} value={b.id}>
                                           {b.nama}
@@ -460,18 +464,18 @@ export function ResepForm({
                                 <td className="px-3 py-3">
                                   {hargaSat > 0 ? (
                                     <span className="font-[var(--font-roboto-mono)] text-sm text-[#564334]">
-                                      Rp {hargaSat.toLocaleString("id-ID")} /{" "}
+                                      Rp {hargaSat.toLocaleString(locale)} /{" "}
                                       {selectedBahan?.satuan || "unit"}
                                     </span>
                                   ) : (
                                     <span className="text-xs text-[#BA1A1A]">
-                                      Isi harga dulu
+                                      {t("recipes.form.fillPriceFirst")}
                                     </span>
                                   )}
                                 </td>
                                 <td className="px-3 py-3">
                                   <span className="font-[var(--font-roboto-mono)] font-bold text-sm text-[#2A1711]">
-                                    Rp {total.toLocaleString("id-ID")}
+                                    Rp {total.toLocaleString(locale)}
                                   </span>
                                 </td>
                                 <td className="px-3 py-3">
@@ -479,7 +483,7 @@ export function ResepForm({
                                     type="button"
                                     onClick={() => remove(index)}
                                     className="p-1.5 rounded-full hover:bg-[#FEE2E2] text-[#EF4444] transition-colors"
-                                    aria-label="Hapus bahan"
+                                    aria-label={t("recipes.form.tableActions")}
                                   >
                                     <Trash2
                                       className="w-4 h-4"
@@ -506,18 +510,18 @@ export function ResepForm({
                   <div className="grid grid-cols-3 gap-6">
                     <div className="p-4">
                       <p className="text-sm text-[#8A7362] font-[var(--font-be-vietnam)] mb-2">
-                        Total Modal / Batch
+                        {t("recipes.form.totalCostLabel")}
                       </p>
                       <p className="font-[var(--font-roboto-mono)] font-bold text-2xl text-[#2A1711]">
-                        Rp {totalModal.toLocaleString("id-ID")}
+                        Rp {totalModal.toLocaleString(locale)}
                       </p>
                       <p className="text-[11px] text-[#8A7362] mt-1">
-                        = jumlah tiap bahan × harga satuan terakhir
+                        {t("recipes.form.costExplanation")}
                       </p>
                     </div>
                     <div className="p-4">
                       <p className="text-sm text-[#8A7362] font-[var(--font-be-vietnam)] mb-2">
-                        Hasil / Batch
+                        {t("recipes.form.yieldLabelSummary")}
                       </p>
                       <p className="font-[var(--font-roboto-mono)] font-bold text-2xl text-[#2A1711]">
                         {Number(estimasiHasil) || 0} pcs
@@ -525,10 +529,10 @@ export function ResepForm({
                     </div>
                     <div className="bg-white rounded-xl p-5 border border-[#FF8A00]/20 shadow-sm">
                       <p className="text-sm text-[#FF8A00] font-[var(--font-be-vietnam)] font-semibold mb-2">
-                        HPP / pcs
+                        {t("recipes.form.hppLabel")}
                       </p>
                       <p className="font-[var(--font-roboto-mono)] font-bold text-2xl text-[#FF8A00]">
-                        Rp {Math.round(hppPerPcs).toLocaleString("id-ID")}
+                        Rp {Math.round(hppPerPcs).toLocaleString(locale)}
                       </p>
                     </div>
                   </div>
@@ -542,7 +546,7 @@ export function ResepForm({
                 onClick={onClose}
                 className="px-6 py-3 rounded-full border-2 border-[#DDC1AE] text-[#564334] font-[var(--font-be-vietnam)] font-semibold text-sm hover:bg-[#FFF8F6] transition-colors"
               >
-                Batal
+                {t("common.cancel")}
               </button>
               <button
                 type="submit"
@@ -553,10 +557,10 @@ export function ResepForm({
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : null}
                 {uploading
-                  ? "Mengupload..."
+                  ? t("recipes.form.uploading")
                   : isEdit
-                    ? "Simpan Perubahan"
-                    : "Simpan Resep"}
+                    ? t("recipes.form.saveChangesButton")
+                    : t("recipes.form.saveButton")}
               </button>
             </div>
           </form>

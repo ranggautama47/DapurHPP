@@ -11,10 +11,20 @@ import { api } from "@/lib/axios";
 import { PriceHistoryChart } from "./PriceHistoryChart";
 import { BahanBakuForm } from "./BahanBakuForm";
 import { kategoriBadge } from "./kategori-badge";
+import { useTranslation } from "@/context/language-context";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ||
   "http://localhost:3001";
+
+const KATEGORI_LOCALE_MAP: Record<string, string> = {
+  TEPUNG: "flour",
+  MINYAK: "oil",
+  SAYURAN: "vegetable",
+  BUMBU: "spice",
+  DAGING: "meat",
+  LAINNYA: "other",
+};
 
 interface BahanBakuDetailProps {
   initialData: BahanBaku;
@@ -23,6 +33,7 @@ interface BahanBakuDetailProps {
 export function BahanBakuDetail({ initialData }: BahanBakuDetailProps) {
   const router = useRouter();
   const params = useParams();
+  const { t, language } = useTranslation("master");
   const [bahan, setBahan] = useState<BahanBaku>(initialData);
   const [isLoading, setIsLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -54,12 +65,12 @@ export function BahanBakuDetail({ initialData }: BahanBakuDetailProps) {
   const handleDelete = async () => {
     try {
       await api.delete(`/bahan-baku/${bahan.id}`);
-      toast.success("Data berhasil dihapus");
+      toast.success(t("ingredients.deleteSuccess"));
       setShowDeleteConfirm(false);
       router.push("/dashboard/bahan-baku");
     } catch (err) {
       console.error("Gagal hapus:", err);
-      toast.error("Gagal menghapus data");
+      toast.error(t("ingredients.deleteError"));
       setShowDeleteConfirm(false);
     }
   };
@@ -67,12 +78,12 @@ export function BahanBakuDetail({ initialData }: BahanBakuDetailProps) {
   const handleFormSubmit = async (data: any) => {
     try {
       await api.patch(`/bahan-baku/${bahan.id}`, data);
-      toast.success("Bahan baku berhasil diperbarui");
+      toast.success(t("ingredients.updateSuccess"));
       setShowForm(false);
       fetchDetail();
     } catch (err: any) {
-      alert(err.response?.data?.message || "Gagal menyimpan");
-      toast.error("Gagal memperbarui bahan baku — coba lagi");
+      alert(err.response?.data?.message || t("ingredients.saveError"));
+      toast.error(t("ingredients.updateError"));
       throw err;
     }
   };
@@ -86,6 +97,7 @@ export function BahanBakuDetail({ initialData }: BahanBakuDetailProps) {
       : 100;
 
   const isLowStock = Number(bahan.stok) <= Number(bahan.stokMinimal);
+  const localeStr = language === "id" ? "id-ID" : "en-US";
 
   if (isLoading) {
     return (
@@ -97,31 +109,26 @@ export function BahanBakuDetail({ initialData }: BahanBakuDetailProps) {
 
   return (
     <div className="space-y-6">
-      {/* CONTAINER UTAMA UNTUK TOMBOL SEJAJAR KANAN-KIRI */}
       <div className="flex items-center justify-between">
-        {/* TOMBOL KEMBALI (KIRI) */}
         <Link
           href="/dashboard/bahan-baku"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#DDC1AE] text-[#564334] font-medium font-[var(--font-be-vietnam)] hover:bg-[#FFF8F6] hover:border-[#FF8A00] hover:text-[#FF8A00] transition-all"
         >
           <ArrowLeft className="w-4 h-4" />
-          Kembali
+          {t("ingredients.backButton")}
         </Link>
 
-        {/* TOMBOL EDIT (KANAN) */}
         <button
           onClick={handleEdit}
           className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#DDC1AE] text-[#FF8A00] hover:bg-[#FFF8F6] transition-colors text-sm font-medium font-[var(--font-be-vietnam)]"
         >
           <Pencil className="w-4 h-4" strokeWidth={1.75} />
-          Edit Bahan
+          {t("ingredients.editButton")}
         </button>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-        {/* KOLOM KIRI */}
         <div className="space-y-6">
-          {/* CARD INFO UTAMA */}
           <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
             <div className="flex items-start gap-4 mb-6">
               <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#FFF8F6] border border-[#F5E6D8] flex items-center justify-center flex-shrink-0">
@@ -143,7 +150,7 @@ export function BahanBakuDetail({ initialData }: BahanBakuDetailProps) {
                   {bahan.nama}
                 </h2>
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#D0F4DE] text-[#06D6A0] mt-1">
-                  Aktif
+                  {t("ingredients.activeStatus")}
                 </span>
               </div>
             </div>
@@ -151,20 +158,20 @@ export function BahanBakuDetail({ initialData }: BahanBakuDetailProps) {
             <dl className="grid grid-cols-2 gap-4">
               <div>
                 <dt className="text-xs text-[#8A7362] font-[var(--font-be-vietnam)] mb-1">
-                  Kategori
+                  {t("ingredients.category")}
                 </dt>
                 <dd className="font-medium text-[#2A1711] font-[var(--font-be-vietnam)]">
                   <span
                     className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${kategoriBadge[bahan.kategori].bg} ${kategoriBadge[bahan.kategori].text}`}
                   >
                     <span>{kategoriBadge[bahan.kategori].emoji}</span>
-                    {kategoriBadge[bahan.kategori].label}
+                    {t(`ingredients.categories.${KATEGORI_LOCALE_MAP[bahan.kategori]}`)}
                   </span>
                 </dd>
               </div>
               <div>
                 <dt className="text-xs text-[#8A7362] font-[var(--font-be-vietnam)] mb-1">
-                  Satuan
+                  {t("ingredients.unit")}
                 </dt>
                 <dd className="font-medium text-[#2A1711] font-[var(--font-be-vietnam)]">
                   <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[#FFF8F6] text-[#564334] border border-[#F5E6D8]">
@@ -174,18 +181,18 @@ export function BahanBakuDetail({ initialData }: BahanBakuDetailProps) {
               </div>
               <div>
                 <dt className="text-xs text-[#8A7362] font-[var(--font-be-vietnam)] mb-1">
-                  Harga Terakhir
+                  {t("ingredients.currentPrice")}
                 </dt>
                 <dd className="font-[var(--font-roboto-mono)] font-bold text-xl text-[#2A1711]">
-                  Rp {Number(bahan.hargaTerakhir).toLocaleString("id-ID")}
+                  Rp {Number(bahan.hargaTerakhir).toLocaleString(localeStr)}
                 </dd>
               </div>
               <div>
                 <dt className="text-xs text-[#8A7362] font-[var(--font-be-vietnam)] mb-1">
-                  Terakhir Update
+                  {t("ingredients.lastUpdate")}
                 </dt>
                 <dd className="font-medium text-[#2A1711] font-[var(--font-be-vietnam)]">
-                  {new Date(bahan.updatedAt).toLocaleDateString("id-ID", {
+                  {new Date(bahan.updatedAt).toLocaleDateString(localeStr, {
                     day: "2-digit",
                     month: "long",
                     year: "numeric",
@@ -195,21 +202,20 @@ export function BahanBakuDetail({ initialData }: BahanBakuDetailProps) {
             </dl>
           </div>
 
-          {/* CARD STOK SAAT INI */}
           <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
             <h3 className="font-[var(--font-playfair)] font-bold text-lg text-[#2A1711] mb-4">
-              Stok Saat Ini
+              {t("ingredients.currentStockTitle")}
             </h3>
             <div className="flex items-baseline gap-2 mb-2">
               <span className="font-[var(--font-roboto-mono)] font-bold text-3xl text-[#2A1711]">
-                {Number(bahan.stok).toLocaleString("id-ID")}
+                {Number(bahan.stok).toLocaleString(localeStr)}
               </span>
               <span className="text-lg text-[#8A7362] font-[var(--font-be-vietnam)]">
                 {bahan.satuan}
               </span>
             </div>
             <p className="text-sm text-[#8A7362] font-[var(--font-be-vietnam)] mb-3">
-              Minimal Stok: {Number(bahan.stokMinimal).toLocaleString("id-ID")}{" "}
+              {t("ingredients.minStockText")}: {Number(bahan.stokMinimal).toLocaleString(localeStr)}{" "}
               {bahan.satuan}
             </p>
             <div className="w-full h-2.5 bg-[#F5E6D8] rounded-full overflow-hidden">
@@ -220,27 +226,25 @@ export function BahanBakuDetail({ initialData }: BahanBakuDetailProps) {
             </div>
           </div>
 
-          {/* CARD HAPUS */}
           <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
             <button
               onClick={() => setShowDeleteConfirm(true)}
               className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-[#EF4444]/30 text-[#EF4444] hover:bg-[#FEF2F2] hover:border-[#EF4444] transition-all font-medium font-[var(--font-be-vietnam)]"
             >
               <Trash2 className="w-5 h-5" strokeWidth={1.75} />
-              Hapus Bahan
+              {t("ingredients.deleteButton")}
             </button>
           </div>
         </div>
 
-        {/* KOLOM KANAN */}
         <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-[var(--font-playfair)] font-bold text-xl text-[#2A1711]">
-              Riwayat Harga 6 Bulan Terakhir
+              {t("ingredients.last6Months")}
             </h3>
             <select className="px-3 py-1.5 rounded-full border border-[#DDC1AE] text-sm text-[#564334] bg-[#FFF8F6] font-[var(--font-be-vietnam)] focus:outline-none focus:border-[#FF8A00]">
-              <option>6 Bulan Terakhir</option>
-              <option>1 Tahun Terakhir</option>
+              <option>{t("ingredients.last6MonthsOption")}</option>
+              <option>{t("ingredients.last1YearOption")}</option>
             </select>
           </div>
           <PriceHistoryChart bahanId={bahan.id} />
@@ -251,11 +255,10 @@ export function BahanBakuDetail({ initialData }: BahanBakuDetailProps) {
         open={showDeleteConfirm}
         onOpenChange={setShowDeleteConfirm}
         onConfirm={handleDelete}
-        title={`Hapus ${bahan.nama}?`}
-        description="Data akan di-soft-delete dan tetap bisa dipulihkan."
+        title={t("ingredients.deleteConfirmTitle", { name: bahan.nama })}
+        description={t("ingredients.deleteConfirmDesc")}
       />
 
-      {/* Edit Form Modal */}
       {showForm && (
         <BahanBakuForm
           isOpen={showForm}

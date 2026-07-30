@@ -8,6 +8,7 @@ import { Eye, MoreVertical, Edit3, XCircle } from "lucide-react";
 import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
 import { toast } from "sonner";
 import { api } from "@/lib/axios";
+import { useTranslation } from "@/context/language-context";
 
 interface ProduksiTableProps {
   data: Produksi[];
@@ -15,6 +16,8 @@ interface ProduksiTableProps {
 }
 
 export function ProduksiTable({ data, onRefresh }: ProduksiTableProps) {
+  const { t, language } = useTranslation("master");
+  const localeStr = language === "id" ? "id-ID" : "en-US";
   const router = useRouter();
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const [actionLoading, setActionLoading] = useState<Set<number>>(new Set());
@@ -39,11 +42,11 @@ export function ProduksiTable({ data, onRefresh }: ProduksiTableProps) {
     setActionLoading((prev) => new Set(prev).add(id));
     try {
       await api.delete(`/produksi/${id}`);
-      toast.success("Data berhasil dihapus");
+      toast.success(t("production.successDelete"));
       setDeleteTargetId(null);
       onRefresh();
     } catch (err: any) {
-      toast.error("Gagal menghapus data");
+      toast.error(t("production.errorDelete"));
       setDeleteTargetId(null);
     } finally {
       setActionLoading((prev) => {
@@ -55,23 +58,17 @@ export function ProduksiTable({ data, onRefresh }: ProduksiTableProps) {
   };
 
   const handleSelesaikan = async (id: number) => {
-    if (
-      !window.confirm(
-        "Selesaikan produksi ini? Status akan menjadi SELESAI dan data tidak bisa diubah lagi.",
-      )
-    )
+    if (!window.confirm(t("production.confirmComplete")))
       return;
 
     setActionLoading((prev) => new Set(prev).add(id));
     try {
       await api.patch(`/produksi/${id}/selesai`);
-      toast.success("Produksi ditandai selesai");
+      toast.success(t("production.successUpdate"));
       onRefresh();
     } catch (err: any) {
-      alert(
-        err.response?.data?.message || "Gagal menyelesaikan produksi",
-      );
-      toast.error("Gagal menyelesaikan produksi — coba lagi");
+      alert(err.response?.data?.message || t("production.errorUpdate"));
+      toast.error(t("production.errorUpdate"));
     } finally {
       setActionLoading((prev) => {
         const next = new Set(prev);
@@ -87,31 +84,31 @@ export function ProduksiTable({ data, onRefresh }: ProduksiTableProps) {
         <thead>
           <tr className="bg-[#FFF8F6] border-b border-[#DDC1AE]">
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              No
+              {t("production.columns.no")}
             </th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              Tanggal
+              {t("production.columns.date")}
             </th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              Resep
+              {t("production.columns.recipe")}
             </th>
             <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              Estimasi
+              {t("production.columns.estimated")}
             </th>
             <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              Hasil Nyata
+              {t("production.columns.actual")}
             </th>
             <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              HPP / pcs
+              {t("production.columns.hpp")}
             </th>
             <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              Total Modal
+              {t("production.columns.total")}
             </th>
             <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              Status
+              {t("production.columns.status")}
             </th>
             <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              Aksi
+              {t("production.columns.actions")}
             </th>
           </tr>
         </thead>
@@ -127,7 +124,7 @@ export function ProduksiTable({ data, onRefresh }: ProduksiTableProps) {
               </td>
               <td className="px-4 py-3">
                 <span className="font-[var(--font-be-vietnam)] text-sm text-[#564334]">
-                  {new Date(item.tanggal).toLocaleDateString("id-ID", {
+                  {new Date(item.tanggal).toLocaleDateString(localeStr, {
                     day: "2-digit",
                     month: "short",
                     year: "numeric",
@@ -146,16 +143,16 @@ export function ProduksiTable({ data, onRefresh }: ProduksiTableProps) {
                 {item.hasilNyata ?? "-"}
               </td>
               <td className="px-4 py-3 text-center font-[var(--font-roboto-mono)] text-sm text-[#2A1711]">
-                Rp {Math.round(item.hppPerPcs).toLocaleString("id-ID")}
+                Rp {Math.round(item.hppPerPcs).toLocaleString(localeStr)}
               </td>
               <td className="px-4 py-3 text-right font-[var(--font-roboto-mono)] text-sm font-semibold text-[#2A1711]">
-                Rp {Math.round(item.totalModal).toLocaleString("id-ID")}
+                Rp {Math.round(item.totalModal).toLocaleString(localeStr)}
               </td>
               <td className="px-4 py-3 text-center">
                 <span
                   className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${statusColor(item.status)}`}
                 >
-                  {item.status}
+                  {t(`production.statusLabels.${item.status}` as any) || item.status}
                 </span>
               </td>
               <td className="px-4 py-3 text-center relative">
@@ -202,7 +199,7 @@ export function ProduksiTable({ data, onRefresh }: ProduksiTableProps) {
                               className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[#06D6A0] hover:bg-[#F5E6D8] transition-colors disabled:opacity-50"
                             >
                               <Edit3 className="w-4 h-4" strokeWidth={1.75} />
-                              Selesaikan
+                              {t("production.detail.completeButton")}
                             </button>
                             <button
                               onClick={(e) => {
@@ -214,7 +211,7 @@ export function ProduksiTable({ data, onRefresh }: ProduksiTableProps) {
                               className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-[#EF4444] hover:bg-[#F5E6D8] transition-colors disabled:opacity-50 border-t border-[#F5E6D8]"
                             >
                               <XCircle className="w-4 h-4" strokeWidth={1.75} />
-                              Batalkan
+                              {t("production.detail.cancelButton")}
                             </button>
                           </div>
                         </>
@@ -231,8 +228,8 @@ export function ProduksiTable({ data, onRefresh }: ProduksiTableProps) {
         open={deleteTargetId !== null}
         onOpenChange={(open) => { if (!open) setDeleteTargetId(null); }}
         onConfirm={handleBatal}
-        title="Batalkan produksi ini?"
-        description="Status akan menjadi BATAL."
+        title={t("production.detail.deleteConfirmTitle")}
+        description={t("production.detail.deleteConfirmDesc")}
       />
     </div>
   );

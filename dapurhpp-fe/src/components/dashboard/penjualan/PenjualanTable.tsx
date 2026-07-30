@@ -5,6 +5,7 @@ import { Penjualan } from "@/types/penjualan";
 import { Trash2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/axios";
+import { useTranslation } from "@/context/language-context";
 
 interface PenjualanTableProps {
   data: Penjualan[];
@@ -13,20 +14,20 @@ interface PenjualanTableProps {
 
 export function PenjualanTable({ data, onRefresh }: PenjualanTableProps) {
   const [updatingIds, setUpdatingIds] = useState<Set<number>>(new Set());
+  const { t, language } = useTranslation("master");
+  const localeStr = language === "id" ? "id-ID" : "en-US";
 
   const handleClose = async (id: number) => {
-    if (!window.confirm("Tandai penjualan ini sebagai CLOSED? Stok akan dikunci.")) return;
-    
+    if (!window.confirm(t("sales.confirmClose"))) return;
+
     setUpdatingIds(prev => new Set(prev).add(id));
     try {
       await api.patch(`/penjualan/${id}`, { status: 'CLOSED' });
-      toast.success("Penjualan ditutup");
-      // Trigger refresh by calling onRefresh with current date
-      const today = new Date();
-      onRefresh(today);
+      toast.success(t("sales.successUpdate"));
+      onRefresh(new Date());
     } catch (err: any) {
-      alert(err.response?.data?.message || "Gagal menutup penjualan");
-      toast.error("Gagal menutup penjualan — coba lagi");
+      alert(err.response?.data?.message || t("sales.errorUpdate"));
+      toast.error(t("sales.errorUpdate"));
     } finally {
       setUpdatingIds(prev => {
         const next = new Set(prev);
@@ -42,25 +43,25 @@ export function PenjualanTable({ data, onRefresh }: PenjualanTableProps) {
         <thead>
           <tr className="bg-[#FFF8F6] border-b border-[#DDC1AE]">
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              Tanggal & Produk
+              {t("sales.columns.dateAndProduct")}
             </th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              Terjual
+              {t("sales.columns.sold")}
             </th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              Harga Jual
+              {t("sales.columns.sellingPrice")}
             </th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              Total Pendapatan
+              {t("sales.columns.revenue")}
             </th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              Laba Bersih
+              {t("sales.columns.profit")}
             </th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              Status
+              {t("sales.columns.status")}
             </th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              Aksi
+              {t("sales.columns.actions")}
             </th>
           </tr>
         </thead>
@@ -70,7 +71,7 @@ export function PenjualanTable({ data, onRefresh }: PenjualanTableProps) {
               <td className="px-4 py-3">
                 <div className="flex flex-col gap-1">
                   <span className="font-[var(--font-be-vietnam)] text-sm text-[#564334]">
-                    {new Date(item.tanggal).toLocaleDateString("id-ID", { day: "2-digit", month: "short" })}
+                    {new Date(item.tanggal).toLocaleDateString(localeStr, { day: "2-digit", month: "short" })}
                   </span>
                   <span className="font-[var(--font-playfair)] font-semibold text-[#2A1711]">
                     {item.produksi.resep.nama}
@@ -78,24 +79,24 @@ export function PenjualanTable({ data, onRefresh }: PenjualanTableProps) {
                 </div>
               </td>
               <td className="px-4 py-3 text-center font-[var(--font-roboto-mono)] font-medium text-[#2A1711]">
-                {item.terjual.toLocaleString("id-ID")}
+                {item.terjual.toLocaleString(localeStr)}
               </td>
               <td className="px-4 py-3 font-[var(--font-roboto-mono)] font-semibold text-[#2A1711]">
-                Rp {Number(item.hargaJual).toLocaleString("id-ID")}
+                Rp {Number(item.hargaJual).toLocaleString(localeStr)}
               </td>
               <td className="px-4 py-3 font-[var(--font-roboto-mono)] font-semibold text-[#2A1711]">
-                Rp {Number(item.totalPendapatan).toLocaleString("id-ID")}
+                Rp {Number(item.totalPendapatan).toLocaleString(localeStr)}
               </td>
               <td className="px-4 py-3 font-[var(--font-roboto-mono)] font-bold text-[#06D6A0]">
-                Rp {Number(item.laba).toLocaleString("id-ID")}
+                Rp {Number(item.laba).toLocaleString(localeStr)}
               </td>
               <td className="px-4 py-3">
                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
-                  item.status === 'OPEN' 
-                    ? 'bg-[#FFF3E5] text-[#FF8A00]' 
+                  item.status === 'OPEN'
+                    ? 'bg-[#FFF3E5] text-[#FF8A00]'
                     : 'bg-[#E6FBF7] text-[#06D6A0]'
                 }`}>
-                  {item.status}
+                  {t(`sales.statusLabels.${item.status}` as any) || item.status}
                 </span>
               </td>
               <td className="px-4 py-3">
@@ -111,12 +112,12 @@ export function PenjualanTable({ data, onRefresh }: PenjualanTableProps) {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                         </svg>
-                        Menutup...
+                        {t("common.status.loading")}
                       </span>
                     ) : (
                       <>
                         <CheckCircle2 className="w-3.5 h-3.5 inline-block mr-1" />
-                        Selesaikan
+                        {t("sales.form.completeButton")}
                       </>
                     )}
                   </button>

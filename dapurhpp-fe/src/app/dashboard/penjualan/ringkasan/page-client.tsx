@@ -13,6 +13,7 @@ import {
   TrendingDown
 } from "lucide-react";
 import { api } from "@/lib/axios";
+import { useTranslation } from "@/context/language-context";
 import { 
   AreaChart, 
   Area, 
@@ -77,6 +78,9 @@ function TrenIndicator({ value }: { value: number | undefined }) {
 }
 
 export default function RingkasanPageClient() {
+  const { t, language } = useTranslation("master");
+  const { t: tCommon } = useTranslation("common");
+  const dateLocale = language === "id" ? "id-ID" : "en-US";
   const [periode, setPeriode] = useState("7"); // 7 hari, 30 hari, custom
   const [tanggalMulai, setTanggalMulai] = useState("");
   const [tanggalAkhir, setTanggalAkhir] = useState("");
@@ -191,15 +195,15 @@ export default function RingkasanPageClient() {
         <div>
           <div className="flex items-center gap-2 text-sm text-[#564334] mb-2 font-medium">
             <Link href="/dashboard/penjualan" className="hover:text-[#FF8A00] flex items-center gap-1 transition-all">
-              <ArrowLeft className="w-4 h-4" /> Penjualan
+              <ArrowLeft className="w-4 h-4" /> {t("sales.title")}
             </Link>
             <span>•</span>
-            <span className="text-[#8A7362]">Ringkasan</span>
+            <span className="text-[#8A7362]">{t("sales.summaryPage.breadcrumbCurrent")}</span>
           </div>
           <h1 className="font-[var(--font-playfair)] font-bold text-3xl text-[#2A1711]">
-            Ringkasan Penjualan
+            {t("sales.summaryPage.title")}
           </h1>
-          <p className="text-[#8A7362] text-sm mt-0.5">Ringkasan total pendapatan, HPP, dan laba</p>
+          <p className="text-[#8A7362] text-sm mt-0.5">{t("sales.summaryPage.subtitle")}</p>
         </div>
 
         {/* Filter Controls */}
@@ -209,10 +213,10 @@ export default function RingkasanPageClient() {
             onChange={(e) => setPeriode(e.target.value)}
             className="px-4 py-2.5 rounded-xl border border-[#DDC1AE] bg-white text-sm text-[#564334] font-medium focus:outline-none focus:border-[#FF8A00]"
           >
-            <option value="7">7 Hari Terakhir</option>
-            <option value="30">30 Hari Terakhir</option>
-            <option value="90">90 Hari Terakhir</option>
-            <option value="custom">Periode Kustom</option>
+            <option value="7">{t("sales.summaryPage.7days")}</option>
+            <option value="30">{t("sales.summaryPage.30days")}</option>
+            <option value="90">{t("sales.summaryPage.90days")}</option>
+            <option value="custom">{t("sales.summaryPage.customPeriod")}</option>
           </select>
 
           {periode === "custom" && (
@@ -223,7 +227,7 @@ export default function RingkasanPageClient() {
                 onChange={(e) => setTanggalMulai(e.target.value)}
                 className="text-xs text-[#564334] focus:outline-none"
               />
-              <span className="text-[#8A7362] text-xs">s/d</span>
+              <span className="text-[#8A7362] text-xs">{t("sales.summaryPage.dateSeparator")}</span>
               <input
                 type="date"
                 value={tanggalAkhir}
@@ -235,7 +239,7 @@ export default function RingkasanPageClient() {
 
           <button className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#DDC1AE] bg-white text-sm text-[#564334] font-semibold hover:bg-[#FFF8F6] transition-all">
             <Download className="w-4 h-4 text-[#FF8A00]" />
-            <span>Export</span>
+            <span>{t("sales.summaryPage.exportButton")}</span>
           </button>
         </div>
       </div>
@@ -248,10 +252,10 @@ export default function RingkasanPageClient() {
             <div className="p-1.5 rounded-lg bg-[#FFE9E4] text-[#FF8A00]">
               <TrendingUp className="w-4 h-4" />
             </div>
-            <span>Total Pendapatan</span>
+            <span>{t("sales.summaryPage.totalPendapatan")}</span>
           </div>
           <p className="font-[var(--font-roboto-mono)] font-bold text-2xl text-[#2A1711]">
-            Rp {stats.totalPendapatan.toLocaleString("id-ID")}
+            Rp {stats.totalPendapatan.toLocaleString(dateLocale)}
           </p>
           <TrenIndicator value={tren.pendapatan} />
         </div>
@@ -262,10 +266,10 @@ export default function RingkasanPageClient() {
             <div className="p-1.5 rounded-lg bg-[#F1E9DA] text-[#564334]">
               <Receipt className="w-4 h-4" />
             </div>
-            <span>Total HPP</span>
+            <span>{t("sales.summaryPage.totalHpp")}</span>
           </div>
           <p className="font-[var(--font-roboto-mono)] font-bold text-2xl text-[#2A1711]">
-            Rp {stats.totalHpp.toLocaleString("id-ID")}
+            Rp {stats.totalHpp.toLocaleString(dateLocale)}
           </p>
           <TrenIndicator value={tren.hpp} />
         </div>
@@ -276,10 +280,10 @@ export default function RingkasanPageClient() {
             <div className="p-1.5 rounded-lg bg-[#D0F4DE] text-[#06D6A0]">
               <Coins className="w-4 h-4" />
             </div>
-            <span>Total Laba</span>
+            <span>{t("sales.summaryPage.totalLaba")}</span>
           </div>
           <p className="font-[var(--font-roboto-mono)] font-bold text-2xl text-[#06D6A0]">
-            Rp {stats.totalLaba.toLocaleString("id-ID")}
+            Rp {stats.totalLaba.toLocaleString(dateLocale)}
           </p>
           <TrenIndicator value={tren.laba} />
         </div>
@@ -290,7 +294,7 @@ export default function RingkasanPageClient() {
             <div className="p-1.5 rounded-lg bg-[#EAF2D7] text-[#606C38]">
               <Percent className="w-4 h-4" />
             </div>
-            <span>Margin Keuntungan</span>
+            <span>{t("sales.summaryPage.marginKeuntungan")}</span>
           </div>
           <p className="font-[var(--font-roboto-mono)] font-bold text-2xl text-[#2A1711]">
             {stats.margin}%
@@ -305,9 +309,9 @@ export default function RingkasanPageClient() {
         <div className="lg:col-span-2 bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)] flex flex-col justify-between">
           <div className="mb-4">
             <h3 className="font-[var(--font-playfair)] font-bold text-lg text-[#2A1711]">
-              Grafik Pendapatan, HPP & Laba
+              {t("sales.summaryPage.chartTitle")}
             </h3>
-            <p className="text-xs text-[#8A7362]">Visualisasi tren harian performa toko</p>
+            <p className="text-xs text-[#8A7362]">{t("sales.summaryPage.chartSubtitle")}</p>
           </div>
 
           <div className="h-[300px] w-full">
@@ -340,19 +344,19 @@ export default function RingkasanPageClient() {
         <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
           <div className="mb-4">
             <h3 className="font-[var(--font-playfair)] font-bold text-lg text-[#2A1711]">
-              Top Produk Terlaris
+              {t("sales.summaryPage.topProducts")}
             </h3>
-            <p className="text-xs text-[#8A7362]">Produk penyumbang laba terbesar</p>
+            <p className="text-xs text-[#8A7362]">{t("sales.summaryPage.topProductsSubtitle")}</p>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
                 <tr className="border-b border-[#EFE3D7] pb-2 text-[#8A7362]">
-                  <th className="py-2 font-semibold">No</th>
-                  <th className="py-2 font-semibold">Produk</th>
-                  <th className="py-2 font-semibold text-center">Terjual</th>
-                  <th className="py-2 font-semibold text-right">Laba</th>
+                  <th className="py-2 font-semibold">{t("sales.summaryPage.tableNo")}</th>
+                  <th className="py-2 font-semibold">{t("sales.summaryPage.tableProduct")}</th>
+                  <th className="py-2 font-semibold text-center">{t("sales.summaryPage.tableSold")}</th>
+                  <th className="py-2 font-semibold text-right">{t("sales.summaryPage.tableProfit")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F5E6D8]">
@@ -362,7 +366,7 @@ export default function RingkasanPageClient() {
                     <td className="py-3 font-semibold text-[#2A1711]">{prod.nama}</td>
                     <td className="py-3 text-center font-[var(--font-roboto-mono)] text-[#564334]">{prod.terjual} pcs</td>
                     <td className="py-3 text-right font-[var(--font-roboto-mono)] font-bold text-[#06D6A0]">
-                      Rp {prod.laba.toLocaleString("id-ID")}
+                      Rp {prod.laba.toLocaleString(dateLocale)}
                     </td>
                   </tr>
                 ))}
@@ -376,9 +380,9 @@ export default function RingkasanPageClient() {
       <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
         <div className="mb-4">
           <h3 className="font-[var(--font-playfair)] font-bold text-lg text-[#2A1711]">
-            Ringkasan Harian
+            {t("sales.summaryPage.dailySummary")}
           </h3>
-          <p className="text-xs text-[#8A7362]">Rekapitulasi penjualan terinci per hari</p>
+          <p className="text-xs text-[#8A7362]">{t("sales.summaryPage.dailySummarySubtitle")}</p>
         </div>
 
         <div className="overflow-x-auto">
@@ -392,20 +396,20 @@ export default function RingkasanPageClient() {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="bg-[#FFF8F6] border-b border-[#DDC1AE] text-xs font-semibold uppercase tracking-wider text-[#564334]">
-                <th className="px-4 py-3">Tanggal</th>
-                <th className="px-4 py-3 text-right">Pendapatan</th>
-                <th className="px-4 py-3 text-right">HPP</th>
-                <th className="px-4 py-3 text-right">Laba</th>
-                <th className="px-4 py-3 text-center">Margin</th>
+                <th className="px-4 py-3">{t("sales.summaryPage.tableDate")}</th>
+                <th className="px-4 py-3 text-right">{t("sales.summaryPage.tableRevenue")}</th>
+                <th className="px-4 py-3 text-right">{t("sales.summaryPage.tableHpp")}</th>
+                <th className="px-4 py-3 text-right">{t("sales.summaryPage.tableProfitSmall")}</th>
+                <th className="px-4 py-3 text-center">{t("sales.summaryPage.tableMargin")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F5E6D8]">
               {dailyReport.map((row, index) => (
                 <tr key={index} className="hover:bg-[#FFE9E4] transition-all">
                   <td className="px-4 py-3 font-medium text-[#2A1711]">{row.tanggal}</td>
-                  <td className="px-4 py-3 text-right font-[var(--font-roboto-mono)] text-[#564334]">Rp {row.pendapatan.toLocaleString("id-ID")}</td>
-                  <td className="px-4 py-3 text-right font-[var(--font-roboto-mono)] text-[#8A7362]">Rp {row.hpp.toLocaleString("id-ID")}</td>
-                  <td className="px-4 py-3 text-right font-[var(--font-roboto-mono)] font-bold text-[#06D6A0]">Rp {row.laba.toLocaleString("id-ID")}</td>
+                  <td className="px-4 py-3 text-right font-[var(--font-roboto-mono)] text-[#564334]">Rp {row.pendapatan.toLocaleString(dateLocale)}</td>
+                  <td className="px-4 py-3 text-right font-[var(--font-roboto-mono)] text-[#8A7362]">Rp {row.hpp.toLocaleString(dateLocale)}</td>
+                  <td className="px-4 py-3 text-right font-[var(--font-roboto-mono)] font-bold text-[#06D6A0]">Rp {row.laba.toLocaleString(dateLocale)}</td>
                   <td className="px-4 py-3 text-center font-[var(--font-roboto-mono)]">
                     <span className="bg-[#EAF2D7] text-[#606C38] px-2.5 py-1 rounded-full text-xs font-bold">
                       {row.margin}%
@@ -415,10 +419,10 @@ export default function RingkasanPageClient() {
               ))}
               {/* Grand Total Row */}
               <tr className="bg-[#FFF8F6] font-bold border-t border-[#DDC1AE]">
-                <td className="px-4 py-4 text-[#2A1711]">Total</td>
-                <td className="px-4 py-4 text-right font-[var(--font-roboto-mono)]">Rp {stats.totalPendapatan.toLocaleString("id-ID")}</td>
-                <td className="px-4 py-4 text-right font-[var(--font-roboto-mono)]">Rp {stats.totalHpp.toLocaleString("id-ID")}</td>
-                <td className="px-4 py-4 text-right font-[var(--font-roboto-mono)] text-[#06D6A0]">Rp {stats.totalLaba.toLocaleString("id-ID")}</td>
+                <td className="px-4 py-4 text-[#2A1711]">{tCommon("labels.total")}</td>
+                <td className="px-4 py-4 text-right font-[var(--font-roboto-mono)]">Rp {stats.totalPendapatan.toLocaleString(dateLocale)}</td>
+                <td className="px-4 py-4 text-right font-[var(--font-roboto-mono)]">Rp {stats.totalHpp.toLocaleString(dateLocale)}</td>
+                <td className="px-4 py-4 text-right font-[var(--font-roboto-mono)] text-[#06D6A0]">Rp {stats.totalLaba.toLocaleString(dateLocale)}</td>
                 <td className="px-4 py-4 text-center font-[var(--font-roboto-mono)] text-[#2A1711]">{stats.margin}%</td>
               </tr>
             </tbody>

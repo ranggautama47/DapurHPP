@@ -4,6 +4,7 @@ import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tool
 import { useEffect, useState } from "react";
 import { api } from "@/lib/axios";
 import { RiwayatHarga } from "@/types/bahan-baku";
+import { useTranslation } from "@/context/language-context";
 
 interface PriceHistoryChartProps {
   bahanId: number;
@@ -12,9 +13,11 @@ interface PriceHistoryChartProps {
 const formatRp = (v: number) => "Rp " + (v / 1000).toFixed(0) + "K";
 
 export function PriceHistoryChart({ bahanId }: PriceHistoryChartProps) {
+  const { t, language } = useTranslation("master");
   const [data, setData] = useState<RiwayatHarga[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const localeStr = language === "id" ? "id-ID" : "en-US";
 
   useEffect(() => {
     async function fetchHistory() {
@@ -24,7 +27,7 @@ export function PriceHistoryChart({ bahanId }: PriceHistoryChartProps) {
         setData(res.data);
       } catch (err) {
         console.error("Gagal fetch riwayat harga:", err);
-        setError("Gagal memuat riwayat harga");
+        setError(t("ingredients.historyError"));
       } finally {
         setLoading(false);
       }
@@ -51,7 +54,7 @@ export function PriceHistoryChart({ bahanId }: PriceHistoryChartProps) {
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center h-[200px] bg-[#FFF8F6] rounded-[16px] border border-[#F5E6D8]">
-        <p className="text-[#8A7362] text-sm">Belum ada riwayat harga</p>
+        <p className="text-[#8A7362] text-sm">{t("ingredients.historyEmpty")}</p>
       </div>
     );
   }
@@ -83,7 +86,7 @@ export function PriceHistoryChart({ bahanId }: PriceHistoryChartProps) {
               width={70}
             />
             <Tooltip
-              formatter={(v: any) => ["Rp " + (v ?? 0).toLocaleString("id-ID"), "Harga"]}
+              formatter={(v: any) => ["Rp " + (v ?? 0).toLocaleString(localeStr), t("ingredients.currentPrice")]}
               labelStyle={{ color: "#2A1711", fontWeight: 600 }}
               contentStyle={{
                 backgroundColor: "#fff",
@@ -112,13 +115,13 @@ export function PriceHistoryChart({ bahanId }: PriceHistoryChartProps) {
           <thead>
             <tr className="bg-[#FFF8F6] border-b border-[#DDC1AE]">
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-                Tanggal
+                {t("ingredients.historyColumns.date")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-                Harga
+                {t("ingredients.historyColumns.price")}
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-                Perubahan
+                {t("ingredients.historyColumns.change")}
               </th>
             </tr>
           </thead>
@@ -136,14 +139,14 @@ export function PriceHistoryChart({ bahanId }: PriceHistoryChartProps) {
                     {d.label}
                   </td>
                   <td className="px-4 py-3 font-[var(--font-roboto-mono)] font-semibold text-[#2A1711]">
-                    Rp {d.harga.toLocaleString("id-ID")}
+                    Rp {d.harga.toLocaleString(localeStr)}
                   </td>
                   <td className="px-4 py-3">
                     {i === 0 ? (
                       <span className="text-[#8A7362] text-xs">—</span>
                     ) : (
                       <span className={`font-[var(--font-roboto-mono)] text-xs font-medium ${isUp ? "text-[#EF4444]" : isDown ? "text-[#06D6A0]" : "text-[#8A7362]"}`}>
-                        {isUp ? "↑" : isDown ? "↓" : ""} Rp {Math.abs(diff).toLocaleString("id-ID")} ({isUp ? "+" : isDown ? "-" : ""}{percent}%)
+                        {isUp ? "↑" : isDown ? "↓" : ""} Rp {Math.abs(diff).toLocaleString(localeStr)} ({isUp ? "+" : isDown ? "-" : ""}{percent}%)
                       </span>
                     )}
                   </td>

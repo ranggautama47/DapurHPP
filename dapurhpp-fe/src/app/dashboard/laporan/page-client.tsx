@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/context/language-context";
 import { useEffect, useState, useCallback } from "react";
 import { FileText, FileSpreadsheet, Download } from "lucide-react";
 import { api } from "@/lib/axios";
@@ -24,20 +25,31 @@ function formatDateRange(mulai: string, akhir: string): string {
   if (!mulai && !akhir) return "";
   const d1 = new Date(mulai + "T00:00:00");
   const d2 = new Date(akhir + "T00:00:00");
-  const opt: Intl.DateTimeFormatOptions = { day: "numeric", month: "long", year: "numeric" };
+  const opt: Intl.DateTimeFormatOptions = {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  };
   return `${d1.toLocaleDateString("id-ID", opt)} - ${d2.toLocaleDateString("id-ID", opt)}`;
 }
 
-function getDefaultDates(period: FilterPeriod): { tanggalMulai: string; tanggalAkhir: string } {
+function getDefaultDates(period: FilterPeriod): {
+  tanggalMulai: string;
+  tanggalAkhir: string;
+} {
   const today = new Date();
   const akhir = formatLocalDate(today);
   if (period === "custom") return { tanggalMulai: "", tanggalAkhir: "" };
   const mulai = new Date(today);
   mulai.setDate(mulai.getDate() - (period === 1 ? 0 : period));
-  return { tanggalMulai: formatLocalDate(period === 1 ? today : mulai), tanggalAkhir: akhir };
+  return {
+    tanggalMulai: formatLocalDate(period === 1 ? today : mulai),
+    tanggalAkhir: akhir,
+  };
 }
 
 export default function LaporanPageClient() {
+  const { t } = useTranslation("master");
   const [filter, setFilter] = useState<FilterState>({
     period: 7,
     ...getDefaultDates(7),
@@ -69,12 +81,13 @@ export default function LaporanPageClient() {
 
       // Fetch counts for operasional
       try {
-        const [produksiRes, penjualanRes, belanjaRes, pengeluaranRes] = await Promise.all([
-          api.get<any[]>("/produksi"),
-          api.get<any[]>("/penjualan"),
-          api.get<any[]>("/belanja"),
-          api.get<any[]>("/pengeluaran-lain"),
-        ]);
+        const [produksiRes, penjualanRes, belanjaRes, pengeluaranRes] =
+          await Promise.all([
+            api.get<any[]>("/produksi"),
+            api.get<any[]>("/penjualan"),
+            api.get<any[]>("/belanja"),
+            api.get<any[]>("/pengeluaran-lain"),
+          ]);
         setOperasionalCounts({
           totalProduksi: produksiRes.data.length,
           totalPenjualan: penjualanRes.data.length,
@@ -90,7 +103,7 @@ export default function LaporanPageClient() {
         });
       }
     } catch (err) {
-      setError("Gagal memuat data laporan. Silakan coba lagi.");
+      setError(t("reports.errorLoad"));
     } finally {
       setLoading(false);
     }
@@ -111,24 +124,35 @@ export default function LaporanPageClient() {
     (field: "tanggalMulai" | "tanggalAkhir", value: string) => {
       setFilter((prev) => ({ ...prev, [field]: value }));
     },
-    []
+    [],
   );
 
   const handleApplyCustom = useCallback(() => {
     if (!filter.tanggalMulai || !filter.tanggalAkhir) return;
     const d1 = new Date(filter.tanggalMulai + "T00:00:00");
     const d2 = new Date(filter.tanggalAkhir + "T00:00:00");
-    const diffDays = Math.ceil((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
+    const diffDays = Math.ceil(
+      (d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24),
+    );
     const days = Math.max(1, diffDays);
     fetchAll(days);
   }, [filter.tanggalMulai, filter.tanggalAkhir, fetchAll]);
 
   const handleExportCSV = useCallback(() => {
-    const rows = [["Periode", "Pendapatan", "HPP", "Laba", "Margin"]];
+    const rows = [
+      [
+        t("reports.csvHeaders.period"),
+        t("reports.csvHeaders.revenue"),
+        t("reports.csvHeaders.hpp"),
+        t("reports.csvHeaders.profit"),
+        t("reports.csvHeaders.margin"),
+      ],
+    ];
     grafik.forEach((item) => {
-      const margin = item.pendapatan > 0
-        ? ((item.laba / item.pendapatan) * 100).toFixed(2)
-        : "0.00";
+      const margin =
+        item.pendapatan > 0
+          ? ((item.laba / item.pendapatan) * 100).toFixed(2)
+          : "0.00";
       rows.push([
         item.label,
         item.pendapatan.toString(),
@@ -151,7 +175,10 @@ export default function LaporanPageClient() {
     window.print();
   }, []);
 
-  const dateRangeText = formatDateRange(filter.tanggalMulai, filter.tanggalAkhir);
+  const dateRangeText = formatDateRange(
+    filter.tanggalMulai,
+    filter.tanggalAkhir,
+  );
 
   return (
     <div className="mx-auto max-w-[1500px]">
@@ -159,9 +186,9 @@ export default function LaporanPageClient() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="font-[var(--font-playfair)] font-bold text-3xl md:text-4xl text-[#2A1711] mb-2">
-            Laporan
+            {t("reports.title")}
           </h1>
-          <p className="text-[#564334] text-lg">Ringkasan performa usaha gorengan Anda</p>
+          <p className="text-[#564334] text-lg">{t("reports.subtitle")}</p>
         </div>
         <div className="flex items-center gap-3">
           {dateRangeText && (
@@ -174,14 +201,18 @@ export default function LaporanPageClient() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#DDC1AE] text-[#564334] text-sm hover:bg-[#FFF8F6] transition-all bg-white"
           >
             <FileText size={16} strokeWidth={1.75} className="text-[#EF4444]" />
-            Export PDF
+            {t("reports.exportPdf")}
           </button>
           <button
             onClick={handleExportCSV}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#DDC1AE] text-[#564334] text-sm hover:bg-[#FFF8F6] transition-all bg-white"
           >
-            <FileSpreadsheet size={16} strokeWidth={1.75} className="text-[#06D6A0]" />
-            Export Excel
+            <FileSpreadsheet
+              size={16}
+              strokeWidth={1.75}
+              className="text-[#06D6A0]"
+            />
+            {t("reports.exportExcel")}
           </button>
         </div>
       </div>
@@ -193,7 +224,9 @@ export default function LaporanPageClient() {
         onDateChange={handleDateChange}
         onApplyCustom={handleApplyCustom}
         isCustomApplied={
-          filter.period !== "custom" || !filter.tanggalMulai || !filter.tanggalAkhir
+          filter.period !== "custom" ||
+          !filter.tanggalMulai ||
+          !filter.tanggalAkhir
         }
       />
 

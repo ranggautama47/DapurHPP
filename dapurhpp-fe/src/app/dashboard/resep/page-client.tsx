@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "@/context/language-context";
 import { Resep } from "@/types/resep";
 import { api } from "@/lib/axios";
 import { toast } from "sonner";
@@ -12,6 +13,7 @@ const ITEMS_PER_PAGE = 6;
 
 export default function ResepPageClient() {
   const router = useRouter();
+  const { t } = useTranslation("master");
   const [resepList, setResepList] = useState<Resep[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -25,8 +27,8 @@ export default function ResepPageClient() {
       const res = await api.get<Resep[]>("/resep");
       setResepList(res.data);
     } catch (err) {
-      console.error("Gagal fetch resep:", err);
-      toast.error("Gagal memuat data resep");
+      console.error(t("recipes.errorLoad"), err);
+      toast.error(t("recipes.errorLoad"));
     } finally {
       setIsLoading(false);
     }
@@ -50,13 +52,13 @@ export default function ResepPageClient() {
     setIsSubmitting(true);
     try {
       const res = await api.post("/resep", data);
-      toast.success("Resep berhasil dibuat");
+      toast.success(t("recipes.successCreate"));
       setShowForm(false);
       fetchList();
       return res.data;
     } catch (err: any) {
-      alert(err.response?.data?.message || "Gagal menyimpan resep");
-      toast.error("Gagal membuat resep — coba lagi");
+      alert(err.response?.data?.message || t("recipes.errorCreate"));
+      toast.error(t("recipes.errorCreate"));
       throw err;
     } finally {
       setIsSubmitting(false);
@@ -68,18 +70,16 @@ export default function ResepPageClient() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-[var(--font-playfair)] font-bold text-2xl text-[#2A1711]">
-            Resep
+            {t("recipes.title")}
           </h1>
-          <p className="text-sm text-[#564334]">
-            Kelola resep dan hitung HPP otomatis
-          </p>
+          <p className="text-sm text-[#564334]">{t("recipes.subtitle")}</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
           className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#FF8A00] text-white font-[var(--font-be-vietnam)] font-semibold text-sm hover:bg-[#E67E00] hover:shadow-[0_4px_12px_rgba(255,138,0,0.3)] transition-all"
         >
           <Plus className="w-5 h-5" strokeWidth={2} />
-          Tambah Resep
+          {t("recipes.addTitle")}
         </button>
       </div>
 
@@ -95,36 +95,33 @@ export default function ResepPageClient() {
             setSearch(e.target.value);
             setCurrentPage(1);
           }}
-          placeholder="Cari resep..."
+          placeholder={t("recipes.form.searchPlaceholder")}
           className="w-full pl-12 pr-4 py-3 bg-white border-2 border-[#F5E6D8] rounded-full text-[#2A1711] placeholder-[#BCAAA4] focus:outline-none focus:border-[#FF8A00] focus:ring-2 focus:ring-[#FF8A00]/20"
         />
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-[24px] border border-[#DDC1AE] overflow-hidden animate-pulse"
-            >
-              <div className="aspect-[4/3] bg-[#F5E6D8]" />
-              <div className="p-5 space-y-3">
-                <div className="h-5 bg-[#F5E6D8] rounded w-3/4" />
-                <div className="h-3 bg-[#F5E6D8] rounded w-1/2" />
-                <div className="h-4 bg-[#F5E6D8] rounded w-1/3" />
-              </div>
-            </div>
-          ))}
+        <div className="space-y-4">
+          <div className="p-5 bg-white rounded-3xl border border-[#F5E6D8] shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
+            <div className="h-5 bg-[#F5E6D8] rounded w-3/4 mb-3" />
+            <div className="h-3 bg-[#F5E6D8] rounded w-1/2" />
+          </div>
+          <div className="p-5 bg-white rounded-3xl border border-[#F5E6D8] shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
+            <div className="h-5 bg-[#F5E6D8] rounded w-2/3 mb-3" />
+            <div className="h-3 bg-[#F5E6D8] rounded w-1/3" />
+          </div>
+          <div className="p-5 bg-white rounded-3xl border border-[#F5E6D8] shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
+            <div className="h-5 bg-[#F5E6D8] rounded w-1/2 mb-3" />
+            <div className="h-3 bg-[#F5E6D8] rounded w-1/4" />
+          </div>
         </div>
       ) : filteredList.length === 0 ? (
         <div className="text-center py-16">
           <p className="text-[#564334] text-lg font-[var(--font-be-vietnam)] mb-2">
-            {search ? "Resep tidak ditemukan" : "Belum ada resep"}
+            {search ? t("recipes.searchNotFound") : t("recipes.emptyState")}
           </p>
           <p className="text-[#8A7362] text-sm mb-6">
-            {search
-              ? "Coba kata kunci lain"
-              : "Tambahkan resep pertama Anda untuk menghitung HPP"}
+            {search ? t("recipes.searchEmptyHint") : t("recipes.emptyHint")}
           </p>
           {!search && (
             <button
@@ -132,7 +129,7 @@ export default function ResepPageClient() {
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#FF8A00] text-white font-[var(--font-be-vietnam)] font-semibold text-sm hover:bg-[#E67E00] transition-all"
             >
               <Plus className="w-5 h-5" strokeWidth={2} />
-              Tambah Resep Pertama
+              {t("recipes.addFirstButton")}
             </button>
           )}
         </div>
@@ -147,13 +144,18 @@ export default function ResepPageClient() {
           {totalPages > 1 && (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#F5E6D8]">
               <p className="text-sm text-[#564334] font-[var(--font-be-vietnam)]">
-                Menampilkan{" "}
-                {Math.min(
-                  (currentPage - 1) * ITEMS_PER_PAGE + 1,
-                  filteredList.length,
-                )}
-                -{Math.min(currentPage * ITEMS_PER_PAGE, filteredList.length)}{" "}
-                dari {filteredList.length} resep
+                {t("recipes.pagination.displayedRange", {
+                  from: String(
+                    Math.min(
+                      (currentPage - 1) * ITEMS_PER_PAGE + 1,
+                      filteredList.length,
+                    ),
+                  ),
+                  to: String(
+                    Math.min(currentPage * ITEMS_PER_PAGE, filteredList.length),
+                  ),
+                  total: String(filteredList.length),
+                })}
               </p>
               <div className="flex items-center gap-2">
                 <button
@@ -164,7 +166,10 @@ export default function ResepPageClient() {
                   <ChevronLeft className="w-5 h-5" strokeWidth={1.75} />
                 </button>
                 <span className="px-3 py-1 text-sm font-medium text-[#2A1711] font-[var(--font-be-vietnam)]">
-                  Halaman {currentPage} dari {totalPages}
+                  {t("recipes.pagination.pageLabel", {
+                    current: String(currentPage),
+                    total: String(totalPages),
+                  })}
                 </span>
                 <button
                   onClick={() =>

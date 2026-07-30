@@ -7,14 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Supplier, CreateSupplierDto, UpdateSupplierDto } from "@/types/supplier";
 import { api } from "@/lib/axios";
-
-const supplierSchema = z.object({
-  nama: z.string().min(2, "Nama minimal 2 karakter"),
-  telepon: z.string().optional(),
-  alamat: z.string().optional(),
-});
-
-type SupplierFormData = z.infer<typeof supplierSchema>;
+import { useTranslation } from "@/context/language-context";
 
 interface SupplierFormProps {
   isOpen: boolean;
@@ -25,7 +18,16 @@ interface SupplierFormProps {
 }
 
 export function SupplierForm({ isOpen, onClose, onSubmit, initialData, isLoading }: SupplierFormProps) {
+  const { t } = useTranslation("master");
   const isEdit = !!initialData;
+
+  const supplierSchema = z.object({
+    nama: z.string().min(2, t("suppliers.name") + " minimal 2 karakter"),
+    telepon: z.string().optional(),
+    alamat: z.string().optional(),
+  });
+
+  type SupplierFormData = z.infer<typeof supplierSchema>;
 
   const {
     register,
@@ -78,12 +80,12 @@ export function SupplierForm({ isOpen, onClose, onSubmit, initialData, isLoading
         <div className="p-4 md:p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-[var(--font-playfair)] font-bold text-[1.75rem] leading-[2.25rem] text-[#2A1711] pr-12 md:pr-20">
-              {initialData ? "Edit Supplier" : "Tambah Supplier"}
+              {initialData ? t("suppliers.editTitle") : t("suppliers.addTitle")}
             </h2>
             <button
               onClick={onClose}
               className="p-2 rounded-full hover:bg-[#FFF8F6] text-[#564334] transition-colors"
-              aria-label="Tutup form"
+              aria-label={t("common.close")}
             >
               <X className="w-5 h-5" strokeWidth={1.75} />
             </button>
@@ -92,7 +94,7 @@ export function SupplierForm({ isOpen, onClose, onSubmit, initialData, isLoading
           <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-5" noValidate>
             <div className="space-y-2">
               <label htmlFor="nama" className="block text-xs font-bold uppercase tracking-[0.1em] text-[#5D4037] ml-2">
-                Nama Supplier
+                {t("suppliers.name")}
               </label>
               <div className="relative">
                 <input
@@ -101,7 +103,7 @@ export function SupplierForm({ isOpen, onClose, onSubmit, initialData, isLoading
                   {...register("nama")}
                   className={`w-full pl-12 pr-4 py-4 bg-white border-2 rounded-full text-[#2A1711] text-base placeholder-[#BCAAA4] transition-all duration-300 focus:outline-none focus:border-[#BF360C] focus:ring-4 focus:ring-[#BF360C]/10
                   ${errors.nama ? "border-[#BA1A1A] focus:border-[#BA1A1A] focus:ring-[#BA1A1A]/20" : "border-[#D9C4B1]"} `}
-                  placeholder="Nama Supplier"
+                  placeholder={t("suppliers.name")}
                   aria-invalid={!!errors.nama ? "true" : "false"}
                 />
                 <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-[#8D6E63]">
@@ -118,7 +120,7 @@ export function SupplierForm({ isOpen, onClose, onSubmit, initialData, isLoading
 
             <div className="space-y-2">
               <label htmlFor="telepon" className="block text-xs font-bold uppercase tracking-[0.1em] text-[#5D4037] ml-2">
-                Telepon (Opsional)
+                {t("suppliers.phone")} ({t("common.optional")})
               </label>
               <div className="relative">
                 <input
@@ -136,7 +138,7 @@ export function SupplierForm({ isOpen, onClose, onSubmit, initialData, isLoading
 
             <div className="space-y-2">
               <label htmlFor="alamat" className="block text-xs font-bold uppercase tracking-[0.1em] text-[#5D4037] ml-2">
-                Alamat (Opsional)
+                {t("suppliers.address")} ({t("common.optional")})
               </label>
               <div className="relative">
                 <textarea
@@ -144,7 +146,7 @@ export function SupplierForm({ isOpen, onClose, onSubmit, initialData, isLoading
                   {...register("alamat")}
                   rows={3}
                   className="w-full pl-12 pr-4 py-4 bg-white border-2 border-[#D9C4B1] rounded-[1rem] text-[#2A1711] text-base placeholder-[#BCAAA4] transition-all duration-300 focus:outline-none focus:border-[#BF360C] focus:ring-4 focus:ring-[#BF360C]/10 resize-none"
-                  placeholder="Alamat lengkap supplier"
+                  placeholder={t("suppliers.address")}
                 />
                 <div className="absolute top-4 left-4 pointer-events-none text-[#8D6E63]">
                   <MapPin className="w-5 h-5" strokeWidth={1.5} />
@@ -161,7 +163,7 @@ export function SupplierForm({ isOpen, onClose, onSubmit, initialData, isLoading
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 mx-auto animate-spin" />
                 ) : (
-                  initialData ? "Simpan Perubahan" : "Tambah Supplier"
+                  initialData ? t("common.save") : t("suppliers.addTitle")
                 )}
               </span>
               <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-[#2A1711] transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105 group-hover:translate-x-1 group-hover:-translate-y-[1px]">

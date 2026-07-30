@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { Info } from "lucide-react";
 import { GrafikLabaItem } from "@/types/laporan";
+import { useTranslation } from "@/context/language-context";
 
 interface GrafikPerformaProps {
   data: GrafikLabaItem[];
@@ -27,7 +28,7 @@ function formatRupiah(value: number) {
   return `${value}`;
 }
 
-function CustomTooltip({ active, payload, label }: any) {
+function CustomTooltip({ active, payload, label, localeStr, t }: any) {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-white rounded-2xl border border-[#DDC1AE] shadow-[0_8px_30px_rgba(109,76,65,0.12)] p-3 sm:p-4 text-xs">
@@ -42,13 +43,13 @@ function CustomTooltip({ active, payload, label }: any) {
           />
           <span className="text-[#564334]">
             {entry.name === "pendapatan"
-              ? "Pendapatan"
+              ? t("reports.chart.revenue")
               : entry.name === "hpp"
-                ? "HPP"
-                : "Laba"}
+                ? t("reports.chart.hpp")
+                : t("reports.chart.profit")}
           </span>
           <span className="font-[var(--font-roboto-mono)] font-semibold text-[#2A1711] ml-auto">
-            Rp {entry.value.toLocaleString("id-ID")}
+            Rp {entry.value.toLocaleString(localeStr)}
           </span>
         </div>
       ))}
@@ -95,6 +96,8 @@ function aggregateByViewMode(
 }
 
 export function GrafikPerforma({ data = [], loading }: GrafikPerformaProps) {
+  const { t, language } = useTranslation("master");
+  const localeStr = language === "id" ? "id-ID" : "en-US";
   const [viewMode, setViewMode] = useState<ViewMode>("harian");
 
   if (loading) return <Skeleton />;
@@ -115,12 +118,12 @@ export function GrafikPerforma({ data = [], loading }: GrafikPerformaProps) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6">
         <div className="flex items-center gap-2">
           <h3 className="font-[var(--font-playfair)] font-bold text-base sm:text-lg text-[#2A1711]">
-            Grafik Performa
+            {t("reports.chart.title")}
           </h3>
           <div className="relative group">
             <Info size={14} className="text-[#8A7362] cursor-help" />
             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-[#2A1711] text-white text-[10px] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
-              Data pendapatan, HPP, dan laba per periode
+              {t("reports.chart.tooltipDescription")}
             </div>
           </div>
         </div>
@@ -137,7 +140,11 @@ export function GrafikPerforma({ data = [], loading }: GrafikPerformaProps) {
                   : "px-2.5 sm:px-3 py-1 rounded-full text-[10px] font-semibold text-[#564334] hover:bg-[#FFF8F6] transition-all"
               }
             >
-              {mode.charAt(0).toUpperCase() + mode.slice(1)}
+              {mode === "harian"
+                ? t("reports.chart.daily")
+                : mode === "mingguan"
+                  ? t("reports.chart.weekly")
+                  : t("reports.chart.monthly")}
             </button>
           ))}
         </div>
@@ -160,7 +167,7 @@ export function GrafikPerforma({ data = [], loading }: GrafikPerformaProps) {
               />
             </svg>
             <p className="text-xs sm:text-sm">
-              Belum ada data untuk periode ini
+              {t("reports.chart.emptyState")}
             </p>
           </div>
         ) : (
@@ -215,7 +222,7 @@ export function GrafikPerforma({ data = [], loading }: GrafikPerformaProps) {
                 tickLine={false}
                 axisLine={false}
               />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltip localeStr={localeStr} t={t} />} />
               <Legend
                 verticalAlign="top"
                 align="right"
@@ -225,10 +232,10 @@ export function GrafikPerforma({ data = [], loading }: GrafikPerformaProps) {
                 formatter={(value: string) => (
                   <span className="text-[10px] text-[#564334] font-[var(--font-be-vietnam)]">
                     {value === "pendapatan"
-                      ? "Pendapatan"
+                      ? t("reports.chart.revenue")
                       : value === "hpp"
-                        ? "HPP"
-                        : "Laba"}
+                        ? t("reports.chart.hpp")
+                        : t("reports.chart.profit")}
                   </span>
                 )}
               />

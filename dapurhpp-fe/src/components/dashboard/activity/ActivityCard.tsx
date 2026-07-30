@@ -3,7 +3,9 @@
 import { ShoppingCart, ChefHat, TrendingUp, DollarSign, Package } from "lucide-react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale/id";
+import { enUS } from "date-fns/locale/en-US";
 import type { AktivitasItem } from "@/types/aktivitas";
+import { useTranslation } from "@/context/language-context";
 
 const ICON_MAP: Record<
   string,
@@ -13,7 +15,6 @@ const ICON_MAP: Record<
     iconColor: string;
     badgeColor: string;
     badgeBg: string;
-    badgeText: string;
   }
 > = {
   penjualan: {
@@ -22,7 +23,6 @@ const ICON_MAP: Record<
     iconColor: "#06D6A0",
     badgeColor: "#06D6A0",
     badgeBg: "#D0F4DE",
-    badgeText: "Penjualan",
   },
   pembayaran: {
     icon: DollarSign,
@@ -30,7 +30,6 @@ const ICON_MAP: Record<
     iconColor: "#06D6A0",
     badgeColor: "#06D6A0",
     badgeBg: "#D0F4DE",
-    badgeText: "Pembayaran",
   },
   belanja: {
     icon: ShoppingCart,
@@ -38,7 +37,6 @@ const ICON_MAP: Record<
     iconColor: "#FF8A00",
     badgeColor: "#FF8A00",
     badgeBg: "#FFE9E4",
-    badgeText: "Belanja",
   },
   produksi: {
     icon: ChefHat,
@@ -46,7 +44,6 @@ const ICON_MAP: Record<
     iconColor: "#606C38",
     badgeColor: "#606C38",
     badgeBg: "#EAF2D7",
-    badgeText: "Produksi",
   },
   pengeluaran: {
     icon: DollarSign,
@@ -54,7 +51,6 @@ const ICON_MAP: Record<
     iconColor: "#EF4444",
     badgeColor: "#EF4444",
     badgeBg: "#FEE2E2",
-    badgeText: "Pengeluaran",
   },
 };
 
@@ -63,6 +59,10 @@ interface ActivityCardProps {
 }
 
 export function ActivityCard({ item }: ActivityCardProps) {
+  const { t, language } = useTranslation("master");
+  const localeStr = language === "id" ? "id-ID" : "en-US";
+  const dateLocale = language === "id" ? id : enUS;
+
   const isBatal = item.type === "produksi" && item.status === "BATAL";
 
   const iconConfig = isBatal
@@ -72,14 +72,17 @@ export function ActivityCard({ item }: ActivityCardProps) {
         iconColor: "#EF4444",
         badgeColor: "#EF4444",
         badgeBg: "#FEE2E2",
-        badgeText: "Batal",
       }
     : (ICON_MAP[item.type] ?? ICON_MAP.pengeluaran);
   const IconComp = iconConfig.icon;
 
+  const badgeText = isBatal
+    ? t("common.status.cancelled")
+    : t(`activity.types.${item.type}`);
+
   const dateObj = new Date(item.time);
-  const dateStr = format(dateObj, "d MMM yyyy", { locale: id });
-  const timeStr = format(dateObj, "HH:mm", { locale: id }) + " WIB";
+  const dateStr = format(dateObj, "d MMM yyyy", { locale: dateLocale });
+  const timeStr = format(dateObj, "HH:mm", { locale: dateLocale }) + " WIB";
 
   return (
     <div className="bg-white rounded-[24px] border border-[#E8D5C4] p-5 shadow-[0_8px_30px_rgba(109,76,65,0.08)] hover:-translate-y-1 transition-transform duration-300 hover:shadow-[0_12px_40px_rgba(109,76,65,0.12)]">
@@ -100,7 +103,7 @@ export function ActivityCard({ item }: ActivityCardProps) {
               className="px-2.5 py-0.5 rounded-full text-xs font-medium font-[var(--font-be-vietnam)] flex-shrink-0"
               style={{ backgroundColor: iconConfig.badgeBg, color: iconConfig.badgeColor }}
             >
-              {iconConfig.badgeText}
+              {badgeText}
             </span>
           </div>
 
@@ -127,7 +130,7 @@ export function ActivityCard({ item }: ActivityCardProps) {
             }`}
           >
             {item.amountType === "positive" ? "+" : "−"}Rp{" "}
-            {Math.abs(item.amount).toLocaleString("id-ID")}
+            {Math.abs(item.amount).toLocaleString(localeStr)}
           </span>
         )}
       </div>

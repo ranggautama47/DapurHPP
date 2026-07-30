@@ -6,6 +6,7 @@ import { buildAktivitasQuery, type AktivitasQueryParams } from "@/lib/aktivitas-
 import { ActivityCard } from "./ActivityCard";
 import { Pagination } from "@/components/ui/pagination";
 import type { AktivitasItem, AktivitasResponse } from "@/types/aktivitas";
+import { useTranslation } from "@/context/language-context";
 
 interface ActivityListProps {
   params: AktivitasQueryParams;
@@ -13,6 +14,8 @@ interface ActivityListProps {
 }
 
 export function ActivityList({ params, onPageChange }: ActivityListProps) {
+  const { t, language } = useTranslation("master");
+  const localeStr = language === "id" ? "id-ID" : "en-US";
   const [activities, setActivities] = useState<AktivitasItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +43,7 @@ export function ActivityList({ params, onPageChange }: ActivityListProps) {
         });
       } catch (err) {
         console.error("Gagal fetch aktivitas:", err);
-        setError("Gagal memuat aktivitas");
+        setError(t("activity.loadError"));
       } finally {
         setLoading(false);
       }
@@ -88,10 +91,10 @@ export function ActivityList({ params, onPageChange }: ActivityListProps) {
           </svg>
         </div>
         <p className="text-[#564334] font-medium font-[var(--font-be-vietnam)] mb-1">
-          Belum ada aktivitas
+          {t("activity.emptyState")}
         </p>
         <p className="text-[#8A7362] text-sm">
-          Coba ubah filter atau cari dengan kata kunci lain
+          {t("activity.emptyHint")}
         </p>
       </div>
     );

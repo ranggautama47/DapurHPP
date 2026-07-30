@@ -14,6 +14,7 @@ import {
 } from "@/types/bahan-baku";
 import { api } from "@/lib/axios";
 import { toast } from "sonner";
+import { useTranslation } from "@/context/language-context";
 
 const satuanOptions: Satuan[] = [
   "kg",
@@ -38,16 +39,20 @@ const API_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ||
   "http://localhost:3001";
 
-const formSchema = z.object({
-  nama: z.string().min(2, "Nama minimal 2 karakter"),
-  satuan: z.enum(satuanOptions as [Satuan, ...Satuan[]]),
-  kategori: z.enum(kategoriOptions as [KategoriBahan, ...KategoriBahan[]]),
-  hargaTerakhir: z.number().min(0, "Harga tidak boleh negatif").optional(),
-  stok: z.number().min(0, "Stok tidak boleh negatif").optional(),
-  stokMinimal: z.number().min(0, "Stok minimal tidak boleh negatif").optional(),
-});
+const KATEGORI_LOCALE_MAP: Record<string, string> = {
+  TEPUNG: "flour",
+  MINYAK: "oil",
+  SAYURAN: "vegetable",
+  BUMBU: "spice",
+  DAGING: "meat",
+  LAINNYA: "other",
+};
 
-type FormData = z.infer<typeof formSchema>;
+function getUnitLabel(t: (key: string) => string, unit: string): string {
+  const key = `ingredients.units.${unit.toLowerCase()}`;
+  const translated = t(key);
+  return translated !== key ? translated : unit.toUpperCase();
+}
 
 interface BahanBakuFormProps {
   isOpen: boolean;
@@ -66,12 +71,24 @@ export function BahanBakuForm({
   initialData,
   isLoading,
 }: BahanBakuFormProps) {
+  const { t } = useTranslation("master");
   const isEdit = !!initialData;
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [removePhoto, setRemovePhoto] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const formSchema = z.object({
+    nama: z.string().min(2, t("ingredients.name") + " min 2 karakter"),
+    satuan: z.enum(satuanOptions as [Satuan, ...Satuan[]]),
+    kategori: z.enum(kategoriOptions as [KategoriBahan, ...KategoriBahan[]]),
+    hargaTerakhir: z.number().min(0, t("ingredients.currentPrice") + " tidak boleh negatif").optional(),
+    stok: z.number().min(0).optional(),
+    stokMinimal: z.number().min(0).optional(),
+  });
+
+  type FormData = z.infer<typeof formSchema>;
 
   const {
     register,
@@ -129,11 +146,11 @@ export function BahanBakuForm({
     if (
       !["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(f.type)
     ) {
-      alert("Hanya file gambar (jpg, png, webp) yang diizinkan");
+      alert(t("ingredients.photoHint"));
       return;
     }
     if (f.size > 2 * 1024 * 1024) {
-      alert("Ukuran file maksimal 2MB");
+      alert(t("ingredients.photoSizeError"));
       return;
     }
 
@@ -181,11 +198,10 @@ export function BahanBakuForm({
         await api.post(`/bahan-baku/${bahanId}/upload-foto`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        toast.success("Foto berhasil diunggah");
+        toast.success(t("ingredients.uploadSuccess"));
       } catch (err) {
         console.error("Gagal upload foto:", err);
-        toast.error("Gagal mengunggah foto — coba lagi");
-        alert("Foto gagal diupload, data bahan sudah tersimpan");
+        toast.error(t("ingredients.uploadError"));
       } finally {
         setUploading(false);
       }
@@ -206,12 +222,12 @@ export function BahanBakuForm({
           {/* Header Modal */}
           <div className="flex items-center justify-between mb-5 sticky top-0 bg-white/95 backdrop-blur-xs z-10 py-1 -mx-1 px-1">
             <h2 className="font-[var(--font-playfair)] font-bold text-2xl md:text-[1.75rem] text-[#2A1711] pr-6">
-              {isEdit ? "Edit Bahan Baku" : "Tambah Bahan Baku"}
+              {isEdit ? t("ingredients.editTitle") : t("ingredients.addTitle")}
             </h2>
             <button
               onClick={onClose}
               className="p-2 rounded-full hover:bg-[#FFF8F6] text-[#564334] transition-colors flex-shrink-0"
-              aria-label="Tutup form"
+              aria-label={t("common.close")}
             >
               <X className="w-5 h-5" strokeWidth={1.75} />
             </button>
@@ -220,7 +236,7 @@ export function BahanBakuForm({
           {/* Foto Upload */}
           <div className="mb-5">
             <label className="block text-xs font-bold uppercase tracking-[0.1em] text-[#5D4037] ml-2 mb-2">
-              Foto Bahan (Opsional)
+              {t("ingredients.photoOptional")}
             </label>
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl border-2 border-dashed border-[#DDC1AE] flex items-center justify-center flex-shrink-0 overflow-hidden bg-[#FFF8F6]">
@@ -252,7 +268,7 @@ export function BahanBakuForm({
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#DDC1AE] text-[#564334] hover:bg-[#FFF8F6] transition-colors text-xs md:text-sm font-medium cursor-pointer font-[var(--font-be-vietnam)]"
                   >
                     <ImageIcon className="w-4 h-4" strokeWidth={1.75} />
-                    {preview ? "Ganti Foto" : "Pilih Foto"}
+                    {preview ? t("ingredients.changePhoto") : t("ingredients.choosePhoto")}
                   </label>
                   {preview && (
                     <button
@@ -266,7 +282,7 @@ export function BahanBakuForm({
                   )}
                 </div>
                 <p className="text-[10px] md:text-xs text-[#8A7362] mt-1">
-                  Maks. 2MB (JPG, PNG, WebP)
+                  {t("ingredients.photoMaxSize")}
                 </p>
               </div>
             </div>
@@ -284,7 +300,7 @@ export function BahanBakuForm({
                 htmlFor="nama"
                 className="block text-xs font-bold uppercase tracking-[0.1em] text-[#5D4037] ml-2"
               >
-                Nama Bahan
+                {t("ingredients.name")}
               </label>
               <div className="relative">
                 <input
@@ -293,7 +309,7 @@ export function BahanBakuForm({
                   {...register("nama")}
                   className={`w-full pl-11 pr-4 py-3 md:py-3.5 bg-white border-2 rounded-full text-[#2A1711] text-sm md:text-base placeholder-[#BCAAA4] transition-all duration-300 focus:outline-none focus:border-[#BF360C] focus:ring-4 focus:ring-[#BF360C]/10
                   ${errors.nama ? "border-[#BA1A1A] focus:border-[#BA1A1A] focus:ring-[#BA1A1A]/20" : "border-[#D9C4B1]"} `}
-                  placeholder="Contoh: Tepung Terigu"
+                  placeholder={t("ingredients.namePlaceholder")}
                   aria-invalid={!!errors.nama ? "true" : "false"}
                 />
                 <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-[#8D6E63]">
@@ -317,7 +333,7 @@ export function BahanBakuForm({
                 htmlFor="kategori"
                 className="block text-xs font-bold uppercase tracking-[0.1em] text-[#5D4037] ml-2"
               >
-                Kategori
+                {t("ingredients.category")}
               </label>
               <div className="relative">
                 <select
@@ -327,7 +343,7 @@ export function BahanBakuForm({
                 >
                   {kategoriOptions.map((k) => (
                     <option key={k} value={k}>
-                      {k.charAt(0) + k.slice(1).toLowerCase()}
+                      {t(`ingredients.categories.${KATEGORI_LOCALE_MAP[k]}`)}
                     </option>
                   ))}
                 </select>
@@ -362,7 +378,7 @@ export function BahanBakuForm({
                 htmlFor="satuan"
                 className="block text-xs font-bold uppercase tracking-[0.1em] text-[#5D4037] ml-2"
               >
-                Satuan
+                {t("ingredients.unit")}
               </label>
               <div className="relative">
                 <select
@@ -372,10 +388,10 @@ export function BahanBakuForm({
                   ${errors.satuan ? "border-[#BA1A1A] focus:border-[#BA1A1A] focus:ring-[#BA1A1A]/20" : "border-[#D9C4B1]"} `}
                   aria-invalid={!!errors.satuan ? "true" : "false"}
                 >
-                  <option value="">Pilih satuan</option>
+                  <option value="">{t("ingredients.selectUnit")}</option>
                   {satuanOptions.map((satuan) => (
                     <option key={satuan} value={satuan}>
-                      {satuan.toUpperCase()}
+                      {getUnitLabel(t, satuan)}
                     </option>
                   ))}
                 </select>
@@ -415,7 +431,7 @@ export function BahanBakuForm({
                 htmlFor="hargaTerakhir"
                 className="block text-xs font-bold uppercase tracking-[0.1em] text-[#5D4037] ml-2"
               >
-                Harga Terakhir (Opsional)
+                {t("ingredients.currentPrice")} ({t("common.optional")})
               </label>
               <div className="relative">
                 <input
@@ -427,7 +443,7 @@ export function BahanBakuForm({
                   })}
                   className={`w-full pl-12 pr-4 py-3 md:py-3.5 bg-white border-2 rounded-full text-[#2A1711] text-sm md:text-base placeholder-[#BCAAA4] transition-all duration-300 focus:outline-none focus:border-[#BF360C] focus:ring-4 focus:ring-[#BF360C]/10
                   ${errors.hargaTerakhir ? "border-[#BA1A1A] focus:border-[#BA1A1A] focus:ring-[#BA1A1A]/20" : "border-[#D9C4B1]"} `}
-                  placeholder="Contoh: 12000"
+                  placeholder={t("ingredients.pricePlaceholder")}
                   min="0"
                   step="100"
                 />
@@ -452,7 +468,7 @@ export function BahanBakuForm({
                   htmlFor="stok"
                   className="block text-[10px] md:text-xs font-bold uppercase tracking-[0.05em] md:tracking-[0.1em] text-[#5D4037] ml-2"
                 >
-                  Stok Saat Ini
+                  {t("ingredients.currentStock")}
                 </label>
                 <div className="relative">
                   <input
@@ -476,7 +492,7 @@ export function BahanBakuForm({
                 )}
                 {isEdit && (
                   <p className="text-[10px] text-[#8A7362] ml-2 mt-1 font-[var(--font-be-vietnam)]">
-                    Stok otomatis update dari pencatatan belanja
+                    {t("ingredients.stockAutoUpdate")}
                   </p>
                 )}
               </div>
@@ -486,7 +502,7 @@ export function BahanBakuForm({
                   htmlFor="stokMinimal"
                   className="block text-[10px] md:text-xs font-bold uppercase tracking-[0.05em] md:tracking-[0.1em] text-[#5D4037] ml-2"
                 >
-                  Minimal Stok
+                  {t("ingredients.minStock")}
                 </label>
                 <div className="relative">
                   <input
@@ -520,12 +536,12 @@ export function BahanBakuForm({
             >
               <span className="flex-1 text-center tracking-wide pr-2 select-none">
                 {uploading
-                  ? "Mengupload foto..."
+                  ? t("ingredients.uploading")
                   : isLoading
-                    ? "Menyimpan..."
+                    ? t("ingredients.saving")
                     : isEdit
-                      ? "Simpan Perubahan"
-                      : "Tambah Bahan"}
+                      ? t("ingredients.saveChanges")
+                      : t("ingredients.addNew")}
               </span>
               <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#2A1711] transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105 group-hover:translate-x-1 group-hover:-translate-y-[1px]">
                 {isLoading || uploading ? (

@@ -15,6 +15,7 @@ import { Resep } from "@/types/resep";
 import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
 import { toast } from "sonner";
 import { api } from "@/lib/axios";
+import { useTranslation } from "@/context/language-context";
 import { ResepForm } from "./ResepForm";
 import { SimulasiHarga } from "./SimulasiHarga";
 
@@ -25,6 +26,7 @@ interface ResepDetailProps {
 export function ResepDetail({ initialData }: ResepDetailProps) {
   const router = useRouter();
   const params = useParams();
+  const { t, language } = useTranslation("master");
   const [resep, setResep] = useState<Resep>(initialData);
   const [showForm, setShowForm] = useState(false);
   const [showSimulasi, setShowSimulasi] = useState(false);
@@ -52,13 +54,13 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
   const handleFormSubmit = async (data: any) => {
     try {
       const res = await api.patch(`/resep/${resep.id}`, data);
-      toast.success("Resep berhasil diperbarui");
+      toast.success(t("recipes.successUpdate"));
       setShowForm(false);
       fetchDetail();
       return res.data;
     } catch (err: any) {
-      alert(err.response?.data?.message || "Gagal menyimpan");
-      toast.error("Gagal memperbarui resep — coba lagi");
+      alert(err.response?.data?.message || t("ingredients.saveError"));
+      toast.error(t("recipes.errorUpdate"));
       throw err;
     }
   };
@@ -66,11 +68,11 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
   const handleDelete = async () => {
     try {
       await api.delete(`/resep/${resep.id}`);
-      toast.success("Data berhasil dihapus");
+      toast.success(t("recipes.successDelete"));
       setShowDeleteConfirm(false);
       router.push("/dashboard/resep");
     } catch {
-      toast.error("Gagal menghapus data");
+      toast.error(t("recipes.errorDelete"));
       setShowDeleteConfirm(false);
     }
   };
@@ -86,12 +88,14 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
     return resep.estimasiHasil > 0 ? totalBahan / resep.estimasiHasil : 0;
   }, [totalBahan, resep.estimasiHasil]);
 
+  const locale = language === "id" ? "id-ID" : "en-US";
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-3 text-[#8A7362]">
           <div className="w-8 h-8 border-4 border-[#FFE9E4] border-t-[#FF8A00] rounded-full animate-spin" />
-          <p className="text-sm">Memuat detail resep...</p>
+          <p className="text-sm">{t("recipes.detail.loading")}</p>
         </div>
       </div>
     );
@@ -106,13 +110,13 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#DDC1AE] text-[#564334] font-medium font-[var(--font-be-vietnam)] hover:bg-[#FFF8F6] hover:border-[#FF8A00] hover:text-[#FF8A00] transition-all"
         >
           <ArrowLeft className="w-4 h-4" />
-          Kembali
+          {t("recipes.detail.backButton")}
         </Link>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div>
               <p className="text-xs text-[#8A7362] font-[var(--font-be-vietnam)]">
-                Resep &gt; {resep.nama}
+                {t("recipes.title")} &gt; {resep.nama}
               </p>
               <h1 className="font-[var(--font-playfair)] font-bold text-2xl text-[#2A1711]">
                 {resep.nama}
@@ -125,19 +129,19 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#FF8A00] text-[#FF8A00] hover:bg-[#FFF8F6] transition-colors text-sm font-semibold font-[var(--font-be-vietnam)]"
           >
             <TrendingUp className="w-4 h-4" strokeWidth={1.75} />
-            Simulasi Harga
+            {t("recipes.detail.simulationButton")}
           </button>
           <button
             onClick={handleEdit}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#FF8A00] text-white text-sm font-semibold hover:bg-[#E67E00] transition-colors font-[var(--font-be-vietnam)]"
           >
             <Pencil className="w-4 h-4" strokeWidth={1.75} />
-            Edit Resep
+            {t("recipes.detail.editButton")}
           </button>
           <button
             onClick={() => setShowDeleteConfirm(true)}
             className="p-2 rounded-full hover:bg-[#FEE2E2] text-[#EF4444] transition-colors"
-            aria-label="Hapus resep"
+            aria-label={t("recipes.detail.deleteButton")}
           >
             <Trash2 className="w-5 h-5" strokeWidth={1.75} />
           </button>
@@ -172,13 +176,13 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
                     {resep.nama}
                   </h2>
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#D0F4DE] text-[#06D6A0]">
-                    Aktif
+                    {t("recipes.status.active")}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <div>
                     <p className="text-xs text-[#8A7362] font-[var(--font-be-vietnam)] mb-1">
-                      Hasil / Batch
+                      {t("recipes.detail.estimatedYieldLabel")}
                     </p>
                     <p className="font-[var(--font-be-vietnam)] font-semibold text-[#2A1711]">
                       {resep.estimasiHasil} pcs
@@ -186,7 +190,7 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
                   </div>
                   <div>
                     <p className="text-xs text-[#8A7362] font-[var(--font-be-vietnam)] mb-1">
-                      Jumlah Bahan
+                      {t("recipes.ingredients")}
                     </p>
                     <p className="font-[var(--font-be-vietnam)] font-semibold text-[#2A1711]">
                       {(resep.detailResep ?? []).length} item
@@ -198,10 +202,10 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
                 {resep.updatedAt && (
                   <div className="pt-3 border-t border-[#F5E6D8]">
                     <p className="text-xs text-[#8A7362] font-[var(--font-be-vietnam)] mb-1">
-                      Terakhir Diperbarui
+                      {t("recipes.detail.lastUpdated")}
                     </p>
                     <p className="text-sm font-medium text-[#564334]">
-                      {new Date(resep.updatedAt).toLocaleDateString("id-ID", {
+                      {new Date(resep.updatedAt).toLocaleDateString(locale, {
                         day: "numeric",
                         month: "long",
                         year: "numeric",
@@ -220,29 +224,29 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
           <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
             <h3 className="font-[var(--font-playfair)] font-bold text-lg text-[#2A1711] mb-4 flex items-center gap-2">
               <Package className="w-5 h-5 text-[#FF8A00]" strokeWidth={1.75} />
-              Bahan yang Digunakan
+              {t("recipes.detail.infoSection")}
             </h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-[#FFF8F6] border-b border-[#DDC1AE]">
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334]">
-                      NO
+                      {t("recipes.detail.tableNo")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334]">
-                      BAHAN
+                      {t("recipes.detail.tableIngredient")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334]">
-                      SATUAN
+                      {t("recipes.detail.tableUnit")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334]">
-                      QTY
+                      {t("recipes.detail.tableQty")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334]">
-                      HARGA SATUAN
+                      {t("recipes.detail.tablePrice")}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334]">
-                      TOTAL
+                      {t("recipes.detail.tableTotal")}
                     </th>
                   </tr>
                 </thead>
@@ -270,16 +274,16 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
                           </span>
                         </td>
                         <td className="px-4 py-3 font-[var(--font-roboto-mono)] text-sm text-[#564334]">
-                          {Number(d.jumlah).toLocaleString("id-ID")}
+                          {Number(d.jumlah).toLocaleString(locale)}
                         </td>
                         <td className="px-4 py-3 font-[var(--font-roboto-mono)] text-sm text-[#564334]">
                           Rp{" "}
                           {Number(d.bahanBaku.hargaTerakhir).toLocaleString(
-                            "id-ID",
+                            locale,
                           )}
                         </td>
                         <td className="px-4 py-3 font-[var(--font-roboto-mono)] font-semibold text-[#2A1711]">
-                          Rp {Math.round(subtotal).toLocaleString("id-ID")}
+                          Rp {Math.round(subtotal).toLocaleString(locale)}
                         </td>
                       </tr>
                     );
@@ -291,10 +295,10 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
                       colSpan={5}
                       className="px-4 py-3 text-right font-bold text-[#2A1711] font-[var(--font-be-vietnam)]"
                     >
-                      Total Modal / Batch
+                      {t("recipes.detail.totalCostLabel")}
                     </td>
                     <td className="px-4 py-3 font-[var(--font-roboto-mono)] font-bold text-[#FF8A00]">
-                      Rp {Math.round(totalBahan).toLocaleString("id-ID")}
+                      Rp {Math.round(totalBahan).toLocaleString(locale)}
                     </td>
                   </tr>
                 </tfoot>
@@ -307,20 +311,20 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
           {/* Ringkasan HPP */}
           <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
             <h3 className="font-[var(--font-playfair)] font-bold text-lg text-[#2A1711] mb-4">
-              Ringkasan HPP
+              {t("recipes.detail.summaryTitle")}
             </h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-[#564334] font-[var(--font-be-vietnam)]">
-                  Total Modal / Batch
+                  {t("recipes.detail.totalCostSummary")}
                 </span>
                 <span className="font-[var(--font-roboto-mono)] font-semibold text-[#2A1711]">
-                  Rp {Math.round(totalBahan).toLocaleString("id-ID")}
+                  Rp {Math.round(totalBahan).toLocaleString(locale)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-[#564334] font-[var(--font-be-vietnam)]">
-                  Hasil / Batch
+                  {t("recipes.detail.yieldSummary")}
                 </span>
                 <span className="font-[var(--font-roboto-mono)] font-semibold text-[#2A1711]">
                   {resep.estimasiHasil} pcs
@@ -329,10 +333,10 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
               <div className="pt-3 border-t border-[#F5E6D8]">
                 <div className="bg-[#FFF8F6] rounded-xl p-4">
                   <p className="text-xs text-[#FF8A00] font-[var(--font-be-vietnam)] font-semibold mb-1">
-                    HPP per pcs
+                    {t("recipes.detail.hppPerPcs")}
                   </p>
                   <p className="font-[var(--font-roboto-mono)] font-bold text-2xl text-[#FF8A00]">
-                    Rp {Math.round(hppPerPcs).toLocaleString("id-ID")}
+                    Rp {Math.round(hppPerPcs).toLocaleString(locale)}
                   </p>
                 </div>
               </div>
@@ -340,7 +344,7 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
                 resep.marginPersen > 0 && (
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-[#564334] font-[var(--font-be-vietnam)]">
-                      Margin Saat Ini
+                      {t("recipes.detail.currentMargin")}
                     </span>
                     <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-bold bg-[#D0F4DE] text-[#06D6A0]">
                       {resep.marginPersen.toFixed(1)}%
@@ -356,14 +360,14 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
             className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-[#FFF8F6] border border-[#FF8A00] text-[#FF8A00] hover:bg-[#FFE9E4] transition-colors font-semibold font-[var(--font-be-vietnam)] text-sm"
           >
             <TrendingUp className="w-5 h-5" strokeWidth={1.75} />
-            Simulasi Harga Jual
+            {t("recipes.detail.simulationButton")}
           </button>
 
           {/* REVISI: Catatan dipindah ke sini dengan wrapper card agar selaras dengan desain */}
           {resep.catatan && (
             <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_4px_20px_rgba(109,76,65,0.05)] mt-4">
               <p className="text-xs font-bold uppercase tracking-wider text-[#8A7362] font-[var(--font-be-vietnam)] mb-2">
-                Catatan
+                {t("recipes.detail.notesLabel")}
               </p>
               <p className="text-sm text-[#564334] leading-relaxed whitespace-pre-wrap">
                 {resep.catatan}
@@ -377,8 +381,8 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
         open={showDeleteConfirm}
         onOpenChange={setShowDeleteConfirm}
         onConfirm={handleDelete}
-        title={`Hapus ${resep.nama}?`}
-        description="Data akan di-soft-delete."
+        title={t("recipes.detail.deleteConfirmTitle", { name: resep.nama })}
+        description={t("recipes.detail.deleteConfirmDesc")}
       />
 
       {/* Edit Form Modal */}

@@ -5,6 +5,7 @@ import {
   Produksi,
   ProduksiDetail as ProduksiDetailType,
 } from "@/types/produksi";
+import { useTranslation } from "@/context/language-context";
 
 interface ProduksiDetailProps {
   produksi: Produksi;
@@ -19,7 +20,10 @@ export function ProduksiDetail({
   onBatal,
   isActionLoading,
 }: ProduksiDetailProps) {
+  const { t, language } = useTranslation("master");
+  const localeStr = language === "id" ? "id-ID" : "en-US";
   const details = produksi.detailProduksi || [];
+
   const statusColor = () => {
     switch (produksi.status) {
       case "DRAFT":
@@ -35,7 +39,6 @@ export function ProduksiDetail({
 
   return (
     <>
-      {/* Header Actions */}
       <div className="flex flex-wrap gap-3 mb-6">
         {produksi.status === "DRAFT" && (
           <>
@@ -45,7 +48,7 @@ export function ProduksiDetail({
                 disabled={isActionLoading}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#FF8A00] text-white font-semibold hover:bg-[#E67E00] transition-all disabled:opacity-50"
               >
-                Selesaikan
+                {t("production.detail.completeButton")}
               </button>
             )}
             {onBatal && (
@@ -54,7 +57,7 @@ export function ProduksiDetail({
                 disabled={isActionLoading}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#FCA5A5] bg-[#FEE2E2] text-[#EF4444] font-semibold hover:bg-[#FECACA] transition-all disabled:opacity-50"
               >
-                Batalkan
+                {t("production.detail.cancelButton")}
               </button>
             )}
           </>
@@ -63,13 +66,11 @@ export function ProduksiDetail({
           onClick={handlePrint}
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#DDC1AE] text-[#564334] font-semibold hover:bg-[#FFF8F6] transition-all"
         >
-          <Printer className="w-4 h-4" /> Cetak
+          <Printer className="w-4 h-4" /> {t("production.detail.printButton")}
         </button>
       </div>
 
-      {/* 3-Column Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* LEFT PANEL — Info Resep */}
         <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
           <div className="flex justify-center mb-4">
             {produksi.resep.fotoUrl ? (
@@ -132,57 +133,57 @@ export function ProduksiDetail({
 
           <div className="space-y-3 text-sm">
             <DetailRow
-              label="Tanggal Produksi"
-              value={new Date(produksi.tanggal).toLocaleDateString("id-ID", {
+              label={t("production.detail.productionDate")}
+              value={new Date(produksi.tanggal).toLocaleDateString(localeStr, {
                 day: "numeric",
                 month: "long",
                 year: "numeric",
               })}
             />
             <DetailRow
-              label="Estimasi Hasil"
-              value={`${produksi.estimasiHasil} pcs`}
+              label={t("production.detail.estimatedYieldLabel")}
+              value={`${produksi.estimasiHasil}`}
             />
             <DetailRow
-              label="Hasil Nyata"
+              label={t("production.detail.actualYieldLabel")}
               value={
-                produksi.hasilNyata != null ? `${produksi.hasilNyata} pcs` : "-"
+                produksi.hasilNyata != null ? `${produksi.hasilNyata}` : "-"
               }
             />
             <DetailRow
-              label="HPP / pcs (snapshot)"
-              value={`Rp ${Math.round(produksi.hppPerPcs).toLocaleString("id-ID")}`}
+              label={t("production.detail.hppPerPcsLabel")}
+              value={`Rp ${Math.round(produksi.hppPerPcs).toLocaleString(localeStr)}`}
             />
             <DetailRow
-              label="Total Modal (Snapshot)"
-              value={`Rp ${Math.round(produksi.totalModal).toLocaleString("id-ID")}`}
+              label={t("production.detail.totalCostSnapshotLabel")}
+              value={`Rp ${Math.round(produksi.totalModal).toLocaleString(localeStr)}`}
               highlight
             />
             <hr className="border-t border-[#F5E6D8]" />
             <DetailRow
-              label="Dibuat Pada"
+              label={t("production.detail.createdAtLabel")}
               value={`${new Date(produksi.createdAt).toLocaleDateString(
-                "id-ID",
+                localeStr,
                 {
                   day: "numeric",
                   month: "short",
                   year: "numeric",
                 },
-              )}, ${new Date(produksi.createdAt).toLocaleTimeString("id-ID", {
+              )}, ${new Date(produksi.createdAt).toLocaleTimeString(localeStr, {
                 hour: "2-digit",
                 minute: "2-digit",
               })}`}
             />
             <DetailRow
-              label="Diupdate Pada"
+              label={t("production.detail.updatedAtLabel")}
               value={`${new Date(produksi.updatedAt).toLocaleDateString(
-                "id-ID",
+                localeStr,
                 {
                   day: "numeric",
                   month: "short",
                   year: "numeric",
                 },
-              )}, ${new Date(produksi.updatedAt).toLocaleTimeString("id-ID", {
+              )}, ${new Date(produksi.updatedAt).toLocaleTimeString(localeStr, {
                 hour: "2-digit",
                 minute: "2-digit",
               })}`}
@@ -190,10 +191,9 @@ export function ProduksiDetail({
           </div>
         </div>
 
-        {/* CENTER PANEL — Breakdown HPP */}
         <div className="lg:col-span-2 bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
           <h3 className="font-[var(--font-playfair)] font-semibold text-lg text-[#2A1711] mb-4">
-            Breakdown HPP (Snapshot)
+            {t("production.detail.breakdownTitle")}
           </h3>
 
           {details.length > 0 ? (
@@ -201,14 +201,12 @@ export function ProduksiDetail({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[#F5E6D8] text-xs text-[#8A7362] uppercase tracking-[0.1em]">
-                    <th className="py-2 text-left font-semibold w-8">No</th>
-                    <th className="py-2 text-left font-semibold">Bahan</th>
-                    <th className="py-2 text-center font-semibold">Jumlah</th>
-                    <th className="py-2 text-center font-semibold">Satuan</th>
-                    <th className="py-2 text-right font-semibold">
-                      Harga Terakhir
-                    </th>
-                    <th className="py-2 text-right font-semibold">Total</th>
+                    <th className="py-2 text-left font-semibold w-8">{t("production.detail.tableNo")}</th>
+                    <th className="py-2 text-left font-semibold">{t("production.detail.tableIngredient")}</th>
+                    <th className="py-2 text-center font-semibold">{t("production.detail.tableQty")}</th>
+                    <th className="py-2 text-center font-semibold">{t("production.detail.tableUnit")}</th>
+                    <th className="py-2 text-right font-semibold">{t("production.detail.tablePrice")}</th>
+                    <th className="py-2 text-right font-semibold">{t("production.detail.tableTotal")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#F5E6D8]">
@@ -227,10 +225,10 @@ export function ProduksiDetail({
                         {d.satuan}
                       </td>
                       <td className="py-3 text-right font-[var(--font-roboto-mono)]">
-                        Rp {Math.round(d.hargaTerakhir).toLocaleString("id-ID")}
+                        Rp {Math.round(d.hargaTerakhir).toLocaleString(localeStr)}
                       </td>
                       <td className="py-3 text-right font-[var(--font-roboto-mono)] font-semibold">
-                        Rp {Math.round(d.total).toLocaleString("id-ID")}
+                        Rp {Math.round(d.total).toLocaleString(localeStr)}
                       </td>
                     </tr>
                   ))}
@@ -241,11 +239,11 @@ export function ProduksiDetail({
                       colSpan={5}
                       className="py-3 text-right font-bold text-[#2A1711]"
                     >
-                      Total Modal (Snapshot)
+                      {t("production.detail.totalCostLabel")}
                     </td>
                     <td className="py-3 text-right font-bold text-[#FF8A00] font-[var(--font-roboto-mono)]">
                       Rp{" "}
-                      {Math.round(produksi.totalModal).toLocaleString("id-ID")}
+                      {Math.round(produksi.totalModal).toLocaleString(localeStr)}
                     </td>
                   </tr>
                   <tr>
@@ -253,11 +251,11 @@ export function ProduksiDetail({
                       colSpan={5}
                       className="py-2 text-right font-bold text-[#2A1711]"
                     >
-                      HPP / pcs (snapshot)
+                      {t("production.detail.hppPerPcsLabel")}
                     </td>
                     <td className="py-2 text-right font-bold text-[#FF8A00] font-[var(--font-roboto-mono)]">
                       Rp{" "}
-                      {Math.round(produksi.hppPerPcs).toLocaleString("id-ID")}
+                      {Math.round(produksi.hppPerPcs).toLocaleString(localeStr)}
                     </td>
                   </tr>
                 </tfoot>
@@ -265,32 +263,31 @@ export function ProduksiDetail({
             </div>
           ) : (
             <div className="text-center py-12 text-[#8A7362]">
-              <p>Detail bahan tidak tersedia</p>
+              <p>{t("production.detail.noBreakdownData")}</p>
             </div>
           )}
         </div>
 
-        {/* RIGHT PANEL — Ringkasan */}
         <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
           <h3 className="font-[var(--font-playfair)] font-semibold text-lg text-[#2A1711] mb-4">
-            Ringkasan
+            {t("production.detail.summaryTitle")}
           </h3>
 
           <div className="space-y-4 text-sm">
             <SummaryItem
-              label="Estimasi Hasil"
-              value={`${produksi.estimasiHasil} pcs`}
+              label={t("production.detail.estimatedYieldSummary")}
+              value={`${produksi.estimasiHasil}`}
             />
             <SummaryItem
-              label="Hasil Nyata"
+              label={t("production.detail.actualYieldSummary")}
               value={
-                produksi.hasilNyata != null ? `${produksi.hasilNyata} pcs` : "-"
+                produksi.hasilNyata != null ? `${produksi.hasilNyata}` : "-"
               }
             />
 
             {produksi.hasilNyata != null && (
               <SummaryItem
-                label="Selisih"
+                label={t("production.detail.differenceLabel")}
                 value={
                   <span
                     className={
@@ -302,7 +299,7 @@ export function ProduksiDetail({
                     {produksi.hasilNyata - produksi.estimasiHasil >= 0
                       ? "+"
                       : ""}
-                    {produksi.hasilNyata - produksi.estimasiHasil} pcs (
+                    {produksi.hasilNyata - produksi.estimasiHasil} (
                     {Math.round(
                       Math.abs(
                         ((produksi.hasilNyata - produksi.estimasiHasil) /
@@ -319,14 +316,14 @@ export function ProduksiDetail({
             <hr className="border-t border-[#F5E6D8]" />
 
             <SummaryItem
-              label="HPP / pcs (snapshot)"
-              value={`Rp ${Math.round(produksi.hppPerPcs).toLocaleString("id-ID")}`}
+              label={t("production.detail.hppPerPcsSummary")}
+              value={`Rp ${Math.round(produksi.hppPerPcs).toLocaleString(localeStr)}`}
             />
             <SummaryItem
-              label="Total Modal (Snapshot)"
+              label={t("production.detail.totalCostSummary")}
               value={
                 <span className="text-[#FF8A00] font-bold text-base">
-                  Rp {Math.round(produksi.totalModal).toLocaleString("id-ID")}
+                  Rp {Math.round(produksi.totalModal).toLocaleString(localeStr)}
                 </span>
               }
             />
@@ -335,11 +332,9 @@ export function ProduksiDetail({
           <hr className="my-4 border-t border-[#F5E6D8]" />
 
           <div className="text-xs text-[#8A7362] space-y-1">
-            <p className="font-semibold">ℹ️ Tentang Snapshot HPP</p>
+            <p className="font-semibold">{t("production.detail.snapshotInfoTitle")}</p>
             <p>
-              HPP dan total modal di atas adalah snapshot pada saat produksi
-              dibuat. Nilai ini tidak akan berubah meskipun harga bahan sudah
-              berubah.
+              {t("production.detail.snapshotInfoDesc")}
             </p>
           </div>
         </div>

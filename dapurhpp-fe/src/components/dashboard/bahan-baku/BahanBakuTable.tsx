@@ -3,10 +3,20 @@
 import { Pencil, Trash2, Package, Eye } from "lucide-react";
 import { BahanBaku } from "@/types/bahan-baku";
 import { kategoriBadge } from "./kategori-badge";
+import { useTranslation } from "@/context/language-context";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ||
   "http://localhost:3001";
+
+const KATEGORI_LOCALE_MAP: Record<string, string> = {
+  TEPUNG: "flour",
+  MINYAK: "oil",
+  SAYURAN: "vegetable",
+  BUMBU: "spice",
+  DAGING: "meat",
+  LAINNYA: "other",
+};
 
 interface BahanBakuTableProps {
   data: BahanBaku[];
@@ -21,15 +31,17 @@ export function BahanBakuTable({
   onDelete,
   onView,
 }: BahanBakuTableProps) {
+  const { t, language } = useTranslation("master");
+
   if (data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <Package className="w-16 h-16 text-[#DDC1AE] mb-4" />
         <p className="text-[#564334] text-lg font-[var(--font-be-vietnam)] mb-4">
-          Belum ada bahan baku
+          {t("ingredients.emptyState")}
         </p>
         <p className="text-[#8A7362] text-sm mb-6">
-          Tambahkan bahan baku pertama Anda untuk memulai
+          {t("ingredients.emptyHint")}
         </p>
       </div>
     );
@@ -41,25 +53,25 @@ export function BahanBakuTable({
         <thead>
           <tr className="bg-[#FFF8F6] border-b border-[#DDC1AE]">
             <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              NAMA BAHAN
+              {t("ingredients.columns.name")}
             </th>
             <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              KATEGORI
+              {t("ingredients.columns.category")}
             </th>
             <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              SATUAN
+              {t("ingredients.columns.unit")}
             </th>
             <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              HARGA TERAKHIR
+              {t("ingredients.columns.price")}
             </th>
             <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              STOK
+              {t("ingredients.columns.stock")}
             </th>
             <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              TERAKHIR UPDATE
+              {t("ingredients.columns.updatedAt")}
             </th>
             <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.1em] text-[#564334] font-[var(--font-be-vietnam)]">
-              AKSI
+              {t("ingredients.columns.actions")}
             </th>
           </tr>
         </thead>
@@ -89,7 +101,7 @@ export function BahanBakuTable({
                       <span
                         className="text-[1.4rem] leading-none select-none"
                         role="img"
-                        aria-label={kategoriBadge[bahan.kategori].label}
+                        aria-label={t(`ingredients.categories.${KATEGORI_LOCALE_MAP[bahan.kategori] || bahan.kategori.toLowerCase()}`)}
                       >
                         {kategoriBadge[bahan.kategori].emoji}
                       </span>
@@ -104,17 +116,17 @@ export function BahanBakuTable({
                 <span
                   className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${kategoriBadge[bahan.kategori].bg} ${kategoriBadge[bahan.kategori].text}`}
                 >
-                  {kategoriBadge[bahan.kategori].label}
+                  {t(`ingredients.categories.${KATEGORI_LOCALE_MAP[bahan.kategori] || bahan.kategori.toLowerCase()}`)}
                 </span>
               </td>
               <td className="px-6 py-4 text-[#564334] font-[var(--font-be-vietnam)]">
                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[#FFF8F6] text-[#564334] border border-[#F5E6D8]">
-                  {bahan.satuan}
+                  {t(`ingredients.units.${bahan.satuan.toLowerCase()}`)}
                 </span>
               </td>
               <td className="px-6 py-4">
                 <span className="font-[var(--font-roboto-mono)] font-semibold text-[#2A1711]">
-                  Rp {bahan.hargaTerakhir.toLocaleString("id-ID")}
+                  Rp {bahan.hargaTerakhir.toLocaleString(language === "id" ? "id-ID" : "en-US")}
                 </span>
               </td>
               <td className="px-6 py-4">
@@ -126,14 +138,14 @@ export function BahanBakuTable({
                       : "text-[#06D6A0]"
                   }`}
                 >
-                  {Number(bahan.stok).toLocaleString("id-ID")}
+                  {Number(bahan.stok).toLocaleString(language === "id" ? "id-ID" : "en-US")}
                 </span>
                 <span className="text-[#8A7362] text-xs ml-1">
-                  {bahan.satuan}
+                  {t(`ingredients.units.${bahan.satuan.toLowerCase()}`)}
                 </span>
               </td>
               <td className="px-6 py-4 text-[#564334] font-[var(--font-be-vietnam)] text-sm">
-                {new Date(bahan.updatedAt).toLocaleDateString("id-ID", {
+                {new Date(bahan.updatedAt).toLocaleDateString(language === "id" ? "id-ID" : "en-US", {
                   day: "2-digit",
                   month: "short",
                   year: "numeric",
@@ -147,7 +159,7 @@ export function BahanBakuTable({
                       onView(bahan.id);
                     }}
                     className="p-2 rounded-full hover:bg-[#FFE9E4] text-[#564334] transition-colors"
-                    aria-label="Lihat detail bahan baku"
+                    aria-label={t("ingredients.viewDetail")}
                   >
                     <Eye className="w-4 h-4" strokeWidth={1.75} />
                   </button>
@@ -157,7 +169,7 @@ export function BahanBakuTable({
                       onEdit(bahan);
                     }}
                     className="p-2 rounded-full hover:bg-[#FFE9E4] text-[#FF8A00] transition-colors"
-                    aria-label="Edit bahan baku"
+                    aria-label={t("ingredients.editLabel")}
                   >
                     <Pencil className="w-4 h-4" strokeWidth={1.75} />
                   </button>
@@ -167,7 +179,7 @@ export function BahanBakuTable({
                       onDelete(bahan.id);
                     }}
                     className="p-2 rounded-full hover:bg-[#FEE2E2] text-[#EF4444] transition-colors"
-                    aria-label="Hapus bahan baku"
+                    aria-label={t("ingredients.deleteLabel")}
                   >
                     <Trash2 className="w-4 h-4" strokeWidth={1.75} />
                   </button>
