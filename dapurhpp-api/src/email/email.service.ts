@@ -8,10 +8,14 @@ export class EmailService {
   private readonly logger = new Logger(EmailService.name);
 
   constructor(private readonly configService: ConfigService) {
+    const smtpPort = Number(this.configService.getOrThrow<string>('SMTP_PORT'));
     this.transporter = nodemailer.createTransport({
       host: this.configService.getOrThrow<string>('SMTP_HOST'),
-      port: Number(this.configService.getOrThrow<string>('SMTP_PORT')),
-      secure: true, // Port 465 SSL
+      port: smtpPort,
+      secure: smtpPort === 465,
+      connectionTimeout: 10000, // 10 detik — batas waktu koneksi awal ke SMTP server
+      greetingTimeout: 10000,   // 10 detik — batas waktu menunggu respons greeting SMTP
+      socketTimeout: 15000,     // 15 detik — batas waktu inaktivitas socket setelah terhubung
       auth: {
         user: this.configService.getOrThrow<string>('SMTP_USER'),
         pass: this.configService.getOrThrow<string>('SMTP_PASS'),
@@ -31,10 +35,9 @@ export class EmailService {
       return info;
     } catch (error) {
       this.logger.error(`Gagal kirim email ke ${to}: ${error instanceof Error ? error.message : error}`);
-      
-      // MENGEMBALIKAN ERROR HTTP 500 DENGAN DETAIL DARI GMAIL/NODEMAILER
+
       throw new InternalServerErrorException(
-        `Gagal mengirim email: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'Gagal mengirim email. Silakan coba lagi nanti.',
       );
     }
   }

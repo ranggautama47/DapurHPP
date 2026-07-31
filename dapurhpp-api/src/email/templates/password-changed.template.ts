@@ -1,9 +1,12 @@
 import { baseEmailTemplate } from './base-email.template';
+import { escapeHtml } from '../utils/escape-html';
 
 export function passwordChangedTemplate(
   userName: string,
   frontendUrl: string,
 ): string {
+  const safeUserName = escapeHtml(userName);
+
   const now = new Date();
   const formattedDate = now.toLocaleDateString('id-ID', {
     weekday: 'long',
@@ -17,7 +20,7 @@ export function passwordChangedTemplate(
 
   const content = `
     <p style="margin: 0 0 16px; font-size: 16px;">
-      Halo <strong>${userName}</strong>,
+      Halo <strong>${safeUserName}</strong>,
     </p>
     <p style="margin: 0 0 16px;">
       Password akun DapurHPP Anda telah berhasil diubah pada <strong>${formattedDate}</strong>.

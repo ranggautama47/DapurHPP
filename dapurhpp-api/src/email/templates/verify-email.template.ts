@@ -1,13 +1,16 @@
 import { baseEmailTemplate } from './base-email.template';
+import { escapeHtml } from '../utils/escape-html';
 
 export function verifyEmailTemplate(
   userName: string,
   verifyLink: string,
   frontendUrl: string,
 ): string {
+  const safeUserName = escapeHtml(userName);
+
   const content = `
     <p style="margin: 0 0 16px; font-size: 16px;">
-      Halo <strong>${userName}</strong>,
+      Halo <strong>${safeUserName}</strong>,
     </p>
     <p style="margin: 0 0 16px;">
       Terima kasih telah mendaftar di DapurHPP. Silakan verifikasi alamat email Anda dengan mengklik tombol di bawah ini:

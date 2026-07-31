@@ -1,12 +1,12 @@
 import { baseEmailTemplate } from './base-email.template';
+import { escapeHtml } from '../utils/escape-html';
 
-export function welcomeTemplate(
-  userName: string,
-  frontendUrl: string,
-): string {
+export function welcomeTemplate(userName: string, frontendUrl: string): string {
+  const safeUserName = escapeHtml(userName);
+
   const content = `
     <p style="margin: 0 0 16px; font-size: 16px;">
-      Halo <strong>${userName}</strong>,
+      Halo <strong>${safeUserName}</strong>,
     </p>
     <p style="margin: 0 0 16px;">
       Selamat datang di <strong>DapurHPP</strong>! 🎉

@@ -1,13 +1,16 @@
 import { baseEmailTemplate } from './base-email.template';
+import { escapeHtml } from '../utils/escape-html';
 
 export function changeEmailTemplate(
   userName: string,
   verifyLink: string,
   frontendUrl: string,
 ): string {
+  const safeUserName = escapeHtml(userName);
+
   const content = `
     <p style="margin: 0 0 16px; font-size: 16px;">
-      Halo <strong>${userName}</strong>,
+      Halo <strong>${safeUserName}</strong>,
     </p>
     <p style="margin: 0 0 16px;">
       Kami menerima permintaan untuk mengubah alamat email akun DapurHPP Anda.
