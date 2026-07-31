@@ -18,8 +18,14 @@ export function baseEmailTemplate(content: string, frontendUrl: string): string 
                 <td style="background-color: #FFFFFF; border-radius: 12px; padding: 40px 32px; box-shadow: 0 2px 12px rgba(42,23,17,0.08);">
                   <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                     <tr>
-                      <td style="padding-bottom: 24px; border-bottom: 1px solid #F0E8E2;">
-                        <h1 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 24px; color: #FF8A00; font-weight: 700;">DapurHPP</h1>
+                      <td style="padding-bottom: 24px; border-bottom: 1px solid #F0E8E2; text-align: center;">
+                        <a href="${frontendUrl}" target="_blank" style="text-decoration: none; display: inline-block;">
+                          <img 
+                            src="${frontendUrl}/iconDapurHpp.png" 
+                            alt="DapurHPP Logo" 
+                            style="height: 40px; width: auto; border: 0; outline: none; text-decoration: none; display: block;"
+                          />
+                        </a>
                       </td>
                     </tr>
                     <tr>
