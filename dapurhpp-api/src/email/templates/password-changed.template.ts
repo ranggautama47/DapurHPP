@@ -19,6 +19,18 @@ export function passwordChangedTemplate(
   });
 
   const content = `
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 32px;">
+  <tr>
+    <td align="center">
+      <img
+        src="${frontendUrl}/email-template/password-changed-chef.png"
+        alt="Password Berhasil Diubah"
+        width="420"
+        style="display:block; width:420px; max-width:100%; height:auto; border:0;"
+      />
+    </td>
+  </tr>
+</table>
     <p style="margin: 0 0 16px; font-size: 16px;">
       Halo <strong>${safeUserName}</strong>,
     </p>

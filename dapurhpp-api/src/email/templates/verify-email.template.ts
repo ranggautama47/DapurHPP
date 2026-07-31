@@ -16,6 +16,16 @@ export function verifyEmailTemplate(
       Terima kasih telah mendaftar di DapurHPP. Silakan verifikasi alamat email Anda dengan mengklik tombol di bawah ini:
     </p>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
+     <tr>
+    <td align="center">
+      <img
+        src="${frontendUrl}/email-template/verify-chef.png"
+        alt="Verifikasi Email DapurHPP"
+        width="420"
+        style="display:block; width:420px; max-width:100%; height:auto; border:0;"
+      />
+    </td>
+  </tr>
       <tr>
         <td align="center">
           <a href="${verifyLink}"

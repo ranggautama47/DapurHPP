@@ -16,6 +16,18 @@ export function changeEmailTemplate(
       Kami menerima permintaan untuk mengubah alamat email akun DapurHPP Anda.
       Klik tombol di bawah ini untuk memverifikasi kepemilikan alamat email baru Anda:
     </p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 32px;">
+  <tr>
+    <td align="center">
+      <img
+        src="${frontendUrl}/email-template/change-email-chef.png"
+        alt="Perubahan Alamat Email DapurHPP"
+        width="420"
+        style="display:block; width:420px; max-width:100%; height:auto; border:0;"
+      />
+    </td>
+  </tr>
+</table>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
       <tr>
         <td align="center">
