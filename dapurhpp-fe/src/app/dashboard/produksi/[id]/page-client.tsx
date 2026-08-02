@@ -7,7 +7,7 @@ import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
 import { toast } from "sonner";
 import { api } from "@/lib/axios";
 import { Produksi } from "@/types/produksi";
-import { ProduksiDetail } from "@/components/dashboard/produksi";
+import { ProduksiDetail } from "@/components/dashboard/produksi/ProduksiDetail";
 
 export default function ProduksiDetailClient({ id }: { id: string }) {
   const router = useRouter();

@@ -1,13 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { Search, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Plus, ChevronLeft, ChevronRight, ChefHat } from "lucide-react";
 import { useTranslation } from "@/context/language-context";
 import { Resep } from "@/types/resep";
 import { api } from "@/lib/axios";
 import { toast } from "sonner";
-import { ResepCard, ResepForm } from "@/components/dashboard/resep";
+import { ResepCard } from "@/components/dashboard/resep/ResepCard";
+
+// Modal ResepForm diload on-demand (chunk terpisah) — react-hook-form + zod
+// hanya dimuat saat pengguna membuka form "Tambah Resep".
+const ResepForm = dynamic(
+  () =>
+    import("@/components/dashboard/resep/ResepForm").then(
+      (m) => m.ResepForm,
+    ),
+  { ssr: false },
+);
 
 const ITEMS_PER_PAGE = 6;
 
@@ -117,6 +128,7 @@ export default function ResepPageClient() {
         </div>
       ) : filteredList.length === 0 ? (
         <div className="text-center py-16">
+          <ChefHat className="w-16 h-16 text-[#DDC1AE] mx-auto mb-4" strokeWidth={1.5} />
           <p className="text-[#564334] text-lg font-[var(--font-be-vietnam)] mb-2">
             {search ? t("recipes.searchNotFound") : t("recipes.emptyState")}
           </p>
@@ -186,13 +198,15 @@ export default function ResepPageClient() {
         </>
       )}
 
-      <ResepForm
-        isOpen={showForm}
-        onClose={() => setShowForm(false)}
-        onSubmit={handleSubmit}
-        initialData={null}
-        isLoading={isSubmitting}
-      />
+      {showForm && (
+        <ResepForm
+          isOpen={showForm}
+          onClose={() => setShowForm(false)}
+          onSubmit={handleSubmit}
+          initialData={null}
+          isLoading={isSubmitting}
+        />
+      )}
     </div>
   );
 }

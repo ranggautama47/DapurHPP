@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -16,9 +17,19 @@ import {
 } from "lucide-react";
 import { BelanjaRingkasan } from "@/types/belanja";
 import { api } from "@/lib/axios";
-import { BelanjaTable, BelanjaForm } from "@/components/dashboard/belanja";
+import { BelanjaTable } from "@/components/dashboard/belanja/BelanjaTable";
 import { formatLocalDate } from "@/lib/utils";
 import { useTranslation } from "@/context/language-context";
+
+// Modal BelanjaForm diload on-demand (chunk terpisah) — react-hook-form + zod
+// hanya dimuat saat pengguna membuka form "Tambah Belanja".
+const BelanjaForm = dynamic(
+  () =>
+    import("@/components/dashboard/belanja/BelanjaForm").then(
+      (m) => m.BelanjaForm,
+    ),
+  { ssr: false },
+);
 
 export default function BelanjaPageClient() {
   const router = useRouter();
@@ -275,11 +286,13 @@ export default function BelanjaPageClient() {
         )}
       </div>
 
-      <BelanjaForm
-        isOpen={showForm}
-        onClose={() => setShowForm(false)}
-        onSuccess={() => fetchRingkasan(currentDate)}
-      />
+      {showForm && (
+        <BelanjaForm
+          isOpen={showForm}
+          onClose={() => setShowForm(false)}
+          onSuccess={() => fetchRingkasan(currentDate)}
+        />
+      )}
     </div>
   );
 }

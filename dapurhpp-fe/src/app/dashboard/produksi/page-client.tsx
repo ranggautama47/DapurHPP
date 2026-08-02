@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useTranslation } from "@/context/language-context";
 import { useRouter } from "next/navigation";
 import {
@@ -16,8 +17,18 @@ import {
 } from "lucide-react";
 import { Produksi } from "@/types/produksi";
 import { api } from "@/lib/axios";
-import { ProduksiTable, ProduksiForm } from "@/components/dashboard/produksi";
+import { ProduksiTable } from "@/components/dashboard/produksi/ProduksiTable";
 import { formatLocalDate } from "@/lib/utils";
+
+// Modal ProduksiForm diload on-demand (chunk terpisah) — react-hook-form + zod
+// hanya dimuat saat pengguna membuka form "Catat Produksi".
+const ProduksiForm = dynamic(
+  () =>
+    import("@/components/dashboard/produksi/ProduksiForm").then(
+      (m) => m.ProduksiForm,
+    ),
+  { ssr: false },
+);
 
 export default function ProduksiPageClient() {
   const { t, language } = useTranslation("master");
@@ -285,11 +296,13 @@ export default function ProduksiPageClient() {
         )}
       </div>
 
-      <ProduksiForm
-        isOpen={showForm}
-        onClose={() => setShowForm(false)}
-        onSuccess={() => fetchList(currentDate)}
-      />
+      {showForm && (
+        <ProduksiForm
+          isOpen={showForm}
+          onClose={() => setShowForm(false)}
+          onSuccess={() => fetchList(currentDate)}
+        />
+      )}
     </div>
   );
 }

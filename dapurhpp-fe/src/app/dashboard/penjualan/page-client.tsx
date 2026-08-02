@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import {
   ChevronLeft,
@@ -17,12 +18,19 @@ import {
 } from "lucide-react";
 import { PenjualanRingkasan, Penjualan } from "@/types/penjualan";
 import { api } from "@/lib/axios";
-import {
-  PenjualanTable,
-  PenjualanForm,
-} from "@/components/dashboard/penjualan";
+import { PenjualanTable } from "@/components/dashboard/penjualan/PenjualanTable";
 import { formatLocalDate } from "@/lib/utils";
 import { useTranslation } from "@/context/language-context";
+
+// Modal PenjualanForm diload on-demand (chunk terpisah) — react-hook-form + zod
+// hanya dimuat saat pengguna membuka form "Catat Penjualan".
+const PenjualanForm = dynamic(
+  () =>
+    import("@/components/dashboard/penjualan/PenjualanForm").then(
+      (m) => m.PenjualanForm,
+    ),
+  { ssr: false },
+);
 
 export default function PenjualanPageClient() {
   const { t, language } = useTranslation("master");
@@ -315,11 +323,13 @@ export default function PenjualanPageClient() {
         )}
       </div>
 
-      <PenjualanForm
-        isOpen={showForm}
-        onClose={() => setShowForm(false)}
-        onSuccess={() => fetchRingkasan(currentDate)}
-      />
+      {showForm && (
+        <PenjualanForm
+          isOpen={showForm}
+          onClose={() => setShowForm(false)}
+          onSuccess={() => fetchRingkasan(currentDate)}
+        />
+      )}
     </div>
   );
 }

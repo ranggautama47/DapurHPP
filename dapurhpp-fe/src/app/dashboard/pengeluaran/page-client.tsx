@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { Plus, Receipt } from "lucide-react";
 import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
 import { toast } from "sonner";
@@ -8,13 +9,20 @@ import { api } from "@/lib/axios";
 import { formatLocalDate } from "@/lib/utils";
 import type { Pengeluaran, Kategori } from "@/types/pengeluaran";
 import { calculateStats, type PengeluaranStats } from "@/lib/pengeluaran-lain";
-import {
-  StatsCards,
-  FilterBar,
-  PengeluaranTable,
-  PengeluaranForm,
-} from "@/components/dashboard/pengeluaran";
+import { StatsCards } from "@/components/dashboard/pengeluaran/stats-cards";
+import { FilterBar } from "@/components/dashboard/pengeluaran/filter-bar";
+import { PengeluaranTable } from "@/components/dashboard/pengeluaran/pengeluaran-table";
 import { useTranslation } from "@/context/language-context";
+
+// Modal PengeluaranForm diload on-demand (chunk terpisah) — react-hook-form + zod
+// hanya dimuat saat pengguna membuka form "Catat Pengeluaran".
+const PengeluaranForm = dynamic(
+  () =>
+    import("@/components/dashboard/pengeluaran/pengeluaran-form").then(
+      (m) => m.PengeluaranForm,
+    ),
+  { ssr: false },
+);
 
 export default function PengeluaranPageClient() {
   const { t } = useTranslation("master");
