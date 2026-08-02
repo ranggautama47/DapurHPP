@@ -23,7 +23,7 @@ import { EmailModule } from './email/email.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ThrottlerModule.forRoot({
-      throttlers: [{ ttl: 60000, limit: 10 }],
+      throttlers: [{ ttl: 60000, limit: 120 }],
     }),
     PrismaModule,
     EmailModule,

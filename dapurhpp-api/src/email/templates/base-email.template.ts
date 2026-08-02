@@ -22,7 +22,7 @@ export function baseEmailTemplate(content: string, frontendUrl: string): string 
                         <a href="${frontendUrl}" target="_blank" style="text-decoration: none; display: inline-block;">
                           <img 
                             src="${frontendUrl}/iconDapurHpp.png" 
-                            alt="DapurHPP Logo" 
+                            alt="DapurHPP" 
                             style="height: 40px; width: auto; border: 0; outline: none; text-decoration: none; display: block;"
                           />
                         </a>

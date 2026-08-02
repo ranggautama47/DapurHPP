@@ -4,7 +4,8 @@ export function testEmailTemplate(frontendUrl: string): string {
   const content = `
     <p style="margin: 0 0 16px 0; font-size: 16px;">Halo,</p>
     <p style="margin: 0 0 16px 0;">Ini adalah email test dari infrastruktur <strong>EmailService</strong> DapurHPP.</p>
-    <p style="margin: 0 0 24px 0; color: #564334;">Kalau email ini sampai, konfigurasi Resend sudah berfungsi dengan benar.</p>
+    <p style="margin: 0 0 24px 0; color: #564334;">Jika Anda menerima email ini,
+berarti konfigurasi email DapurHPP telah berjalan dengan baik.</p>
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
       <tr>
         <td align="center" style="background-color: #FF8A00; border-radius: 8px; padding: 12px 24px;">
