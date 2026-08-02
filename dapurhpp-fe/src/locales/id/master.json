@@ -252,6 +252,7 @@
     "confirmDelete": "Yakin ingin menghapus resep ini?",
     "searchNotFound": "Resep tidak ditemukan",
     "searchEmptyHint": "Coba kata kunci lain untuk menemukan resep",
+    "emptyState": "Belum ada resep",
     "emptyHint": "Tambahkan resep pertama Anda untuk memulai",
     "pagination": {
       "displayedRange": "Menampilkan {from}-{to} dari {total} resep",
