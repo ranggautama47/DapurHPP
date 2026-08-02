@@ -34,6 +34,7 @@ export default function DashboardLoading() {
             width={120}
             height={120}
             className="mx-auto"
+            style={{ width: "auto", height: "auto" }}
             priority
           />
         </div>
