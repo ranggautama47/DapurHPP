@@ -544,7 +544,7 @@ export function ResepForm({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-3 rounded-full border-2 border-[#DDC1AE] text-[#564334] font-[var(--font-be-vietnam)] font-semibold text-sm hover:bg-[#FFF8F6] transition-colors"
+                className="px-6 py-3 rounded-full border-2 border-[#EF4444]/30 text-[#EF4444] font-[var(--font-be-vietnam)] font-semibold text-sm hover:bg-[#FEE2E2] hover:border-[#EF4444] transition-colors"
               >
                 {t("common.cancel")}
               </button>
