@@ -30,12 +30,11 @@ export function DetailPerforma({ data, loading }: DetailPerformaProps) {
       hpp: acc.hpp + item.hpp,
       laba: acc.laba + item.laba,
     }),
-    { pendapatan: 0, hpp: 0, laba: 0 }
+    { pendapatan: 0, hpp: 0, laba: 0 },
   );
 
-  const avgMargin = totals.pendapatan > 0
-    ? (totals.laba / totals.pendapatan * 100)
-    : 0;
+  const avgMargin =
+    totals.pendapatan > 0 ? (totals.laba / totals.pendapatan) * 100 : 0;
 
   return (
     <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-4 sm:p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)] overflow-hidden">
@@ -66,11 +65,13 @@ export function DetailPerforma({ data, loading }: DetailPerformaProps) {
           </thead>
           <tbody>
             {data.map((item, idx) => {
-              const margin = item.pendapatan > 0
-                ? (item.laba / item.pendapatan * 100)
-                : 0;
+              const margin =
+                item.pendapatan > 0 ? (item.laba / item.pendapatan) * 100 : 0;
               return (
-                <tr key={idx} className="border-b border-[#F5E6D8] hover:bg-[#FFF8F6] transition-colors">
+                <tr
+                  key={idx}
+                  className="border-b border-[#F5E6D8] hover:bg-[#FFF8F6] transition-colors"
+                >
                   <td className="px-3 py-2.5 text-xs text-[#2A1711]">
                     {item.label}
                   </td>
@@ -84,7 +85,11 @@ export function DetailPerforma({ data, loading }: DetailPerformaProps) {
                     Rp {item.laba.toLocaleString(localeStr)}
                   </td>
                   <td className="px-3 py-2.5 text-xs font-[var(--font-roboto-mono)] text-right">
-                    <span className={margin >= 0 ? "text-[#06D6A0]" : "text-[#EF4444]"}>
+                    <span
+                      className={
+                        margin >= 0 ? "text-[#06D6A0]" : "text-[#EF4444]"
+                      }
+                    >
                       {margin.toFixed(1)}%
                     </span>
                   </td>
@@ -107,7 +112,11 @@ export function DetailPerforma({ data, loading }: DetailPerformaProps) {
                 Rp {totals.laba.toLocaleString(localeStr)}
               </td>
               <td className="px-3 py-2.5 text-xs font-bold font-[var(--font-roboto-mono)] text-right">
-                <span className={avgMargin >= 0 ? "text-[#06D6A0]" : "text-[#EF4444]"}>
+                <span
+                  className={
+                    avgMargin >= 0 ? "text-[#06D6A0]" : "text-[#EF4444]"
+                  }
+                >
                   {avgMargin.toFixed(1)}%
                 </span>
               </td>

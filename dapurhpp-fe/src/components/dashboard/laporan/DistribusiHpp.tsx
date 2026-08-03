@@ -10,7 +10,13 @@ interface DistribusiHppProps {
   loading: boolean;
 }
 
-function CustomTooltip({ active, payload, localeStr }: any) {
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{ payload: DistribusiHppItem }>;
+  localeStr: string;
+}
+
+function CustomTooltip({ active, payload, localeStr }: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
   const item = payload[0].payload;
   return (
@@ -39,7 +45,7 @@ export function DistribusiHpp({ data, totalHpp, loading }: DistribusiHppProps) {
 
   if (loading) return <Skeleton />;
 
-  if (!data || data.length === 0 || totalHpp === 0) {
+  if (!data.length || totalHpp === 0) {
     return (
       <div className="bg-white rounded-[24px] border border-[#DDC1AE] p-4 sm:p-6 shadow-[0_8px_30px_rgba(109,76,65,0.08)]">
         <h3 className="font-[var(--font-playfair)] font-bold text-base sm:text-lg text-[#2A1711] mb-4">
@@ -90,7 +96,7 @@ export function DistribusiHpp({ data, totalHpp, loading }: DistribusiHppProps) {
 
         <div className="w-full mt-4 space-y-2">
           {data.map((item, idx) => (
-            <div key={idx} className="flex items-center justify-between text-xs">
+            <div key={`${item.nama}-${idx}`} className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2 truncate">
                 <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color || "#FF8A00" }} />
                 <span className="text-[#564334] font-[var(--font-be-vietnam)] truncate">{item.nama}</span>

@@ -24,7 +24,7 @@ export interface GrafikLabaItem {
 export interface DistribusiHppItem {
   nama: string;
   value: number;
-  color: string;
+  color?: string;
   pct: number;
 }
 

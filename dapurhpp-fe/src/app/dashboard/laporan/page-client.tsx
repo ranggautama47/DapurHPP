@@ -103,7 +103,7 @@ export default function LaporanPageClient() {
         });
       }
     } catch (err) {
-      setError(t("reports.errorLoad"));
+      setError(t("dashboard.summary.fetchError"));
     } finally {
       setLoading(false);
     }
@@ -141,11 +141,11 @@ export default function LaporanPageClient() {
   const handleExportCSV = useCallback(() => {
     const rows = [
       [
-        t("reports.csvHeaders.period"),
-        t("reports.csvHeaders.revenue"),
-        t("reports.csvHeaders.hpp"),
-        t("reports.csvHeaders.profit"),
-        t("reports.csvHeaders.margin"),
+        t("reports.columns.period"),
+        t("reports.columns.revenue"),
+        t("reports.columns.hpp"),
+        t("reports.columns.profit"),
+        t("reports.columns.margin"),
       ],
     ];
     grafik.forEach((item) => {
@@ -201,7 +201,7 @@ export default function LaporanPageClient() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#DDC1AE] text-[#564334] text-sm hover:bg-[#FFF8F6] transition-all bg-white"
           >
             <FileText size={16} strokeWidth={1.75} className="text-[#EF4444]" />
-            {t("reports.exportPdf")}
+            {t("common.buttons.export")} PDF
           </button>
           <button
             onClick={handleExportCSV}
@@ -212,7 +212,7 @@ export default function LaporanPageClient() {
               strokeWidth={1.75}
               className="text-[#06D6A0]"
             />
-            {t("reports.exportExcel")}
+            {t("common.buttons.export")} Excel
           </button>
         </div>
       </div>
