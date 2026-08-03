@@ -54,6 +54,14 @@ const ICON_MAP: Record<
   },
 };
 
+const TYPE_LOCALE_MAP: Record<string, string> = {
+  penjualan: "sale",
+  belanja: "purchase",
+  produksi: "production",
+  pengeluaran: "expense",
+  pembayaran: "payment",
+};
+
 interface ActivityCardProps {
   item: AktivitasItem;
 }
@@ -78,7 +86,7 @@ export function ActivityCard({ item }: ActivityCardProps) {
 
   const badgeText = isBatal
     ? t("common.status.cancelled")
-    : t(`activity.types.${item.type}`);
+    : t(`activity.types.${TYPE_LOCALE_MAP[item.type] || item.type}`);
 
   const dateObj = new Date(item.time);
   const dateStr = format(dateObj, "d MMM yyyy", { locale: dateLocale });

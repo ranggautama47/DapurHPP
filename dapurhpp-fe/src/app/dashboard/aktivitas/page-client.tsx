@@ -9,6 +9,8 @@ import { ActivityFilterBar } from "@/components/dashboard/activity/ActivityFilte
 import { ActivityList } from "@/components/dashboard/activity/ActivityList";
 import type { AktivitasQueryParams } from "@/lib/aktivitas-query";
 
+import { useAuthStore } from "@/lib/auth-store";
+
 export default function ActivityPageClient() {
   const [params, setParams] = useState<AktivitasQueryParams>({
     page: 1,
@@ -29,6 +31,10 @@ export default function ActivityPageClient() {
     if (params.startDate) sp.set("startDate", params.startDate);
     if (params.endDate) sp.set("endDate", params.endDate);
     if (params.type && params.type !== "all") sp.set("type", params.type);
+
+    const token = useAuthStore.getState().accessToken;
+    if (token) sp.set("token", token);
+
     window.open(`/api/aktivitas/export?${sp.toString()}`, "_blank");
   }, [params]);
 
