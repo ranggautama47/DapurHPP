@@ -1,0 +1,345 @@
+{
+  "hero": {
+    "badge": "Cost of Goods Sold (COGS) & Kitchen Management App",
+    "title": "Managing Kitchen COGS Made Easier & More Accurate",
+    "subtitle": "Calculate production costs, manage raw materials, and track profit and loss for your culinary business in one app.",
+    "buttons": {
+      "startFree": "Start Free",
+      "learnMore": "Learn More"
+    },
+    "checklist": {
+      "easy": "Easy to Use",
+      "accurate": "Accurate & Automatic",
+      "trusted": "Safe & Trusted"
+    }
+  },
+  "features": {
+    "headingPrefix": "Complete Features to",
+    "headingHighlight": "Manage Business",
+    "items": {
+      "ingredients": {
+        "title": "Manage Raw Materials",
+        "description": "Record and monitor ingredient prices easily"
+      },
+      "recipes": {
+        "title": "Recipe & Automatic HPP",
+        "description": "Calculate Cost of Goods Sold per recipe automatically and accurately"
+      },
+      "purchases": {
+        "title": "Purchases & Price History",
+        "description": "Record material purchases and track price history"
+      },
+      "production": {
+        "title": "Production",
+        "description": "Track daily production and compute production output"
+      },
+      "sales": {
+        "title": "Sales Management",
+        "description": "Record sales and monitor stock automatically"
+      },
+      "profit": {
+        "title": "Profit & Loss",
+        "description": "View profit and loss reports and revenue charts"
+      }
+    }
+  },
+  "benefits": {
+    "title": "Why Choose Us?",
+    "subtitle": "A smart solution for your culinary business growth.",
+    "items": [
+      {
+        "title": "Time Efficiency",
+        "description": "Automated calculations that save operational time."
+      },
+      {
+        "title": "Data-Driven Decisions",
+        "description": "Data analysis that helps you make the right decisions."
+      },
+      {
+        "title": "Skalabilitas",
+        "description": "Ready to support business growth from micro to large scale."
+      }
+    ]
+  },
+  "testimonials": {
+    "title": "Trusted by Many SMEs",
+    "list": [
+      {
+        "quote": "This application really helps me in determining the right selling price.",
+        "name": "Budi Santoso",
+        "role": "Cafe Owner"
+      },
+      {
+        "quote": "It makes stock management and COGS calculation very fast.",
+        "name": "Siti Aminah",
+        "role": "Home Catering Owner"
+      }
+    ]
+  },
+  "cta": {
+    "title": "Ready to Grow Your Business?",
+    "subtitle": "Start managing your COGS and kitchen operations now.",
+    "button": "Sign Up Now"
+  },
+  "footer": {
+    "tagline": "Smart kitchen management and COGS solution for culinary SMEs.",
+    "sections": {
+      "products": "Products",
+      "company": "Company",
+      "help": "Help",
+      "contact": "Contact"
+    },
+    "links": {
+      "product": "Product",
+      "pricing": "Pricing",
+      "update": "Updates",
+      "about": "About Us",
+      "careers": "Careers",
+      "contact": "Contact",
+      "helpCenter": "Help Center",
+      "guides": "Guides",
+      "faq": "FAQ",
+      "privacy": "Privacy Policy",
+      "terms": "Terms & Conditions"
+    },
+    "copyright": "© {year} DapurHPP. All rights reserved."
+  },
+  "pages": {
+    "produk": {
+      "title": "Products",
+      "subtitle": "All the features you need to run your culinary business.",
+      "features": {
+        "title": "Featured Features",
+        "items": [
+          "Automatic COGS Calculation",
+          "Raw Material Management",
+          "Profit & Loss Reports",
+          "Ingredient Price History",
+          "Production Management",
+          "Sales Recording"
+        ],
+        "itemDesc": "Feature description for {name} for culinary SMEs."
+      },
+      "pricing": {
+        "title": "Pricing",
+        "plans": [
+          {
+            "plan": "Free",
+            "price": "Rp 0",
+            "desc": "For SMEs just starting out."
+          },
+          {
+            "plan": "Pro",
+            "price": "Rp 99,000/mo",
+            "desc": "For growing businesses."
+          }
+        ]
+      },
+      "updates": {
+        "title": "Latest Updates",
+        "items": [
+          {
+            "ver": "v1.3.0",
+            "date": "August 2026",
+            "desc": "Added feature to save reports and activities in PDF and Excel format."
+          },
+          {
+            "ver": "v1.2.0",
+            "date": "July 2026",
+            "desc": "Added automatic weekly report feature."
+          },
+          {
+            "ver": "v1.1.0",
+            "date": "June 2026",
+            "desc": "Improved multi-ingredient COGS calculation."
+          },
+          {
+            "ver": "v1.0.0",
+            "date": "May 2026",
+            "desc": "Initial DapurHPP release."
+          }
+        ]
+      }
+    },
+    "perusahaan": {
+      "title": "Company",
+      "subtitle": "Our mission is to help culinary SMEs manage their business smarter.",
+      "aboutUs": {
+        "title": "About Us",
+        "paragraphs": [
+          "DapurHPP was born from real experience seeing fried food SMEs struggle to accurately calculate capital, COGS, and profits. Many still record manually on paper, unsure about fluctuating ingredient prices, and unaware whether their business is profitable or not.",
+          "We are here as a simple, automatic, and trusted digital solution. With DapurHPP, food business owners can focus on cooking and serving customers — let us handle the numbers."
+        ],
+        "imageAlt": "DapurHPP Team"
+      },
+      "career": {
+        "title": "Career",
+        "positions": [
+          {
+            "title": "Fullstack Developer",
+            "type": "Full-time",
+            "location": "Remote / Jakarta",
+            "status": "Open",
+            "desc": "Job description for Fullstack Developer position at DapurHPP."
+          },
+          {
+            "title": "UI/UX Designer",
+            "type": "Full-time",
+            "location": "Remote / Bandung",
+            "status": "Open",
+            "desc": "Job description for UI/UX Designer position at DapurHPP."
+          }
+        ]
+      },
+      "contact": {
+        "title": "Contact",
+        "comingSoon": "Coming Soon",
+        "form": {
+          "nameLabel": "Name",
+          "namePlaceholder": "Your Name",
+          "emailLabel": "Email",
+          "emailPlaceholder": "email@example.com",
+          "messageLabel": "Message",
+          "messagePlaceholder": "Write your message here...",
+          "submit": "Send Message"
+        }
+      }
+    },
+    "bantuan": {
+      "title": "Help",
+      "subtitle": "Find answers and guides for using DapurHPP here.",
+      "helpCenter": {
+        "title": "Help Center",
+        "searchPlaceholder": "Search help articles...",
+        "categories": [
+          {
+            "title": "Account",
+            "desc": "Registration, login, password reset, and profile settings."
+          },
+          {
+            "title": "COGS & Recipes",
+            "desc": "How to calculate COGS, recipe management, and raw materials."
+          },
+          {
+            "title": "Billing",
+            "desc": "Subscription plans, payments, and invoice management."
+          }
+        ]
+      },
+      "guides": {
+        "title": "Usage Guide",
+        "steps": [
+          "Create a new account on the Registration page, then sign in.",
+          "Add raw materials with their prices in the Materials menu.",
+          "Create your recipes in the Recipes menu — COGS will be calculated automatically.",
+          "Record material purchases in the Purchases menu to update current prices.",
+          "Enter daily production and sales data to view profit and loss reports."
+        ]
+      },
+      "faq": {
+        "title": "Frequently Asked Questions (FAQ)",
+        "items": [
+          {
+            "q": "Can DapurHPP be used for businesses other than fried food?",
+            "a": "Yes, the COGS calculation logic applies to various types of food, but the initial features are focused on fried food businesses."
+          },
+          {
+            "q": "How do I reset my password if I forget it?",
+            "a": "Click 'Forgot Password?' on the login page, enter your registered email, and follow the reset link sent to your email."
+          },
+          {
+            "q": "Is my recipe and financial data secure?",
+            "a": "Yes. All data is encrypted and only accessible by your account. We do not sell or share data with third parties."
+          },
+          {
+            "q": "Can I export reports to Excel/PDF?",
+            "a": "Yes, absolutely! You can directly export your activity history and performance reports into professional, print-ready PDF and Excel (.xlsx) formats."
+          }
+        ]
+      }
+    },
+    "privacy": {
+      "backToHome": "Back to Home",
+      "legalBadge": "DapurHPP Legal",
+      "title": "Privacy Policy",
+      "lastUpdated": "Last Updated: July 2026",
+      "cards": [
+        {
+          "title": "Data Security",
+          "desc": "Your recipe formulations and ingredient prices are protected with strong encryption."
+        },
+        {
+          "title": "Full Ownership",
+          "desc": "Production data and profit/loss history belong solely to your SME."
+        },
+        {
+          "title": "Transparency",
+          "desc": "We will never sell or share your business's kitchen secrets."
+        }
+      ],
+      "sections": [
+        {
+          "title": "1. Information We Collect",
+          "body": "DapurHPP collects data you consciously enter for your culinary business calculation purposes, which includes:",
+          "items": [
+            "Account Information: Full Name, Email Address, Password (encrypted with Bcrypt), and Your Culinary Business Name.",
+            "Kitchen Operational Data: List of Raw Materials, Suppliers, Recipe Formulas, Purchase Costs, Production Data, Selling Price Snapshots, and Other Expense History."
+          ]
+        },
+        {
+          "title": "2. Use of Your Information",
+          "body": "All operational data you enter into the system is processed solely to provide accurate financial visualizations for yourself, including:",
+          "items": [
+            "Dynamically calculating COGS for fried food in real-time based on the latest purchases.",
+            "Presenting profit summary charts, accumulated losses, and periodic sales performance on your dashboard.",
+            "Validating data ownership (JWT Identity Verification Check) so other users cannot view your kitchen recipes."
+          ]
+        },
+        {
+          "title": "3. Financial Information Security",
+          "body": "We implement industry-standard security protocols using JWT Token Ownership with Guard-based NestJS to keep API endpoints secure from external manipulation. Your password is protected using one-way hashing salt, making it impossible to read manually even by DapurHPP administrators.",
+          "items": []
+        },
+        {
+          "title": "4. Your SME Data Access Rights",
+          "body": "As a business owner, you have full control over your own data. You can add, modify recipes, or delete operational records (including soft-delete mechanisms on master raw materials to avoid breaking historical transaction calculations).",
+          "items": []
+        }
+      ]
+    },
+    "terms": {
+      "backToHome": "Back to Home",
+      "legalBadge": "DapurHPP Legal",
+      "title": "Terms & Conditions",
+      "lastUpdated": "Last Updated: July 2026",
+      "intro": "Welcome to DapurHPP. By registering, accessing, or using our platform, you agree to comply with all terms and conditions set forth below.",
+      "sections": [
+        {
+          "title": "1. Account Registration Terms",
+          "body": "This service is specifically designed to simplify managerial calculations for culinary SMEs. You are required to:",
+          "items": [
+            "Provide an active and valid email address for JWT authentication purposes.",
+            "Maintain the confidentiality of your password credentials to prevent unauthorized access.",
+            "One account is recommended for one culinary business entity to preserve accurate net profit calculations."
+          ]
+        },
+        {
+          "title": "2. Accuracy of COGS & Financial Figures",
+          "body": "The DapurHPP system calculates Cost of Goods Sold (COGS) automatically based on dynamic mathematical formulas using your latest expense input variables.",
+          "note": "Important Note: Final profit/loss calculation accuracy depends heavily on user precision in recording real expenses and operational sales snapshots. DapurHPP provides calculation tools and is not liable for physical cash discrepancies due to transaction input errors or internal management oversight.",
+          "items": []
+        },
+        {
+          "title": "3. General Usage Restriction Policy",
+          "body": "Users are strictly prohibited from attempting exploitation, security vulnerability penetration (cyber attacks) on our NestJS API backend, corrupting MySQL database structures via SQL Injection, or forging JWT token payloads. Violations will result in permanent account suspension.",
+          "items": []
+        },
+        {
+          "title": "4. Service Changes & Policy Updates",
+          "body": "The DapurHPP platform is continuously developed to provide comprehensive financial performance reports. Therefore, these terms may be adjusted at any time without prior written notice and will take immediate effect upon publication.",
+          "items": []
+        }
+      ]
+    }
+  }
+}

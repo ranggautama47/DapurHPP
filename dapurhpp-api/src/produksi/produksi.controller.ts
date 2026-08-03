@@ -39,6 +39,12 @@ export class ProduksiController {
     return this.produksiService.findOne(+id, req.user.id);
   }
 
+  @Patch(':id/selesai')
+  @HttpCode(HttpStatus.OK)
+  selesai(@Param('id') id: string, @Request() req: any) {
+    return this.produksiService.selesai(+id, req.user.id);
+  }
+
   @Patch(':id')
   update(
     @Param('id') id: string,

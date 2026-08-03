@@ -1,0 +1,137 @@
+{
+  "breadcrumb": {
+    "home": "Dashboard",
+    "settings": "Settings"
+  },
+  "title": "Settings",
+  "tabs": {
+    "profile": "Profile",
+    "security": "Security",
+    "appearance": "Appearance",
+    "notifications": "Notifications",
+    "about": "About"
+  },
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Manage your profile information",
+    "defaultName": "Business Owner",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "businessName": "Business Name",
+    "businessNamePlaceholder": "Enter business name",
+    "phoneNumber": "Phone Number",
+    "phoneNumberPlaceholder": "Enter phone number",
+    "optional": "(optional)",
+    "email": "Email",
+    "emailVerified": "Email verified",
+    "emailNotVerified": "Email not verified",
+    "verifyEmail": "Verify Email",
+    "saveButton": "Save Changes",
+    "saving": "Saving...",
+    "success": "Profile updated successfully",
+    "error": "Failed to save profile",
+    "loadError": "Failed to load profile",
+    "avatarSuccess": "Avatar updated successfully",
+    "avatarError": "Failed to upload avatar",
+    "fileTypeError": "Invalid file type. Only JPG, PNG, and WebP.",
+    "fileSizeError": "Maximum file size is 2MB."
+  },
+  "security": {
+    "title": "Security",
+    "subtitle": "Manage your account security",
+    "email": {
+      "label": "Email",
+      "changeButton": "Change Email",
+      "cancelButton": "Cancel",
+      "saveButton": "Save",
+      "savingText": "Saving...",
+      "currentPasswordPlaceholder": "Current password for confirmation",
+      "newEmailPlaceholder": "Enter new email",
+      "success": "Verification link has been sent to your new email.",
+      "error": "Failed to change email"
+    },
+    "changePassword": {
+      "title": "Change Password",
+      "currentPassword": "Current Password",
+      "currentPasswordPlaceholder": "Enter current password",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter new password",
+      "confirmPassword": "Confirm New Password",
+      "confirmPasswordPlaceholder": "Confirm new password",
+      "showPassword": "Show",
+      "hidePassword": "Hide",
+      "updateButton": "Update Password",
+      "processing": "Processing...",
+      "updating": "Updating...",
+      "success": "Password changed successfully",
+      "error": "Failed to change password",
+      "confirmMatchError": "Passwords do not match",
+      "errors": {
+        "currentRequired": "Current password is required",
+        "newRequired": "New password is required",
+        "newMinLength": "New password must be at least 6 characters",
+        "mismatch": "Passwords do not match",
+        "sameAsCurrent": "New password must be different from current password",
+        "incorrectCurrent": "Current password is incorrect"
+      }
+    },
+    "summary": {
+      "title": "Security Summary",
+      "emailVerified": "Email Verified",
+      "verified": "Verified",
+      "notVerified": "Not verified",
+      "passwordChanged": "Password last changed",
+      "neverChanged": "Never changed",
+      "lastLogin": "Last login",
+      "noHistory": "No history",
+      "accountCreated": "Account created"
+    }
+  },
+  "appearance": {
+    "title": "Appearance",
+    "subtitle": "Customize application appearance",
+    "fontSize": "Font Size",
+    "fontSizeOptions": {
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large"
+    },
+    "theme": "Theme",
+    "themeOptions": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System Default"
+    },
+    "language": "Language",
+    "languageOptions": {
+      "id": "Bahasa Indonesia",
+      "en": "English"
+    },
+    "ugcExplanation": "This language setting translates the application interface text (menus, buttons, and labels). Recipe data, ingredients, and transactions you enter into the database will remain in their original language. To automatically translate content data, you can use the built-in Google Translate feature in your browser."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "Manage notification preferences",
+    "appNotifications": "In-app notifications",
+    "appNotificationsDesc": "Receive account activity notifications",
+    "stockNotifications": "Stock reminder",
+    "stockNotificationsDesc": "Notifications when ingredients run out",
+    "salesNotifications": "Sales reminder",
+    "salesNotificationsDesc": "Daily sales summary",
+    "toggleError": "Failed to update notification preferences"
+  },
+  "about": {
+    "title": "About",
+    "appVersion": "App Version",
+    "developer": "Developer",
+    "version": "Version",
+    "description": "DapurHPP - Home Food Production Management App",
+    "links": {
+      "terms": "Terms & Conditions",
+      "privacy": "Privacy Policy",
+      "contact": "Contact Us"
+    },
+    "logoutButton": "Logout",
+    "logoutConfirm": "Are you sure you want to logout?"
+  }
+}

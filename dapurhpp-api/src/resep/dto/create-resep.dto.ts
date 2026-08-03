@@ -1,4 +1,13 @@
-import { IsInt, IsString, IsNotEmpty, MinLength, IsNumber, Min, IsOptional } from 'class-validator';
+import {
+  IsInt,
+  IsString,
+  IsNotEmpty,
+  MinLength,
+  IsNumber,
+  Min,
+  IsOptional,
+  MaxLength,
+} from 'class-validator';
 import { CreateDetailResepDto } from './create-detail-resep.dto';
 
 export class CreateResepDto {
@@ -16,6 +25,11 @@ export class CreateResepDto {
   @IsNumber()
   @Min(0)
   hargaJual?: number = 0;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  catatan?: string;
 
   @IsNotEmpty({ message: 'Detail resep tidak boleh kosong' })
   detailResep: CreateDetailResepDto[];

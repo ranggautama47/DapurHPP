@@ -1,0 +1,79 @@
+{
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "ingredients": "Bahan Baku",
+    "suppliers": "Supplier",
+    "recipes": "Resep",
+    "purchases": "Belanja",
+    "production": "Produksi",
+    "sales": "Penjualan",
+    "expenses": "Pengeluaran Lain-lain",
+    "reports": "Laporan",
+    "settings": "Pengaturan",
+    "defaultUser": "Pemilik Usaha",
+    "logout": "Logout",
+    "toggleSidebar": "Toggle sidebar"
+  },
+  "navbar": {
+    "greeting": "Halo, {name} 👋",
+    "defaultName": "Pemilik",
+    "toggleNavigation": "Toggle Navigation",
+    "avatarAlt": "Avatar"
+  },
+  "layout": {
+    "footerRights": "© {year} DapurHPP. Semua hak dilindungi.",
+    "footerMadeWith": "Dibuat dengan ❤ untuk UMKM Gorengan"
+  },
+  "verification": {
+    "notice": "Verifikasi email Anda untuk mengaktifkan semua fitur.",
+    "resend": "Kirim Ulang",
+    "sending": "Mengirim...",
+    "success": "Link verifikasi baru telah dikirim ke email Anda.",
+    "error": "Gagal mengirim ulang. Silakan coba lagi.",
+    "close": "Tutup"
+  },
+  "datePicker": {
+    "singleDate": "Tanggal Tunggal",
+    "dateRange": "Rentang Tanggal",
+    "selectDate": "Pilih tanggal"
+  },
+  "stats": {
+    "revenue": "Pendapatan",
+    "cogs": "Modal (HPP)",
+    "sales": "Penjualan",
+    "profitMargin": "Margin Keuntungan",
+    "fromYesterday": "{change} dari kemarin",
+    "unitsPcs": "pcs",
+    "fetchError": "Gagal memuat ringkasan",
+    "retry": "Coba Lagi"
+  },
+  "profitChart": {
+    "title": "Grafik Laba",
+    "tooltipLabel": "Laba",
+    "fetchError": "Gagal memuat grafik",
+    "emptyData": "Belum ada data untuk periode ini",
+    "retry": "Coba Lagi"
+  },
+  "expenseChart": {
+    "title": "Distribusi Pengeluaran (HPP)",
+    "total": "Total",
+    "fetchError": "Gagal memuat data grafik",
+    "emptyData": "Belum ada data pengeluaran untuk periode ini",
+    "retry": "Coba Lagi"
+  },
+  "recentActivity": {
+    "title": "Aktivitas Terbaru",
+    "viewAll": "Lihat Semua",
+    "fetchError": "Gagal memuat aktivitas",
+    "emptyData": "Belum ada aktivitas",
+    "retry": "Coba Lagi",
+    "timeSuffix": "WIB"
+  },
+  "topProducts": {
+    "title": "Produk Terlaris",
+    "viewAll": "Lihat Semua",
+    "fetchError": "Gagal memuat produk",
+    "emptyData": "Belum ada data produk",
+    "retry": "Coba Lagi"
+  }
+}

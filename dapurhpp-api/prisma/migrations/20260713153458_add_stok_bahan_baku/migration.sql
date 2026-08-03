@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `bahan_baku` ADD COLUMN `stok` DECIMAL(10, 3) NOT NULL DEFAULT 0,
+    ADD COLUMN `stok_minimal` DECIMAL(10, 3) NOT NULL DEFAULT 0;

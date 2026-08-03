@@ -1,0 +1,137 @@
+{
+  "breadcrumb": {
+    "home": "Beranda",
+    "settings": "Pengaturan"
+  },
+  "title": "Pengaturan",
+  "tabs": {
+    "profile": "Profil",
+    "security": "Keamanan",
+    "appearance": "Tampilan",
+    "notifications": "Notifikasi",
+    "about": "Tentang"
+  },
+  "profile": {
+    "title": "Profil",
+    "subtitle": "Kelola informasi profil Anda",
+    "defaultName": "Pemilik Usaha",
+    "fullName": "Nama Lengkap",
+    "fullNamePlaceholder": "Masukkan nama lengkap",
+    "businessName": "Nama Usaha",
+    "businessNamePlaceholder": "Masukkan nama usaha",
+    "phoneNumber": "No. HP",
+    "phoneNumberPlaceholder": "Masukkan nomor HP",
+    "optional": "(opsional)",
+    "email": "Email",
+    "emailVerified": "Email terverifikasi",
+    "emailNotVerified": "Email belum terverifikasi",
+    "verifyEmail": "Verifikasi Email",
+    "saveButton": "Simpan Perubahan",
+    "saving": "Menyimpan...",
+    "success": "Profil berhasil diperbarui",
+    "error": "Gagal menyimpan profil",
+    "loadError": "Gagal memuat data profil",
+    "avatarSuccess": "Avatar berhasil diperbarui",
+    "avatarError": "Gagal mengupload avatar",
+    "fileTypeError": "Tipe file tidak valid. Hanya JPG, PNG, dan WebP.",
+    "fileSizeError": "Ukuran file maksimal 2MB."
+  },
+  "security": {
+    "title": "Keamanan",
+    "subtitle": "Kelola keamanan akun Anda",
+    "email": {
+      "label": "Email",
+      "changeButton": "Ubah Email",
+      "cancelButton": "Batal",
+      "saveButton": "Simpan",
+      "savingText": "Menyimpan...",
+      "currentPasswordPlaceholder": "Password saat ini untuk konfirmasi",
+      "newEmailPlaceholder": "Masukkan email baru",
+      "success": "Link verifikasi telah dikirim ke email baru Anda.",
+      "error": "Gagal mengubah email"
+    },
+    "changePassword": {
+      "title": "Ubah Password",
+      "currentPassword": "Password Saat Ini",
+      "currentPasswordPlaceholder": "Masukkan password saat ini",
+      "newPassword": "Password Baru",
+      "newPasswordPlaceholder": "Masukkan password baru",
+      "confirmPassword": "Konfirmasi Password Baru",
+      "confirmPasswordPlaceholder": "Konfirmasi password baru",
+      "showPassword": "Tampilkan",
+      "hidePassword": "Sembunyikan",
+      "updateButton": "Update Password",
+      "processing": "Memproses...",
+      "updating": "Mengubah...",
+      "success": "Password berhasil diubah",
+      "error": "Gagal mengubah password",
+      "confirmMatchError": "Konfirmasi password tidak cocok",
+      "errors": {
+        "currentRequired": "Password saat ini wajib diisi",
+        "newRequired": "Password baru wajib diisi",
+        "newMinLength": "Password baru minimal 6 karakter",
+        "mismatch": "Konfirmasi password tidak cocok",
+        "sameAsCurrent": "Password baru harus berbeda dari password saat ini",
+        "incorrectCurrent": "Password saat ini salah"
+      }
+    },
+    "summary": {
+      "title": "Ringkasan Keamanan",
+      "emailVerified": "Email Terverifikasi",
+      "verified": "Terverifikasi",
+      "notVerified": "Belum diverifikasi",
+      "passwordChanged": "Password terakhir diubah",
+      "neverChanged": "Belum pernah diubah",
+      "lastLogin": "Login terakhir",
+      "noHistory": "Belum ada riwayat",
+      "accountCreated": "Akun dibuat"
+    }
+  },
+  "appearance": {
+    "title": "Tampilan",
+    "subtitle": "Atur preferensi tampilan aplikasi",
+    "fontSize": "Ukuran Font",
+    "fontSizeOptions": {
+      "small": "Kecil",
+      "medium": "Sedang",
+      "large": "Besar"
+    },
+    "theme": "Tema",
+    "themeOptions": {
+      "light": "Terang",
+      "dark": "Gelap",
+      "system": "Ikuti Sistem"
+    },
+    "language": "Bahasa",
+    "languageOptions": {
+      "id": "Bahasa Indonesia",
+      "en": "English"
+    },
+    "ugcExplanation": "Pilihan bahasa ini menerjemahkan teks antarmuka aplikasi (menu, tombol, dan label). Data resep, bahan baku, dan transaksi yang Anda masukkan ke database akan tetap menggunakan bahasa aslinya. Untuk menerjemahkan isi data secara otomatis, Anda dapat menggunakan fitur bawaan Google Translate pada browser."
+  },
+  "notifications": {
+    "title": "Notifikasi",
+    "subtitle": "Kelola preferensi notifikasi",
+    "appNotifications": "Notifikasi dalam aplikasi",
+    "appNotificationsDesc": "Terima notifikasi aktivitas akun",
+    "stockNotifications": "Reminder stok habis",
+    "stockNotificationsDesc": "Pemberitahuan saat bahan baku habis",
+    "salesNotifications": "Reminder penjualan",
+    "salesNotificationsDesc": "Ringkasan penjualan harian",
+    "toggleError": "Gagal memperbarui preferensi notifikasi"
+  },
+  "about": {
+    "title": "Tentang",
+    "appVersion": "Versi Aplikasi",
+    "developer": "Developer",
+    "version": "Versi",
+    "description": "DapurHPP - Aplikasi manajemen produksi makanan rumahan",
+    "links": {
+      "terms": "Syarat & Ketentuan",
+      "privacy": "Kebijakan Privasi",
+      "contact": "Hubungi Kami"
+    },
+    "logoutButton": "Logout",
+    "logoutConfirm": "Apakah Anda yakin ingin keluar?"
+  }
+}

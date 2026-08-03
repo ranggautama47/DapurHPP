@@ -1,4 +1,11 @@
-import { IsInt, IsNumber, IsString, IsNotEmpty, Min, IsEnum } from 'class-validator';
+import {
+  IsInt,
+  IsNumber,
+  IsString,
+  IsNotEmpty,
+  Min,
+  IsEnum,
+} from 'class-validator';
 import { Satuan } from '@prisma/client';
 
 export class CreateDetailResepDto {

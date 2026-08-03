@@ -36,6 +36,7 @@ export class PengeluaranLainService {
         tanggal: new Date(dto.tanggal),
         nama: dto.nama,
         jumlah: dto.jumlah,
+        kategori: dto.kategori,
       },
     });
   }
@@ -48,6 +49,7 @@ export class PengeluaranLainService {
         ...(dto.tanggal !== undefined && { tanggal: new Date(dto.tanggal) }),
         ...(dto.nama !== undefined && { nama: dto.nama }),
         ...(dto.jumlah !== undefined && { jumlah: dto.jumlah }),
+        ...(dto.kategori !== undefined && { kategori: dto.kategori }),
       },
     });
   }

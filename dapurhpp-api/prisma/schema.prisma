@@ -1,51 +1,65 @@
-// DapurHPP - Prisma Schema
-// Stack: NestJS + Prisma + MySQL
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mysql"
-   url     = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
-// ─────────────────────────────────────────
-// MASTER DATA
-// ─────────────────────────────────────────
-
 model User {
-  id         Int      @id @default(autoincrement()) @db.UnsignedInt
-  name       String   @db.VarChar(100)
-  email      String   @unique @db.VarChar(150)
-  password   String   @db.VarChar(255) // bcrypt
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-
+  id              Int               @id @default(autoincrement()) @db.UnsignedInt
+  name            String            @db.VarChar(100)
+  email           String            @unique @db.VarChar(150)
+  password        String            @db.VarChar(255)
+  namaUsaha       String?           @map("nama_usaha") @db.VarChar(100)
+  nomorHp         String?           @map("nomor_hp") @db.VarChar(20)
+  fontSize        String            @default("sedang") @map("font_size") @db.VarChar(10)
+  notifAplikasi   Boolean           @default(true) @map("notif_aplikasi")
+  notifStok       Boolean           @default(true) @map("notif_stok")
+  notifPenjualan  Boolean           @default(true) @map("notif_penjualan")
+  avatarUrl                String?           @map("avatar_url") @db.VarChar(255)
+  emailVerified            Boolean           @default(false) @map("email_verified")
+  emailVerifyTokenHash     String?           @map("email_verify_token_hash") @db.VarChar(64)
+  emailVerifyExpiresAt     DateTime?         @map("email_verify_expires_at")
+  pendingEmail             String?           @map("pending_email") @db.VarChar(150)
+  emailChangeTokenHash     String?           @map("email_change_token_hash") @db.VarChar(64)
+  emailChangeExpiresAt     DateTime?         @map("email_change_expires_at")
+  passwordResetTokenHash   String?           @map("password_reset_token_hash") @db.VarChar(64)
+  passwordResetExpiresAt   DateTime?         @map("password_reset_expires_at")
+  lastLoginAt              DateTime?         @map("last_login_at")
+  passwordChangedAt        DateTime?         @map("password_changed_at")
+  emailVerifiedAt          DateTime?         @map("email_verified_at")
+  createdAt                DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
   bahanBaku       BahanBaku[]
-  supplier        Supplier[]
-  resep           Resep[]
   belanja         Belanja[]
-  produksi        Produksi[]
-  penjualan       Penjualan[]
+  notifikasi      Notifikasi[]
   pengeluaranLain PengeluaranLain[]
+  penjualan       Penjualan[]
+  produksi        Produksi[]
+  resep           Resep[]
+  supplier        Supplier[]
 
   @@map("users")
 }
 
 model BahanBaku {
-  id            Int       @id @default(autoincrement()) @db.UnsignedInt
-  userId        Int       @db.UnsignedInt @map("user_id")
-  nama          String    @db.VarChar(100)
+  id            Int             @id @default(autoincrement()) @db.UnsignedInt
+  userId        Int             @map("user_id") @db.UnsignedInt
+  nama          String          @db.VarChar(100)
   satuan        Satuan
-  hargaTerakhir Decimal   @default(0) @db.Decimal(12, 2) @map("harga_terakhir")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-  deletedAt     DateTime? @map("deleted_at") // soft delete
-
-  user         User           @relation(fields: [userId], references: [id])
-  detailResep  DetailResep[]
+  hargaTerakhir Decimal         @default(0.00) @map("harga_terakhir") @db.Decimal(12, 2)
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  deletedAt     DateTime?       @map("deleted_at")
+  fotoUrl       String?         @map("foto_url") @db.VarChar(255)
+  kategori      KategoriBahan   @default(LAINNYA)
+  stok          Decimal         @default(0.000) @map("stok") @db.Decimal(10, 3)
+  stokMinimal   Decimal         @default(0.000) @map("stok_minimal") @db.Decimal(10, 3)
+  user          User            @relation(fields: [userId], references: [id])
   detailBelanja DetailBelanja[]
+  detailResep   DetailResep[]
 
   @@unique([userId, nama])
   @@index([userId])
@@ -54,68 +68,62 @@ model BahanBaku {
 }
 
 model Supplier {
-  id        Int       @id @default(autoincrement()) @db.UnsignedInt
-  userId    Int       @db.UnsignedInt @map("user_id")
-  nama      String    @db.VarChar(100)
-  alamat    String?   @db.VarChar(200)
-  telepon   String?   @db.VarChar(20)
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at") // soft delete
-
-  user          User            @relation(fields: [userId], references: [id])
+  id            Int             @id @default(autoincrement()) @db.UnsignedInt
+  userId        Int             @map("user_id") @db.UnsignedInt
+  nama          String          @db.VarChar(100)
+  alamat        String?         @db.VarChar(200)
+  telepon       String?         @db.VarChar(20)
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  deletedAt     DateTime?       @map("deleted_at")
   detailBelanja DetailBelanja[]
+  user          User            @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@map("supplier")
 }
 
 model Resep {
-  id             Int       @id @default(autoincrement()) @db.UnsignedInt
-  userId         Int       @db.UnsignedInt @map("user_id")
-  nama           String    @db.VarChar(100)
-  fotoUrl        String?   @db.VarChar(255) @map("foto_url")
-  estimasiHasil  Int       @db.UnsignedInt @map("estimasi_hasil") // pcs per batch
-  hargaJual      Decimal   @default(0) @db.Decimal(12, 2) @map("harga_jual")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-  deletedAt      DateTime? @map("deleted_at") // soft delete
-
-  user        User          @relation(fields: [userId], references: [id])
-  detailResep DetailResep[]
-  produksi    Produksi[]
+  id            Int           @id @default(autoincrement()) @db.UnsignedInt
+  userId        Int           @map("user_id") @db.UnsignedInt
+  nama          String        @db.VarChar(100)
+  fotoUrl       String?       @map("foto_url") @db.VarChar(255)
+  estimasiHasil Int           @map("estimasi_hasil") @db.UnsignedInt
+  hargaJual     Decimal       @default(0.00) @map("harga_jual") @db.Decimal(12, 2)
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  deletedAt     DateTime?     @map("deleted_at")
+  catatan       String?       @db.Text
+  detailResep   DetailResep[]
+  produksi      Produksi[]
+  user          User          @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@map("resep")
 }
 
 model DetailResep {
-  id          Int     @id @default(autoincrement()) @db.UnsignedInt
-  resepId     Int     @db.UnsignedInt @map("resep_id")
-  bahanBakuId Int     @db.UnsignedInt @map("bahan_baku_id")
-  jumlah      Decimal @db.Decimal(10, 3)
-  satuan      Satuan  // harus sama dengan satuan bahan_baku — konversi ditangani v2
-
-  resep     Resep     @relation(fields: [resepId], references: [id])
-  bahanBaku BahanBaku @relation(fields: [bahanBakuId], references: [id])
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  resepId     Int       @map("resep_id") @db.UnsignedInt
+  bahanBakuId Int       @map("bahan_baku_id") @db.UnsignedInt
+  jumlah      Decimal   @db.Decimal(10, 3)
+  satuan      Satuan
+  bahanBaku   BahanBaku @relation(fields: [bahanBakuId], references: [id])
+  resep       Resep     @relation(fields: [resepId], references: [id])
 
   @@unique([resepId, bahanBakuId])
+  @@index([bahanBakuId], map: "detail_resep_bahan_baku_id_fkey")
   @@map("detail_resep")
 }
 
-// ─────────────────────────────────────────
-// OPERASIONAL
-// ─────────────────────────────────────────
-
 model Belanja {
-  id           Int      @id @default(autoincrement()) @db.UnsignedInt
-  userId       Int      @db.UnsignedInt @map("user_id")
-  tanggal      DateTime @db.Date
-  totalBelanja Decimal  @default(0) @db.Decimal(12, 2) @map("total_belanja") // auto-sum dari detail
-  catatan      String?  @db.Text
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
+  id            Int             @id @default(autoincrement()) @db.UnsignedInt
+  userId        Int             @map("user_id") @db.UnsignedInt
+  tanggal       DateTime        @db.Date
+  totalBelanja  Decimal         @default(0.00) @map("total_belanja") @db.Decimal(12, 2)
+  catatan       String?         @db.Text
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
   user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   detailBelanja DetailBelanja[]
 
@@ -125,84 +133,116 @@ model Belanja {
 }
 
 model DetailBelanja {
-  id          Int     @id @default(autoincrement()) @db.UnsignedInt
-  belanjaId   Int     @db.UnsignedInt @map("belanja_id")
-  bahanBakuId Int     @db.UnsignedInt @map("bahan_baku_id")
-  supplierId  Int?    @db.UnsignedInt @map("supplier_id") // nullable
-  jumlah      Decimal @db.Decimal(10, 3)
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  belanjaId   Int       @map("belanja_id") @db.UnsignedInt
+  bahanBakuId Int       @map("bahan_baku_id") @db.UnsignedInt
+  supplierId  Int?      @map("supplier_id") @db.UnsignedInt
+  jumlah      Decimal   @db.Decimal(10, 3)
   satuan      Satuan
-  hargaSatuan Decimal @db.Decimal(12, 2) @map("harga_satuan") // sumber riwayat harga
-  subtotal    Decimal @db.Decimal(12, 2) // jumlah × harga_satuan, dihitung di service
+  hargaSatuan Decimal   @map("harga_satuan") @db.Decimal(12, 2)
+  subtotal    Decimal   @db.Decimal(12, 2)
+  bahanBaku   BahanBaku @relation(fields: [bahanBakuId], references: [id])
+  belanja     Belanja   @relation(fields: [belanjaId], references: [id])
+  supplier    Supplier? @relation(fields: [supplierId], references: [id])
 
-  belanja   Belanja   @relation(fields: [belanjaId], references: [id])
-  bahanBaku BahanBaku @relation(fields: [bahanBakuId], references: [id])
-  supplier  Supplier? @relation(fields: [supplierId], references: [id])
-
-  @@index([bahanBakuId, belanjaId]) // untuk query riwayat harga per bahan
+  @@index([bahanBakuId, belanjaId])
+  @@index([belanjaId], map: "detail_belanja_belanja_id_fkey")
+  @@index([supplierId], map: "detail_belanja_supplier_id_fkey")
   @@map("detail_belanja")
 }
 
 model Produksi {
-  id                    Int           @id @default(autoincrement()) @db.UnsignedInt
-  userId                Int           @db.UnsignedInt @map("user_id")
-  resepId               Int           @db.UnsignedInt @map("resep_id")
-  tanggal               DateTime      @db.Date
-  estimasiHasil         Int           @db.UnsignedInt @map("estimasi_hasil")
-  hasilNyata            Int           @db.UnsignedInt @map("hasil_nyata")
-  hppPerPcs             Decimal       @db.Decimal(12, 2) @map("hpp_per_pcs")     // snapshot saat produksi
-  hargaJualSaatProduksi Decimal       @db.Decimal(12, 2) @map("harga_jual_saat_produksi") // snapshot
-  totalModal            Decimal       @db.Decimal(12, 2) @map("total_modal")     // hpp_per_pcs × hasil_nyata
-  status                StatusProduksi @default(DRAFT)
-  createdAt             DateTime      @default(now()) @map("created_at")
-  updatedAt             DateTime      @updatedAt @map("updated_at")
-
-  user      User       @relation(fields: [userId], references: [id])
-  resep     Resep      @relation(fields: [resepId], references: [id])
-  penjualan Penjualan[]
+  id                    Int              @id @default(autoincrement()) @db.UnsignedInt
+  userId                Int              @map("user_id") @db.UnsignedInt
+  resepId               Int              @map("resep_id") @db.UnsignedInt
+  tanggal               DateTime         @db.Date
+  estimasiHasil         Int              @map("estimasi_hasil") @db.UnsignedInt
+  hasilNyata            Int              @map("hasil_nyata") @db.UnsignedInt
+  hppPerPcs             Decimal          @map("hpp_per_pcs") @db.Decimal(12, 2)
+  hargaJualSaatProduksi Decimal          @map("harga_jual_saat_produksi") @db.Decimal(12, 2)
+  totalModal            Decimal          @map("total_modal") @db.Decimal(12, 2)
+  status                StatusProduksi   @default(DRAFT)
+  createdAt             DateTime         @default(now()) @map("created_at")
+  updatedAt             DateTime         @updatedAt @map("updated_at")
+  detailProduksi        DetailProduksi[]
+  penjualan             Penjualan[]
+  resep                 Resep            @relation(fields: [resepId], references: [id])
+  user                  User             @relation(fields: [userId], references: [id])
 
   @@index([userId, tanggal])
   @@index([resepId])
   @@map("produksi")
 }
 
-model Penjualan {
-  id              Int           @id @default(autoincrement()) @db.UnsignedInt
-  userId          Int           @db.UnsignedInt @map("user_id")
-  produksiId      Int           @db.UnsignedInt @map("produksi_id")
-  tanggal         DateTime      @db.Date
-  terjual         Int           @db.UnsignedInt
-  hargaJual       Decimal       @db.Decimal(12, 2) @map("harga_jual")
-  totalPendapatan Decimal       @db.Decimal(12, 2) @map("total_pendapatan") // terjual × harga_jual
-  sisa            Int           @db.UnsignedInt // hasil_nyata - terjual, dihitung di service
-  status          StatusPenjualan @default(OPEN)
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
+model DetailProduksi {
+  id            Int      @id @default(autoincrement()) @db.UnsignedInt
+  produksiId    Int      @map("produksi_id") @db.UnsignedInt
+  bahanBakuId   Int      @map("bahan_baku_id") @db.UnsignedInt
+  nama          String
+  jumlah        Decimal  @db.Decimal(10, 2)
+  satuan        Satuan
+  hargaTerakhir Decimal  @map("harga_terakhir") @db.Decimal(12, 2)
+  total         Decimal  @db.Decimal(12, 2)
+  produksi      Produksi @relation(fields: [produksiId], references: [id], onDelete: Cascade)
 
-  user     User     @relation(fields: [userId], references: [id])
-  produksi Produksi @relation(fields: [produksiId], references: [id])
+  @@index([produksiId])
+  @@map("detail_produksi")
+}
+
+model Penjualan {
+  id              Int             @id @default(autoincrement()) @db.UnsignedInt
+  userId          Int             @map("user_id") @db.UnsignedInt
+  produksiId      Int             @map("produksi_id") @db.UnsignedInt
+  tanggal         DateTime        @db.Date
+  terjual         Int             @db.UnsignedInt
+  hargaJual       Decimal         @map("harga_jual") @db.Decimal(12, 2)
+  totalPendapatan Decimal         @map("total_pendapatan") @db.Decimal(12, 2)
+  sisa            Int             @db.UnsignedInt
+  status          StatusPenjualan @default(OPEN)
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+  produksi        Produksi        @relation(fields: [produksiId], references: [id])
+  user            User            @relation(fields: [userId], references: [id])
 
   @@index([userId, tanggal])
+  @@index([produksiId], map: "penjualan_produksi_id_fkey")
   @@map("penjualan")
 }
 
 model PengeluaranLain {
-  id        Int      @id @default(autoincrement()) @db.UnsignedInt
-  userId    Int      @db.UnsignedInt @map("user_id")
-  tanggal   DateTime @db.Date
-  nama      String   @db.VarChar(100) // Gas, Plastik, Kemasan, dll
-  jumlah    Decimal  @db.Decimal(12, 2)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id])
+  id        Int                 @id @default(autoincrement()) @db.UnsignedInt
+  userId    Int                 @map("user_id") @db.UnsignedInt
+  tanggal   DateTime            @db.Date
+  nama      String              @db.VarChar(100)
+  jumlah    Decimal             @db.Decimal(12, 2)
+  createdAt DateTime            @default(now()) @map("created_at")
+  updatedAt DateTime            @updatedAt @map("updated_at")
+  kategori  KategoriPengeluaran @default(LAINNYA)
+  user      User                @relation(fields: [userId], references: [id])
 
   @@index([userId, tanggal])
   @@map("pengeluaran_lain")
 }
 
-// ─────────────────────────────────────────
-// ENUMS
-// ─────────────────────────────────────────
+model Notifikasi {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id") @db.UnsignedInt
+  tipe      String   @db.VarChar(30)
+  judul     String   @db.VarChar(150)
+  deskripsi String?  @db.VarChar(255)
+  icon      String   @db.VarChar(10)
+  link      String?  @db.VarChar(255)
+  relatedId Int?     @map("related_id")
+  hash      String   @db.VarChar(64)
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, hash])
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notifikasi")
+}
 
 enum Satuan {
   kg
@@ -223,4 +263,21 @@ enum StatusProduksi {
 enum StatusPenjualan {
   OPEN
   CLOSED
+}
+
+enum KategoriBahan {
+  TEPUNG
+  MINYAK
+  SAYURAN
+  BUMBU
+  DAGING
+  LAINNYA
+}
+
+enum KategoriPengeluaran {
+  UTILITAS
+  KEMASAN
+  TRANSPORTASI
+  KEBERSIHAN
+  LAINNYA
 }

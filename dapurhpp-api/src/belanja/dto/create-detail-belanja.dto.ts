@@ -1,4 +1,12 @@
-import { IsInt, IsNumber, IsString, IsNotEmpty, Min, IsOptional, IsEnum } from 'class-validator';
+import {
+  IsInt,
+  IsNumber,
+  IsString,
+  IsNotEmpty,
+  Min,
+  IsOptional,
+  IsEnum,
+} from 'class-validator';
 import { Satuan } from '@prisma/client';
 
 export class CreateDetailBelanjaDto {

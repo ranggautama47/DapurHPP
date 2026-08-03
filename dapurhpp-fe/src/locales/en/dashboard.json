@@ -1,0 +1,79 @@
+{
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "ingredients": "Ingredients",
+    "suppliers": "Suppliers",
+    "recipes": "Recipes",
+    "purchases": "Purchases",
+    "production": "Production",
+    "sales": "Sales",
+    "expenses": "Other Expenses",
+    "reports": "Reports",
+    "settings": "Settings",
+    "defaultUser": "Business Owner",
+    "logout": "Logout",
+    "toggleSidebar": "Toggle sidebar"
+  },
+  "navbar": {
+    "greeting": "Hello, {name} 👋",
+    "defaultName": "Owner",
+    "toggleNavigation": "Toggle Navigation",
+    "avatarAlt": "Avatar"
+  },
+  "layout": {
+    "footerRights": "© {year} DapurHPP. All rights reserved.",
+    "footerMadeWith": "Made with ❤ for Fried Snack Businesses"
+  },
+  "verification": {
+    "notice": "Verify your email to unlock all features.",
+    "resend": "Resend",
+    "sending": "Sending...",
+    "success": "A new verification link has been sent to your email.",
+    "error": "Failed to resend. Please try again.",
+    "close": "Close"
+  },
+  "datePicker": {
+    "singleDate": "Single Date",
+    "dateRange": "Date Range",
+    "selectDate": "Select date"
+  },
+  "stats": {
+    "revenue": "Revenue",
+    "cogs": "COGS (Cost)",
+    "sales": "Sales",
+    "profitMargin": "Profit Margin",
+    "fromYesterday": "{change} from yesterday",
+    "unitsPcs": "pcs",
+    "fetchError": "Failed to load summary",
+    "retry": "Retry"
+  },
+  "profitChart": {
+    "title": "Profit Chart",
+    "tooltipLabel": "Profit",
+    "fetchError": "Failed to load chart",
+    "emptyData": "No data available for this period",
+    "retry": "Retry"
+  },
+  "expenseChart": {
+    "title": "Expense Distribution (COGS)",
+    "total": "Total",
+    "fetchError": "Failed to load chart data",
+    "emptyData": "No expense data available for this period",
+    "retry": "Retry"
+  },
+  "recentActivity": {
+    "title": "Recent Activity",
+    "viewAll": "View All",
+    "fetchError": "Failed to load activity",
+    "emptyData": "No activity yet",
+    "retry": "Retry",
+    "timeSuffix": ""
+  },
+  "topProducts": {
+    "title": "Top Selling Products",
+    "viewAll": "View All",
+    "fetchError": "Failed to load products",
+    "emptyData": "No product data available",
+    "retry": "Retry"
+  }
+}

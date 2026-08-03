@@ -1,4 +1,12 @@
-import { IsInt, IsNumber, IsString, IsNotEmpty, Min, IsOptional, IsDateString } from 'class-validator';
+import {
+  IsInt,
+  IsNumber,
+  IsString,
+  IsNotEmpty,
+  Min,
+  IsOptional,
+  IsDateString,
+} from 'class-validator';
 import { CreateDetailBelanjaDto } from './create-detail-belanja.dto';
 
 export class CreateBelanjaDto {

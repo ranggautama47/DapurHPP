@@ -1,0 +1,42 @@
+{
+  "unauthorized": {
+    "title": "Session Expired",
+    "description": "Your session has ended. Please sign in again to continue.",
+    "button": "Sign In Again"
+  },
+  "forbidden": {
+    "title": "Access Denied",
+    "description": "You don't have permission to access this page.",
+    "button": "Go Back"
+  },
+  "notFound": {
+    "title": "Not Found",
+    "description": "The data you’re looking for couldn’t be found.",
+    "button": "Go Back"
+  },
+  "rateLimit": {
+    "title": "Too Many Requests",
+    "description": "To keep the service fast, please wait a moment before trying again.",
+    "button": "Try Again"
+  },
+  "serverError": {
+    "title": "Server Error",
+    "description": "Something went wrong on our end. Our team has been notified.",
+    "button": "Reload"
+  },
+  "network": {
+    "title": "Connection Lost",
+    "description": "Unable to reach the server. Please check your internet connection and try again.",
+    "button": "Try Again"
+  },
+  "unknown": {
+    "title": "Unknown Error",
+    "description": "An unexpected error occurred. Please try again or contact support if it persists.",
+    "button": "Try Again"
+  },
+  "sessionExpired": {
+    "title": "Session Expired",
+    "description": "For your security, your session has ended. Please sign in again.",
+    "button": "Sign In Again"
+  }
+}
