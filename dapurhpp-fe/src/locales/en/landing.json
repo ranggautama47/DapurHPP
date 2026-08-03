@@ -123,16 +123,41 @@
       "pricing": {
         "title": "Pricing",
         "plans": [
-          { "plan": "Free", "price": "Rp 0", "desc": "For SMEs just starting out." },
-          { "plan": "Pro", "price": "Rp 99,000/mo", "desc": "For growing businesses." }
+          {
+            "plan": "Free",
+            "price": "Rp 0",
+            "desc": "For SMEs just starting out."
+          },
+          {
+            "plan": "Pro",
+            "price": "Rp 99,000/mo",
+            "desc": "For growing businesses."
+          }
         ]
       },
       "updates": {
         "title": "Latest Updates",
         "items": [
-          { "ver": "v1.2.0", "date": "July 2026", "desc": "Added automatic weekly report feature." },
-          { "ver": "v1.1.0", "date": "June 2026", "desc": "Improved multi-ingredient COGS calculation." },
-          { "ver": "v1.0.0", "date": "May 2026", "desc": "Initial DapurHPP release." }
+          {
+            "ver": "v1.3.0",
+            "date": "August 2026",
+            "desc": "Added feature to save reports and activities in PDF and Excel format."
+          },
+          {
+            "ver": "v1.2.0",
+            "date": "July 2026",
+            "desc": "Added automatic weekly report feature."
+          },
+          {
+            "ver": "v1.1.0",
+            "date": "June 2026",
+            "desc": "Improved multi-ingredient COGS calculation."
+          },
+          {
+            "ver": "v1.0.0",
+            "date": "May 2026",
+            "desc": "Initial DapurHPP release."
+          }
         ]
       }
     },
@@ -150,8 +175,20 @@
       "career": {
         "title": "Career",
         "positions": [
-          { "title": "Fullstack Developer", "type": "Full-time", "location": "Remote / Jakarta", "status": "Open", "desc": "Job description for Fullstack Developer position at DapurHPP." },
-          { "title": "UI/UX Designer", "type": "Full-time", "location": "Remote / Bandung", "status": "Open", "desc": "Job description for UI/UX Designer position at DapurHPP." }
+          {
+            "title": "Fullstack Developer",
+            "type": "Full-time",
+            "location": "Remote / Jakarta",
+            "status": "Open",
+            "desc": "Job description for Fullstack Developer position at DapurHPP."
+          },
+          {
+            "title": "UI/UX Designer",
+            "type": "Full-time",
+            "location": "Remote / Bandung",
+            "status": "Open",
+            "desc": "Job description for UI/UX Designer position at DapurHPP."
+          }
         ]
       },
       "contact": {
@@ -175,9 +212,18 @@
         "title": "Help Center",
         "searchPlaceholder": "Search help articles...",
         "categories": [
-          { "title": "Account", "desc": "Registration, login, password reset, and profile settings." },
-          { "title": "COGS & Recipes", "desc": "How to calculate COGS, recipe management, and raw materials." },
-          { "title": "Billing", "desc": "Subscription plans, payments, and invoice management." }
+          {
+            "title": "Account",
+            "desc": "Registration, login, password reset, and profile settings."
+          },
+          {
+            "title": "COGS & Recipes",
+            "desc": "How to calculate COGS, recipe management, and raw materials."
+          },
+          {
+            "title": "Billing",
+            "desc": "Subscription plans, payments, and invoice management."
+          }
         ]
       },
       "guides": {
@@ -207,7 +253,7 @@
           },
           {
             "q": "Can I export reports to Excel/PDF?",
-            "a": "The export feature is under development and will be available in a future update."
+            "a": "Yes, absolutely! You can directly export your activity history and performance reports into professional, print-ready PDF and Excel (.xlsx) formats."
           }
         ]
       }
@@ -218,9 +264,18 @@
       "title": "Privacy Policy",
       "lastUpdated": "Last Updated: July 2026",
       "cards": [
-        { "title": "Data Security", "desc": "Your recipe formulations and ingredient prices are protected with strong encryption." },
-        { "title": "Full Ownership", "desc": "Production data and profit/loss history belong solely to your SME." },
-        { "title": "Transparency", "desc": "We will never sell or share your business's kitchen secrets." }
+        {
+          "title": "Data Security",
+          "desc": "Your recipe formulations and ingredient prices are protected with strong encryption."
+        },
+        {
+          "title": "Full Ownership",
+          "desc": "Production data and profit/loss history belong solely to your SME."
+        },
+        {
+          "title": "Transparency",
+          "desc": "We will never sell or share your business's kitchen secrets."
+        }
       ],
       "sections": [
         {

@@ -130,6 +130,7 @@
       "updates": {
         "title": "Update Terbaru",
         "items": [
+          {"ver": "v1.3.0", "date": "agustus 2026", "desc": "Tambah fitur simpan laporan dan aktivitas dalam format PDF dan Excel."},
           { "ver": "v1.2.0", "date": "Juli 2026", "desc": "Tambah fitur laporan mingguan otomatis." },
           { "ver": "v1.1.0", "date": "Juni 2026", "desc": "Perbaikan kalkulasi HPP multi-bahan." },
           { "ver": "v1.0.0", "date": "Mei 2026", "desc": "Rilis perdana DapurHPP." }
@@ -207,7 +208,7 @@
           },
           {
             "q": "Bisakah saya ekspor laporan ke Excel/PDF?",
-            "a": "Fitur ekspor sedang dalam pengembangan dan akan segera hadir di update mendatang."
+            "a": "Ya, tentu saja! Anda bisa langsung mengekspor riwayat aktivitas dan laporan performa ke dalam format file PDF maupun Excel (.xlsx) yang sudah diformat rapi dan siap cetak."
           }
         ]
       }
