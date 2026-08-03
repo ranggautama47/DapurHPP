@@ -138,35 +138,147 @@ export default function LaporanPageClient() {
     fetchAll(days);
   }, [filter.tanggalMulai, filter.tanggalAkhir, fetchAll]);
 
-  const handleExportCSV = useCallback(() => {
-    const rows = [
-      [
-        t("reports.columns.period"),
-        t("reports.columns.revenue"),
-        t("reports.columns.hpp"),
-        t("reports.columns.profit"),
-        t("reports.columns.margin"),
-      ],
+  const handleExportExcel = useCallback(async () => {
+    if (!grafik || grafik.length === 0) return;
+
+    // Safe Dynamic Import untuk ExcelJS (menghindari error .default pada Turbopack/Next.js 15+)
+    const excelJsModule = await import("exceljs");
+    const ExcelJS = excelJsModule.default || excelJsModule;
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("Laporan Performa");
+
+    // 1. Setup Kolom
+    sheet.columns = [
+      { header: "Periode", key: "periode", width: 18 },
+      { header: "Pendapatan", key: "pendapatan", width: 22 },
+      { header: "HPP", key: "hpp", width: 22 },
+      { header: "Laba", key: "laba", width: 22 },
+      { header: "Margin", key: "margin", width: 14 },
     ];
-    grafik.forEach((item) => {
-      const margin =
-        item.pendapatan > 0
-          ? ((item.laba / item.pendapatan) * 100).toFixed(2)
-          : "0.00";
-      rows.push([
-        item.label,
-        item.pendapatan.toString(),
-        item.hpp.toString(),
-        item.laba.toString(),
-        `${margin}%`,
-      ]);
+
+    // 2. Styling Header Row
+    const headerRow = sheet.getRow(1);
+    headerRow.height = 26;
+    headerRow.eachCell((cell) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF2A1711" }, // Coklat Gelap DapurHPP
+      };
+      cell.font = { color: { argb: "FFFFFFFF" }, bold: true, size: 11 };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+      cell.border = {
+        top: { style: "thin", color: { argb: "FF2A1711" } },
+        left: { style: "thin", color: { argb: "FF2A1711" } },
+        bottom: { style: "thin", color: { argb: "FF2A1711" } },
+        right: { style: "thin", color: { argb: "FF2A1711" } },
+      };
     });
-    const csv = rows.map((r) => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+
+    // 3. Populate Data Rows
+    let totalPendapatan = 0;
+    let totalHpp = 0;
+    let totalLaba = 0;
+
+    grafik.forEach((item) => {
+      totalPendapatan += item.pendapatan;
+      totalHpp += item.hpp;
+      totalLaba += item.laba;
+
+      const marginDecimal = item.pendapatan > 0 ? item.laba / item.pendapatan : 0;
+
+      const row = sheet.addRow({
+        periode: item.label,
+        pendapatan: item.pendapatan,
+        hpp: item.hpp,
+        laba: item.laba,
+        margin: marginDecimal,
+      });
+
+      row.height = 20;
+
+      // Formatting Angka
+      row.getCell("pendapatan").numFmt = '"Rp"#,##0';
+      row.getCell("hpp").numFmt = '"Rp"#,##0';
+      row.getCell("laba").numFmt = '"Rp"#,##0';
+      row.getCell("margin").numFmt = "0.00%";
+
+      // Warna Laba: Hijau jika positif, Merah jika negatif
+      const labaCell = row.getCell("laba");
+      labaCell.font = {
+        color: { argb: item.laba >= 0 ? "FF06D6A0" : "FFEF4444" },
+        bold: true,
+      };
+
+      // Alignment
+      row.getCell("periode").alignment = { horizontal: "center", vertical: "middle" };
+      row.getCell("pendapatan").alignment = { horizontal: "right", vertical: "middle" };
+      row.getCell("hpp").alignment = { horizontal: "right", vertical: "middle" };
+      row.getCell("laba").alignment = { horizontal: "right", vertical: "middle" };
+      row.getCell("margin").alignment = { horizontal: "right", vertical: "middle" };
+
+      // Border Data Cell
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: "thin", color: { argb: "FFE8D5C4" } },
+          left: { style: "thin", color: { argb: "FFE8D5C4" } },
+          bottom: { style: "thin", color: { argb: "FFE8D5C4" } },
+          right: { style: "thin", color: { argb: "FFE8D5C4" } },
+        };
+      });
+    });
+
+    // 4. Baris TOTAL Ringkasan
+    const totalMarginDecimal = totalPendapatan > 0 ? totalLaba / totalPendapatan : 0;
+    const totalRow = sheet.addRow({
+      periode: "TOTAL",
+      pendapatan: totalPendapatan,
+      hpp: totalHpp,
+      laba: totalLaba,
+      margin: totalMarginDecimal,
+    });
+
+    totalRow.height = 24;
+    totalRow.getCell("pendapatan").numFmt = '"Rp"#,##0';
+    totalRow.getCell("hpp").numFmt = '"Rp"#,##0';
+    totalRow.getCell("laba").numFmt = '"Rp"#,##0';
+    totalRow.getCell("margin").numFmt = "0.00%";
+
+    totalRow.eachCell((cell, colNumber) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFF5E6D8" }, // Warna Krem Muda
+      };
+      cell.font = { bold: true, color: { argb: "FF2A1711" } };
+      cell.alignment = {
+        vertical: "middle",
+        horizontal: colNumber === 1 ? "center" : "right",
+      };
+      cell.border = {
+        top: { style: "medium", color: { argb: "FF2A1711" } },
+        left: { style: "thin", color: { argb: "FFE8D5C4" } },
+        bottom: { style: "medium", color: { argb: "FF2A1711" } },
+        right: { style: "thin", color: { argb: "FFE8D5C4" } },
+      };
+    });
+
+    // Warna khusus untuk Laba Total
+    totalRow.getCell("laba").font = {
+      bold: true,
+      color: { argb: totalLaba >= 0 ? "FF06D6A0" : "FFEF4444" },
+    };
+
+    // 5. Write to Buffer & Trigger Download
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `laporan-performa-${filter.tanggalMulai || "all"}.csv`;
+    a.download = `laporan-performa-${filter.tanggalMulai || "all"}.xlsx`;
     a.click();
     URL.revokeObjectURL(url);
   }, [grafik, filter.tanggalMulai]);
@@ -204,7 +316,7 @@ export default function LaporanPageClient() {
             {t("common.buttons.export")} PDF
           </button>
           <button
-            onClick={handleExportCSV}
+            onClick={handleExportExcel}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#DDC1AE] text-[#564334] text-sm hover:bg-[#FFF8F6] transition-all bg-white"
           >
             <FileSpreadsheet
