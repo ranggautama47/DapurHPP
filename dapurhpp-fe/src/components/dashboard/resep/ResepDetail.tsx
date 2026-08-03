@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -16,8 +17,14 @@ import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
 import { toast } from "sonner";
 import { api } from "@/lib/axios";
 import { useTranslation } from "@/context/language-context";
-import { ResepForm } from "./ResepForm";
 import { SimulasiHarga } from "./SimulasiHarga";
+
+// Modal ResepForm diload on-demand (chunk terpisah) — react-hook-form + zod
+// hanya dimuat saat pengguna membuka form "Edit Resep".
+const ResepForm = dynamic(
+  () => import("./ResepForm").then((m) => m.ResepForm),
+  { ssr: false },
+);
 
 interface ResepDetailProps {
   initialData: Resep;
@@ -386,12 +393,14 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
       />
 
       {/* Edit Form Modal */}
-      <ResepForm
-        isOpen={showForm}
-        onClose={() => setShowForm(false)}
-        onSubmit={handleFormSubmit}
-        initialData={resep}
-      />
+      {showForm && (
+        <ResepForm
+          isOpen={showForm}
+          onClose={() => setShowForm(false)}
+          onSubmit={handleFormSubmit}
+          initialData={resep}
+        />
+      )}
 
       {/* Simulasi Harga Modal */}
       {showSimulasi && (
