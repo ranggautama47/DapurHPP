@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore, setTokenCookie } from "@/lib/auth-store";
@@ -11,6 +10,7 @@ import { api } from "@/lib/axios";
 import { AlertCircle, Eye, Mail, EyeOff, ArrowUpRight, CheckCircle2 } from "lucide-react";
 import { SocialButton } from "@/components/auth/social-button";
 import { useTranslation } from "@/context/language-context";
+import { createLoginSchema, type LoginFormData, loginDefaultValues } from "@/components/auth/login.schema";
 
 export function LoginForm() {
   const { t } = useTranslation("auth");
@@ -25,29 +25,16 @@ export function LoginForm() {
 
   const redirectTo = searchParams.get("redirect") || "/dashboard";
 
-  const loginSchema = z.object({
-    email: z
-      .string()
-      .min(1, t("login.errors.emailRequired"))
-      .email(t("login.errors.emailInvalid")),
-    password: z
-      .string()
-      .min(1, t("login.errors.passwordRequired"))
-      .min(8, t("login.errors.passwordMin")),
-  });
-  type LoginFormData = z.infer<typeof loginSchema>;
+  const loginSchema = createLoginSchema(t);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     setError: setFormError,
-  } = useForm({
+  } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+    defaultValues: loginDefaultValues,
   });
 
   const onSubmit = async (data: LoginFormData) => {

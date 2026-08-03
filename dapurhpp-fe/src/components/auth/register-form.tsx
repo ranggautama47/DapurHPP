@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/axios";
@@ -13,9 +12,11 @@ import {
   Store,
   ArrowUpRight,
 } from "lucide-react";
-import { PasswordInput, EmailInput } from "@/components/auth/password-input";
+import { PasswordInput } from "@/components/auth/password-input";
+import { EmailInput } from "@/components/auth/email-input";
 import { SocialButton } from "@/components/auth/social-button";
 import { useTranslation } from "@/context/language-context";
+import { createRegisterSchema, type RegisterFormData, registerDefaultValues } from "@/components/auth/register.schema";
 
 export function RegisterForm() {
   const { t } = useTranslation("auth");
@@ -23,24 +24,7 @@ export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const registerSchema = z.object({
-    namaLengkap: z
-      .string()
-      .min(1, t("register.errors.nameRequired"))
-      .min(3, t("register.errors.nameMin")),
-    namaBisnis: z.string().optional(),
-    email: z
-      .string()
-      .min(1, t("register.errors.emailRequired"))
-      .email(t("register.errors.emailInvalid")),
-    password: z
-      .string()
-      .min(1, t("register.errors.passwordRequired"))
-      .min(8, t("register.errors.passwordMin"))
-      .regex(/[A-Z]/, t("register.errors.passwordUpper"))
-      .regex(/[0-9]/, t("register.errors.passwordNumber")),
-  });
-  type RegisterFormData = z.infer<typeof registerSchema>;
+  const registerSchema = createRegisterSchema(t);
 
   const {
     control,
@@ -50,12 +34,7 @@ export function RegisterForm() {
     setError: setFormError,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: {
-      namaLengkap: "",
-      namaBisnis: "",
-      email: "",
-      password: "",
-    },
+    defaultValues: registerDefaultValues,
   });
 
   const onSubmit = async (data: RegisterFormData) => {
@@ -158,14 +137,14 @@ export function RegisterForm() {
 
                   <EmailInput
                     name="email"
-                    control={control}
+                    control={control as any}
                     label={t("register.emailLabel")}
                     error={errors.email?.message}
                   />
 
                   <PasswordInput
                     name="password"
-                    control={control}
+                    control={control as any}
                     label={t("register.passwordLabel")}
                     error={errors.password?.message}
                   />
