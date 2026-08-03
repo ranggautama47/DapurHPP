@@ -291,7 +291,10 @@ export class NotifikasiService {
       }));
 
     if (newNotifs.length > 0) {
-      await this.prisma.notifikasi.createMany({ data: newNotifs });
+      await this.prisma.notifikasi.createMany({
+        data: newNotifs,
+        skipDuplicates: true,
+      });
     }
 
     // Hapus notifikasi yang tidak relevan lagi
