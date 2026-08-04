@@ -64,20 +64,15 @@ export class AuthService {
 
     const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
 
-    // Kirim welcome email (gagal kirim tidak menggagalkan register)
-    try {
-      const html = welcomeTemplate(user.name, frontendUrl);
-      await this.emailService.sendEmail(user.email, 'Selamat Datang di DapurHPP!', html);
-      this.logger.log(`Welcome email terkirim ke ${user.email}`);
-    } catch (error) {
-      this.logger.error(`Gagal kirim welcome email ke ${user.email}`, error);
-    }
-
     // Kirim verify email (gagal kirim tidak menggagalkan register)
     try {
       const verifyLink = `${frontendUrl}/verify-email?token=${token}`;
       const html = verifyEmailTemplate(user.name, verifyLink, frontendUrl);
-      await this.emailService.sendEmail(user.email, 'Verifikasi Email DapurHPP', html);
+      await this.emailService.sendEmail(
+        user.email,
+        'Verifikasi Email DapurHPP',
+        html,
+      );
       this.logger.log(`Verify email terkirim ke ${user.email}`);
     } catch (error) {
       this.logger.error(`Gagal kirim verify email ke ${user.email}`, error);
@@ -104,6 +99,12 @@ export class AuthService {
       throw new UnauthorizedException('Email atau password salah');
     }
 
+    if (!user.emailVerified) {
+      throw new UnauthorizedException(
+        'Email Anda belum diverifikasi. Silakan periksa inbox email Anda untuk memverifikasi akun.',
+      );
+    }
+
     // Update lastLoginAt (jangan throw kalau gagal)
     try {
       await this.prisma.user.update({
@@ -111,7 +112,10 @@ export class AuthService {
         data: { lastLoginAt: new Date() },
       });
     } catch (error) {
-      this.logger.error(`Gagal update lastLoginAt untuk user ${user.id}`, error);
+      this.logger.error(
+        `Gagal update lastLoginAt untuk user ${user.id}`,
+        error,
+      );
     }
 
     const payload = { sub: user.id };
@@ -135,19 +139,28 @@ export class AuthService {
     if (user) {
       // Email throttle: cek apakah token sebelumnya masih dalam window 15 menit
       if (user.passwordResetExpiresAt) {
-        const tokenCreatedAt = new Date(user.passwordResetExpiresAt.getTime() - 60 * 60 * 1000);
+        const tokenCreatedAt = new Date(
+          user.passwordResetExpiresAt.getTime() - 60 * 60 * 1000,
+        );
         const elapsedMs = Date.now() - tokenCreatedAt.getTime();
         if (elapsedMs < this.emailThrottleMs) {
-          this.logger.log(`Email reset password di-throttle untuk ${user.email} (elapsed: ${Math.round(elapsedMs / 1000)}s)`);
+          this.logger.log(
+            `Email reset password di-throttle untuk ${user.email} (elapsed: ${Math.round(elapsedMs / 1000)}s)`,
+          );
           // Response tetap generic — jangan bocorkan
-          return { message: 'Jika email terdaftar, link reset password telah dikirim.' };
+          return {
+            message: 'Jika email terdaftar, link reset password telah dikirim.',
+          };
         }
       }
 
       try {
         // Generate token + hash
         const token = crypto.randomBytes(32).toString('hex');
-        const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+        const tokenHash = crypto
+          .createHash('sha256')
+          .update(token)
+          .digest('hex');
         const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 jam
 
         // Simpan hash ke DB
@@ -160,24 +173,37 @@ export class AuthService {
         });
 
         // Kirim email berisi token ASLI (bukan hash)
-        const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
+        const frontendUrl =
+          this.configService.getOrThrow<string>('FRONTEND_URL');
         const resetLink = `${frontendUrl}/reset-password?token=${token}`;
         const html = resetPasswordTemplate(user.name, resetLink, frontendUrl);
 
-        await this.emailService.sendEmail(user.email, 'Reset Password DapurHPP', html);
+        await this.emailService.sendEmail(
+          user.email,
+          'Reset Password DapurHPP',
+          html,
+        );
 
         this.logger.log(`Email reset password terkirim ke ${user.email}`);
       } catch (error) {
         // Email gagal — log tapi jangan bocorkan ke client
-        this.logger.error(`Gagal kirim email reset password ke ${user.email}`, error);
+        this.logger.error(
+          `Gagal kirim email reset password ke ${user.email}`,
+          error,
+        );
       }
     }
 
-    return { message: 'Jika email terdaftar, link reset password telah dikirim.' };
+    return {
+      message: 'Jika email terdaftar, link reset password telah dikirim.',
+    };
   }
 
   async resetPassword(dto: ResetPasswordDto) {
-    const tokenHash = crypto.createHash('sha256').update(dto.token).digest('hex');
+    const tokenHash = crypto
+      .createHash('sha256')
+      .update(dto.token)
+      .digest('hex');
 
     const user = await this.prisma.user.findFirst({
       where: {
@@ -205,13 +231,22 @@ export class AuthService {
     try {
       const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
       const html = passwordChangedTemplate(user.name, frontendUrl);
-      await this.emailService.sendEmail(user.email, 'Password DapurHPP Berhasil Diubah', html);
+      await this.emailService.sendEmail(
+        user.email,
+        'Password DapurHPP Berhasil Diubah',
+        html,
+      );
       this.logger.log(`Notifikasi password changed terkirim ke ${user.email}`);
     } catch (error) {
-      this.logger.error(`Gagal kirim notifikasi password changed ke ${user.email}`, error);
+      this.logger.error(
+        `Gagal kirim notifikasi password changed ke ${user.email}`,
+        error,
+      );
     }
 
-    return { message: 'Password berhasil direset. Silakan login dengan password baru.' };
+    return {
+      message: 'Password berhasil direset. Silakan login dengan password baru.',
+    };
   }
 
   async verifyEmail(token: string) {
@@ -238,6 +273,25 @@ export class AuthService {
       },
     });
 
+    // Kirim welcome email setelah verifikasi berhasil
+    try {
+      const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
+      const html = welcomeTemplate(user.name, frontendUrl);
+      await this.emailService.sendEmail(
+        user.email,
+        'Selamat Datang di DapurHPP!',
+        html,
+      );
+      this.logger.log(
+        `Welcome email terkirim ke ${user.email} setelah verifikasi`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Gagal kirim welcome email ke ${user.email} setelah verifikasi`,
+        error,
+      );
+    }
+
     return { message: 'Email berhasil diverifikasi' };
   }
 
@@ -248,19 +302,27 @@ export class AuthService {
     if (user && !user.emailVerified) {
       // Email throttle: cek apakah request terakhir < 15 menit lalu
       if (user.emailVerifyExpiresAt) {
-        const tokenCreatedAt = new Date(user.emailVerifyExpiresAt.getTime() - 24 * 60 * 60 * 1000);
+        const tokenCreatedAt = new Date(
+          user.emailVerifyExpiresAt.getTime() - 24 * 60 * 60 * 1000,
+        );
         const elapsedMs = Date.now() - tokenCreatedAt.getTime();
         if (elapsedMs < this.emailThrottleMs) {
-          this.logger.log(`Resend verification di-throttle untuk ${user.email} (elapsed: ${Math.round(elapsedMs / 1000)}s)`);
+          this.logger.log(
+            `Resend verification di-throttle untuk ${user.email} (elapsed: ${Math.round(elapsedMs / 1000)}s)`,
+          );
           return {
-            message: 'Jika email terdaftar dan belum diverifikasi, link verifikasi baru telah dikirim.',
+            message:
+              'Jika email terdaftar dan belum diverifikasi, link verifikasi baru telah dikirim.',
           };
         }
       }
 
       try {
         const token = crypto.randomBytes(32).toString('hex');
-        const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+        const tokenHash = crypto
+          .createHash('sha256')
+          .update(token)
+          .digest('hex');
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
         await this.prisma.user.update({
@@ -271,19 +333,28 @@ export class AuthService {
           },
         });
 
-        const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
+        const frontendUrl =
+          this.configService.getOrThrow<string>('FRONTEND_URL');
         const verifyLink = `${frontendUrl}/verify-email?token=${token}`;
         const html = verifyEmailTemplate(user.name, verifyLink, frontendUrl);
 
-        await this.emailService.sendEmail(user.email, 'Verifikasi Email DapurHPP', html);
+        await this.emailService.sendEmail(
+          user.email,
+          'Verifikasi Email DapurHPP',
+          html,
+        );
         this.logger.log(`Verify email ulang terkirim ke ${user.email}`);
       } catch (error) {
-        this.logger.error(`Gagal kirim ulang verify email ke ${user.email}`, error);
+        this.logger.error(
+          `Gagal kirim ulang verify email ke ${user.email}`,
+          error,
+        );
       }
     }
 
     return {
-      message: 'Jika email terdaftar dan belum diverifikasi, link verifikasi baru telah dikirim.',
+      message:
+        'Jika email terdaftar dan belum diverifikasi, link verifikasi baru telah dikirim.',
     };
   }
 }
