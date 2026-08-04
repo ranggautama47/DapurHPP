@@ -1,3 +1,4 @@
+
 "use client";
 
 import { LogOut } from "lucide-react";
@@ -19,7 +20,7 @@ export function AboutSection({ onLogout }: AboutSectionProps) {
       <div className="space-y-0 max-w-xl">
         <div className="flex items-center justify-between py-2">
           <span className="text-[#564334]">{t("about.appVersion")}</span>
-          <span className="font-semibold text-[#2A1711]">v1.2.0</span>
+          <span className="font-semibold text-[#2A1711]">v1.3.0</span>
         </div>
 
         <div className="border-t border-[#EFE3D7]" />
