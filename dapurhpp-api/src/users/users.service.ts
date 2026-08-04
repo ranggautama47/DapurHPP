@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException, ConflictException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ConflictException,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
@@ -126,7 +131,10 @@ export class UsersService {
       throw new BadRequestException('User tidak ditemukan');
     }
 
-    const isPasswordValid = await bcrypt.compare(dto.currentPassword, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      dto.currentPassword,
+      user.password,
+    );
     if (!isPasswordValid) {
       throw new BadRequestException('Password saat ini salah');
     }
@@ -134,16 +142,15 @@ export class UsersService {
     const trimmedEmail = dto.newEmail.trim().toLowerCase();
 
     if (trimmedEmail === user.email) {
-      throw new BadRequestException('Email baru harus berbeda dari email saat ini');
+      throw new BadRequestException(
+        'Email baru harus berbeda dari email saat ini',
+      );
     }
 
     // Cek apakah email sudah dipakai user lain (cek kolom email DAN pendingEmail)
     const existing = await this.prisma.user.findFirst({
       where: {
-        OR: [
-          { email: trimmedEmail },
-          { pendingEmail: trimmedEmail },
-        ],
+        OR: [{ email: trimmedEmail }, { pendingEmail: trimmedEmail }],
         NOT: { id },
       },
     });
@@ -153,11 +160,18 @@ export class UsersService {
 
     // Email throttle: cek apakah masih dalam window 15 menit sejak token terakhir dibuat
     if (user.emailChangeExpiresAt) {
-      const tokenCreatedAt = new Date(user.emailChangeExpiresAt.getTime() - 60 * 60 * 1000);
+      const tokenCreatedAt = new Date(
+        user.emailChangeExpiresAt.getTime() - 60 * 60 * 1000,
+      );
       const elapsedMs = Date.now() - tokenCreatedAt.getTime();
       if (elapsedMs < EMAIL_THROTTLE_MS) {
-        this.logger.log(`Change email di-throttle untuk user ${id} (elapsed: ${Math.round(elapsedMs / 1000)}s)`);
-        return { message: 'Link verifikasi telah dikirim ke email baru Anda. Silakan cek inbox untuk menyelesaikan perubahan.' };
+        this.logger.log(
+          `Change email di-throttle untuk user ${id} (elapsed: ${Math.round(elapsedMs / 1000)}s)`,
+        );
+        return {
+          message:
+            'Link verifikasi telah dikirim ke email baru Anda. Silakan cek inbox untuk menyelesaikan perubahan.',
+        };
       }
     }
 
@@ -181,13 +195,23 @@ export class UsersService {
 
     try {
       const html = changeEmailTemplate(user.name, verifyLink, frontendUrl);
-      await this.emailService.sendEmail(trimmedEmail, 'Verifikasi Perubahan Email DapurHPP', html);
+      await this.emailService.sendEmail(
+        trimmedEmail,
+        'Verifikasi Perubahan Email DapurHPP',
+        html,
+      );
       this.logger.log(`Change email verification terkirim ke ${trimmedEmail}`);
     } catch (error) {
-      this.logger.error(`Gagal kirim change email verification ke ${trimmedEmail}`, error);
+      this.logger.error(
+        `Gagal kirim change email verification ke ${trimmedEmail}`,
+        error,
+      );
     }
 
-    return { message: 'Link verifikasi telah dikirim ke email baru Anda. Silakan cek inbox untuk menyelesaikan perubahan.' };
+    return {
+      message:
+        'Link verifikasi telah dikirim ke email baru Anda. Silakan cek inbox untuk menyelesaikan perubahan.',
+    };
   }
 
   async verifyChangeEmail(id: number, token: string) {
@@ -223,8 +247,17 @@ export class UsersService {
     // Kirim alert ke email LAMA setelah perubahan sukses
     try {
       const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
-      const html = emailChangeAlertTemplate(user.name, oldEmail, newEmail, frontendUrl);
-      await this.emailService.sendEmail(oldEmail, 'Email DapurHPP Berhasil Diubah', html);
+      const html = emailChangeAlertTemplate(
+        user.name,
+        oldEmail,
+        newEmail,
+        frontendUrl,
+      );
+      await this.emailService.sendEmail(
+        oldEmail,
+        'Email DapurHPP Berhasil Diubah',
+        html,
+      );
       this.logger.log(`Email change alert terkirim ke ${oldEmail}`);
     } catch (error) {
       this.logger.error(`Gagal kirim email change alert ke ${oldEmail}`, error);
@@ -276,10 +309,17 @@ export class UsersService {
     try {
       const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
       const html = passwordChangedTemplate(user.name, frontendUrl);
-      await this.emailService.sendEmail(user.email, 'Password DapurHPP Berhasil Diubah', html);
+      await this.emailService.sendEmail(
+        user.email,
+        'Password DapurHPP Berhasil Diubah',
+        html,
+      );
       this.logger.log(`Notifikasi password changed terkirim ke ${user.email}`);
     } catch (error) {
-      this.logger.error(`Gagal kirim notifikasi password changed ke ${user.email}`, error);
+      this.logger.error(
+        `Gagal kirim notifikasi password changed ke ${user.email}`,
+        error,
+      );
     }
 
     return { message: 'Password berhasil diubah' };
