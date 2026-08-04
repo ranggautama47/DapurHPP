@@ -5,12 +5,17 @@ import { testEmailTemplate } from './templates/test-email.template';
 
 @Controller('email')
 export class EmailController {
-  constructor(private readonly emailService: EmailService, private readonly configService: ConfigService) {}
+  constructor(
+    private readonly emailService: EmailService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Get('test')
   async testEmail(@Query('to') to: string) {
     if (process.env.NODE_ENV !== 'development') {
-      throw new BadRequestException('Endpoint ini hanya untuk testing di development mode');
+      throw new BadRequestException(
+        'Endpoint ini hanya untuk testing di development mode',
+      );
     }
 
     if (!to) {
@@ -21,7 +26,10 @@ export class EmailController {
     await this.emailService.sendEmail(
       to,
       'Test DapurHPP — Konfirmasi EmailService Berfungsi',
-      testEmailTemplate(this.configService.get<string>('FRONTEND_URL') ?? 'http://localhost:3000'),
+      testEmailTemplate(
+        this.configService.get<string>('FRONTEND_URL') ??
+          'http://localhost:3000',
+      ),
     );
 
     return { message: `Email test terkirim ke ${to}` };

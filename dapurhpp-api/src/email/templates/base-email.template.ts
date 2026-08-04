@@ -1,4 +1,7 @@
-export function baseEmailTemplate(content: string, frontendUrl: string): string {
+export function baseEmailTemplate(
+  content: string,
+  frontendUrl: string,
+): string {
   return `
     <!DOCTYPE html>
     <html lang="id">

@@ -15,7 +15,7 @@ export function escapeHtml(value: string | null | undefined): string {
   }
 
   return String(value)
-    .replace(/&/g, '&amp;')   // harus paling pertama, sebelum entity lain ditambahkan
+    .replace(/&/g, '&amp;') // harus paling pertama, sebelum entity lain ditambahkan
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')

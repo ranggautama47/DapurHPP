@@ -1,4 +1,8 @@
-import { Injectable, Logger, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
@@ -14,8 +18,8 @@ export class EmailService {
       port: smtpPort,
       secure: smtpPort === 465,
       connectionTimeout: 10000, // 10 detik — batas waktu koneksi awal ke SMTP server
-      greetingTimeout: 10000,   // 10 detik — batas waktu menunggu respons greeting SMTP
-      socketTimeout: 15000,     // 15 detik — batas waktu inaktivitas socket setelah terhubung
+      greetingTimeout: 10000, // 10 detik — batas waktu menunggu respons greeting SMTP
+      socketTimeout: 15000, // 15 detik — batas waktu inaktivitas socket setelah terhubung
       auth: {
         user: this.configService.getOrThrow<string>('SMTP_USER'),
         pass: this.configService.getOrThrow<string>('SMTP_PASS'),
@@ -34,7 +38,9 @@ export class EmailService {
       this.logger.log(`Email terkirim ke ${to}: ${info.messageId}`);
       return info;
     } catch (error) {
-      this.logger.error(`Gagal kirim email ke ${to}: ${error instanceof Error ? error.message : error}`);
+      this.logger.error(
+        `Gagal kirim email ke ${to}: ${error instanceof Error ? error.message : error}`,
+      );
 
       throw new InternalServerErrorException(
         'Gagal mengirim email. Silakan coba lagi nanti.',
