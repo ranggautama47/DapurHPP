@@ -120,13 +120,22 @@ export default function RingkasanPageClient() {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      // NOTE: backend (laporan.controller.ts) hanya menerima query `days`
-      // (7/30/90/180). Custom date-range (tanggalMulai/tanggalAkhir) BELUM
-      // didukung oleh getRingkasan/getGrafikLaba — kalau periode "custom"
-      // dipilih, kita fallback ke 7 hari sampai backend menambah dukungan itu.
-      const params = periode === "custom"
-        ? { days: 7 }
-        : { days: periode };
+      // Backend mendukung dua mode: query `days` (7/30/90) atau range custom
+      // `startDate`/`endDate` (dibaca di laporan.service.ts via batasiTanggal).
+      // Kalau periode "custom" dan kedua tanggal terisi, kirim range-nya;
+      // jika range tidak valid, batalkan fetch.
+      if (
+        periode === "custom" &&
+        (!tanggalMulai || !tanggalAkhir || tanggalMulai > tanggalAkhir)
+      ) {
+        setIsLoading(false);
+        return;
+      }
+
+      const params =
+        periode === "custom"
+          ? { startDate: tanggalMulai, endDate: tanggalAkhir }
+          : { days: periode };
 
       const [resStats, resChart, resProducts] = await Promise.all([
         api.get("/laporan/ringkasan", { params }),
