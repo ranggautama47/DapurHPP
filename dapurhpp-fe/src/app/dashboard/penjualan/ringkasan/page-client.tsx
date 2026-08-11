@@ -108,11 +108,11 @@ export default function RingkasanPageClient() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // Set default custom dates based on 7 days range
+  // Set default custom dates based on 90 days range
   useEffect(() => {
     const end = new Date();
     const start = new Date();
-    start.setDate(end.getDate() - 7);
+    start.setDate(end.getDate() - 90);
     setTanggalMulai(start.toISOString().split("T")[0]);
     setTanggalAkhir(end.toISOString().split("T")[0]);
   }, []);
@@ -159,18 +159,34 @@ export default function RingkasanPageClient() {
         });
       }
 
-      // Map grafik-laba -> chart (backend sekarang balikin {label, pendapatan, hpp, laba} lengkap)
+      // Map grafik-laba -> chart + dailyReport (backend sekarang balikin {label, tanggal, pendapatan, hpp, laba} lengkap)
       if (Array.isArray(resChart.data)) {
-        setChartData(
-          resChart.data.map(
-            (d: { label: string; pendapatan: number; hpp: number; laba: number }) => ({
+        const mapped = resChart.data.map(
+          (d: {
+            label: string;
+            tanggal?: string;
+            pendapatan: number;
+            hpp: number;
+            laba: number;
+          }) => {
+            const pendapatan = Number(d.pendapatan ?? 0);
+            const hpp = Number(d.hpp ?? 0);
+            const laba = Number(d.laba ?? 0);
+            return {
               name: d.label,
-              Pendapatan: Number(d.pendapatan ?? 0),
-              HPP: Number(d.hpp ?? 0),
-              Laba: Number(d.laba ?? 0),
-            }),
-          ),
+              Pendapatan: pendapatan,
+              HPP: hpp,
+              Laba: laba,
+              tanggal: d.tanggal || d.label,
+              pendapatan,
+              hpp,
+              laba,
+              margin: pendapatan > 0 ? (laba / pendapatan) * 100 : 0,
+            };
+          },
         );
+        setChartData(mapped);
+        setDailyReport(mapped);
       }
 
       // Map produk terlaris (backend sekarang balikin laba per produk juga)
@@ -196,6 +212,143 @@ export default function RingkasanPageClient() {
       fetchData();
     }
   }, [periode, tanggalMulai, tanggalAkhir, fetchData]);
+
+  const handleExportExcel = useCallback(async () => {
+    if (dailyReport.length === 0) return;
+
+    // Safe Dynamic Import untuk ExcelJS (menghindari error .default pada Turbopack/Next.js 15+)
+    const excelJsModule = await import("exceljs");
+    const ExcelJS = excelJsModule.default || excelJsModule;
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("Sales Summary");
+
+    // 1. Setup Kolom
+    sheet.columns = [
+      { header: "Tanggal", key: "tanggal", width: 18 },
+      { header: "Pendapatan", key: "pendapatan", width: 22 },
+      { header: "HPP", key: "hpp", width: 22 },
+      { header: "Laba", key: "laba", width: 22 },
+      { header: "Margin", key: "margin", width: 14 },
+    ];
+
+    // 2. Styling Header Row
+    const headerRow = sheet.getRow(1);
+    headerRow.height = 26;
+    headerRow.eachCell((cell) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF2A1711" }, // Coklat Gelap DapurHPP
+      };
+      cell.font = { color: { argb: "FFFFFFFF" }, bold: true, size: 11 };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+      cell.border = {
+        top: { style: "thin", color: { argb: "FF2A1711" } },
+        left: { style: "thin", color: { argb: "FF2A1711" } },
+        bottom: { style: "thin", color: { argb: "FF2A1711" } },
+        right: { style: "thin", color: { argb: "FF2A1711" } },
+      };
+    });
+
+    // 3. Populate Data Rows (sumber: dailyReport per hari)
+    dailyReport.forEach((item) => {
+      const marginDecimal = item.pendapatan > 0 ? item.laba / item.pendapatan : 0;
+
+      const row = sheet.addRow({
+        tanggal: item.tanggal,
+        pendapatan: item.pendapatan,
+        hpp: item.hpp,
+        laba: item.laba,
+        margin: marginDecimal,
+      });
+
+      row.height = 20;
+
+      // Formatting Angka
+      row.getCell("pendapatan").numFmt = '"Rp"#,##0';
+      row.getCell("hpp").numFmt = '"Rp"#,##0';
+      row.getCell("laba").numFmt = '"Rp"#,##0';
+      row.getCell("margin").numFmt = "0.00%";
+
+      // Warna Laba: Hijau jika positif, Merah jika negatif
+      const labaCell = row.getCell("laba");
+      labaCell.font = {
+        color: { argb: item.laba >= 0 ? "FF06D6A0" : "FFEF4444" },
+        bold: true,
+      };
+
+      // Alignment
+      row.getCell("tanggal").alignment = { horizontal: "center", vertical: "middle" };
+      row.getCell("pendapatan").alignment = { horizontal: "right", vertical: "middle" };
+      row.getCell("hpp").alignment = { horizontal: "right", vertical: "middle" };
+      row.getCell("laba").alignment = { horizontal: "right", vertical: "middle" };
+      row.getCell("margin").alignment = { horizontal: "right", vertical: "middle" };
+
+      // Border Data Cell
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: "thin", color: { argb: "FFE8D5C4" } },
+          left: { style: "thin", color: { argb: "FFE8D5C4" } },
+          bottom: { style: "thin", color: { argb: "FFE8D5C4" } },
+          right: { style: "thin", color: { argb: "FFE8D5C4" } },
+        };
+      });
+    });
+
+    // 4. Baris TOTAL Ringkasan
+    const totalMarginDecimal = stats.totalPendapatan > 0 ? stats.totalLaba / stats.totalPendapatan : 0;
+    const totalRow = sheet.addRow({
+      tanggal: "TOTAL",
+      pendapatan: stats.totalPendapatan,
+      hpp: stats.totalHpp,
+      laba: stats.totalLaba,
+      margin: totalMarginDecimal,
+    });
+
+    totalRow.height = 24;
+    totalRow.getCell("pendapatan").numFmt = '"Rp"#,##0';
+    totalRow.getCell("hpp").numFmt = '"Rp"#,##0';
+    totalRow.getCell("laba").numFmt = '"Rp"#,##0';
+    totalRow.getCell("margin").numFmt = "0.00%";
+
+    totalRow.eachCell((cell, colNumber) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFF5E6D8" }, // Warna Krem Muda
+      };
+      cell.font = { bold: true, color: { argb: "FF2A1711" } };
+      cell.alignment = {
+        vertical: "middle",
+        horizontal: colNumber === 1 ? "center" : "right",
+      };
+      cell.border = {
+        top: { style: "medium", color: { argb: "FF2A1711" } },
+        left: { style: "thin", color: { argb: "FFE8D5C4" } },
+        bottom: { style: "medium", color: { argb: "FF2A1711" } },
+        right: { style: "thin", color: { argb: "FFE8D5C4" } },
+      };
+    });
+
+    // Warna khusus untuk Laba Total
+    totalRow.getCell("laba").font = {
+      bold: true,
+      color: { argb: stats.totalLaba >= 0 ? "FF06D6A0" : "FFEF4444" },
+    };
+
+    // 5. Write to Buffer & Trigger Download
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `sales-summary-${tanggalMulai || "all"}-${tanggalAkhir || "all"}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [dailyReport, stats, tanggalMulai, tanggalAkhir]);
 
   return (
     <div className="mx-auto max-w-[1400px] space-y-6 pb-12">
@@ -246,7 +399,11 @@ export default function RingkasanPageClient() {
             </div>
           )}
 
-          <button className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#DDC1AE] bg-white text-sm text-[#564334] font-semibold hover:bg-[#FFF8F6] transition-all">
+          <button
+            onClick={handleExportExcel}
+            disabled={isLoading || dailyReport.length === 0}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-[#DDC1AE] bg-white text-sm text-[#564334] font-semibold hover:bg-[#FFF8F6] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <Download className="w-4 h-4 text-[#FF8A00]" />
             <span>{t("sales.summaryPage.exportButton")}</span>
           </button>
@@ -395,13 +552,6 @@ export default function RingkasanPageClient() {
         </div>
 
         <div className="overflow-x-auto">
-          {dailyReport.length === 0 ? (
-            <div className="text-center py-10 text-[#8A7362] text-sm">
-              Rincian per-hari belum tersedia — backend `/laporan/grafik-laba`
-              baru mengembalikan total laba per hari, belum breakdown
-              pendapatan &amp; HPP per hari.
-            </div>
-          ) : (
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="bg-[#FFF8F6] border-b border-[#DDC1AE] text-xs font-semibold uppercase tracking-wider text-[#564334]">
@@ -436,7 +586,6 @@ export default function RingkasanPageClient() {
               </tr>
             </tbody>
           </table>
-          )}
         </div>
       </div>
     </div>

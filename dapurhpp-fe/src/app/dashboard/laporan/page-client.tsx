@@ -51,8 +51,8 @@ function getDefaultDates(period: FilterPeriod): {
 export default function LaporanPageClient() {
   const { t } = useTranslation("master");
   const [filter, setFilter] = useState<FilterState>({
-    period: 7,
-    ...getDefaultDates(7),
+    period: 90,
+    ...getDefaultDates(90),
   });
   const [ringkasan, setRingkasan] = useState<RingkasanLaporan | null>(null);
   const [grafik, setGrafik] = useState<GrafikLabaItem[]>([]);

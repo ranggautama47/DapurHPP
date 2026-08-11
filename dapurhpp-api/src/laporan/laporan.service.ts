@@ -181,13 +181,25 @@ export class LaporanService {
     const isMonthly = effectiveDays > 30;
     const aggregated = new Map<
       string,
-      { pendapatan: number; modal: number; pengeluaran: number }
+      {
+        pendapatan: number;
+        modal: number;
+        pengeluaran: number;
+        tanggal: string;
+      }
     >();
 
     const fmtLabel = (d: Date) =>
       isMonthly
         ? d.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })
         : d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+
+    const fmtTanggal = (d: Date): string => {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
 
     if (isMonthly) {
       const cursor = new Date(startDate);
@@ -197,7 +209,12 @@ export class LaporanService {
           year: 'numeric',
         });
         if (!aggregated.has(label)) {
-          aggregated.set(label, { pendapatan: 0, modal: 0, pengeluaran: 0 });
+          aggregated.set(label, {
+            pendapatan: 0,
+            modal: 0,
+            pengeluaran: 0,
+            tanggal: fmtTanggal(cursor),
+          });
         }
         cursor.setMonth(cursor.getMonth() + 1);
       }
@@ -209,6 +226,7 @@ export class LaporanService {
           pendapatan: 0,
           modal: 0,
           pengeluaran: 0,
+          tanggal: fmtTanggal(d),
         });
       }
     }
@@ -233,6 +251,7 @@ export class LaporanService {
 
     return Array.from(aggregated.entries()).map(([label, data]) => ({
       label,
+      tanggal: data.tanggal,
       pendapatan: data.pendapatan,
       hpp: data.modal,
       laba: data.pendapatan - data.modal - data.pengeluaran,
