@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { DashboardShellClient } from "@/components/dashboard/dashboard-shell-client";
 import { api } from "@/lib/axios";
 
@@ -6,7 +7,6 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Fetch user profile on server
   let user: {
     id: number;
     name: string;
@@ -24,8 +24,18 @@ export default async function DashboardLayout({
   } | null = null;
 
   try {
-    const res = await api.get("/users/profile");
-    user = res.data;
+    const cookieStore = await cookies();
+    const token = cookieStore.get("auth-token")?.value;
+
+    if (token) {
+      const res = await api.get("/users/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      user = res.data;
+    }
   } catch {
     user = null;
   }
