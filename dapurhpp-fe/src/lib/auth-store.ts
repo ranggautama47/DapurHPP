@@ -1,6 +1,12 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 import Cookies from "js-cookie";
+
+const noopStorage = {
+  getItem: () => null,
+  setItem: () => undefined,
+  removeItem: () => undefined,
+};
 
 export interface User {
   id: number;
@@ -41,6 +47,9 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-storage",
+      storage: createJSONStorage(() =>
+        typeof window !== "undefined" ? localStorage : noopStorage
+      ),
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,
