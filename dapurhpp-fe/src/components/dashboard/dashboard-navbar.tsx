@@ -1,16 +1,29 @@
 "use client";
 
-import { useAuthStore } from "@/lib/auth-store";
 import { NotificationPopover } from "./notification";
 import { useTranslation } from "@/context/language-context";
 
 interface DashboardNavbarProps {
   onToggleSidebar: () => void;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    emailVerified: boolean;
+    namaUsaha: string | null;
+    nomorHp: string | null;
+    fontSize: string;
+    notifAplikasi: boolean;
+    notifStok: boolean;
+    notifPenjualan: boolean;
+    avatarUrl: string | null;
+    createdAt: string;
+    updatedAt: string;
+  } | null;
 }
 
-export default function DashboardNavbar({ onToggleSidebar }: DashboardNavbarProps) {
+export default function DashboardNavbar({ onToggleSidebar, user }: DashboardNavbarProps) {
   const { t, locale } = useTranslation("dashboard");
-  const { user } = useAuthStore();
 
   const name = user?.name ? user.name.split(" ")[0] : t("navbar.defaultName");
   const greeting = t("navbar.greeting", { name });

@@ -51,27 +51,44 @@ const menuItems: MenuItem[] = [
 interface SidebarProps {
   isCollapsed: boolean;
   onToggle?: () => void;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    emailVerified: boolean;
+    namaUsaha: string | null;
+    nomorHp: string | null;
+    fontSize: string;
+    notifAplikasi: boolean;
+    notifStok: boolean;
+    notifPenjualan: boolean;
+    avatarUrl: string | null;
+    createdAt: string;
+    updatedAt: string;
+  } | null;
 }
 
-export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
+export function Sidebar({ isCollapsed, onToggle, user }: SidebarProps) {
   const { t } = useTranslation("dashboard");
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const { logout } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [userName, setUserName] = useState("Loading...");
   const [userInitial, setUserInitial] = useState("");
 
   useEffect(() => {
-    setMounted(true);
-
-    if (user?.name) {
-      setUserName(user.name);
-      setUserInitial(user.name.charAt(0).toUpperCase());
-    } else {
-      setUserName(t("sidebar.defaultUser"));
-      setUserInitial("P");
-    }
+    const check = () => {
+      if (user?.name) {
+        setUserName(user.name);
+        setUserInitial(user.name.charAt(0).toUpperCase());
+      } else {
+        setUserName(t("sidebar.defaultUser"));
+        setUserInitial("P");
+      }
+      setMounted(true);
+    };
+    check();
   }, [user, t]);
 
   const handleLogout = () => {

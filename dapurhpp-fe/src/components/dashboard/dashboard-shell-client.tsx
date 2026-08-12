@@ -3,34 +3,44 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import DashboardNavbar from "@/components/dashboard/dashboard-navbar";
-import { useAuthStore } from "@/lib/auth-store";
-import { api } from "@/lib/axios";
-import { FontSizeProvider } from "@/context/font-size-context";
 import { VerificationBanner } from "@/components/dashboard/verification-banner";
+import { FontSizeProvider } from "@/context/font-size-context";
 import { useTranslation } from "@/context/language-context";
 
-export function DashboardShell({ children }: { children: React.ReactNode }) {
+interface DashboardShellClientProps {
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    emailVerified: boolean;
+    namaUsaha: string | null;
+    nomorHp: string | null;
+    fontSize: string;
+    notifAplikasi: boolean;
+    notifStok: boolean;
+    notifPenjualan: boolean;
+    avatarUrl: string | null;
+    createdAt: string;
+    updatedAt: string;
+  } | null;
+  children: React.ReactNode;
+}
+
+export function DashboardShellClient({ user, children }: DashboardShellClientProps) {
   const { t } = useTranslation("dashboard");
-  const { user, setUser } = useAuthStore();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     const check = () => setIsMobile(window.innerWidth < 1024);
     check();
     window.addEventListener("resize", check);
+    // Set mounted after initial render to avoid hydration mismatch
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
     return () => window.removeEventListener("resize", check);
-  }, []);
-
-  useEffect(() => {
-    if (!user) return;
-    api
-      .get("/users/profile")
-      .then((res) => setUser({ ...user, ...res.data }))
-      .catch(() => {});
   }, []);
 
   const currentYear = new Date().getFullYear();
@@ -53,6 +63,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <Sidebar
           isCollapsed={isCollapsed}
           onToggle={() => setIsCollapsed(!isCollapsed)}
+          user={user}
         />
       </aside>
 
@@ -72,15 +83,15 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               isMobileOpen ? "translate-x-0" : "-translate-x-full"
             } w-[280px] shadow-xl`}
           >
-            <Sidebar isCollapsed={false} />
+            <Sidebar isCollapsed={false} user={user} />
           </aside>
         </>
       )}
 
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        <DashboardNavbar onToggleSidebar={handleToggle} />
+        <DashboardNavbar onToggleSidebar={handleToggle} user={user} />
 
-        <VerificationBanner />
+        <VerificationBanner user={user} />
 
         <main className="flex-1 overflow-y-auto p-6">
           <FontSizeProvider>{children}</FontSizeProvider>

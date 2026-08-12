@@ -1,15 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { useAuthStore } from "@/lib/auth-store";
 import { api } from "@/lib/axios";
 import { AlertCircle, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "@/context/language-context";
 
-export function VerificationBanner() {
+export function VerificationBanner({ user }: { user: {
+    id: number;
+    name: string;
+    email: string;
+    emailVerified: boolean;
+    namaUsaha: string | null;
+    nomorHp: string | null;
+    fontSize: string;
+    notifAplikasi: boolean;
+    notifStok: boolean;
+    notifPenjualan: boolean;
+    avatarUrl: string | null;
+    createdAt: string;
+    updatedAt: string;
+  } | null }) {
   const { t } = useTranslation("dashboard");
-  const { user, setUser } = useAuthStore();
   const [isSending, setIsSending] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
