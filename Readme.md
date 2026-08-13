@@ -11,7 +11,20 @@
 [![MySQL](https://img.shields.io/badge/MySQL-8-4479A1?logo=mysql&logoColor=white)](https://mysql.com)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 
-**🚀 Live Demo:** [https://dapurhpp.vercel.app](https://dapurhpp.vercel.app) _(ganti dengan link deploy-mu)_
+<div className="flex gap-4 mt-6">
+  <a href="https://youtube.com/..." className="btn-primary">
+    🎬 90-sec Overview
+  </a>
+  <a href="https://dapurhpp.vercel.app" className="btn-secondary">
+    🔗 Live Demo
+  </a>
+  <a href="https://github.com/ranggautama47/DapurHPP" className="btn-secondary">
+    💻 GitHub
+  </a>
+  <a href="https://youtu.be/qLY8rPNWchA" className="btn-secondary">
+    🎬 Full Demo
+  </a>
+</div>
 
 </div>
 
@@ -117,7 +130,7 @@ Every production batch saves a **snapshot of the COGS** at that exact moment. If
 | 📈 **Dashboard**               | High-level daily business summaries and performance metrics.                                                                                                                    |
 | ⚙️ **Pengaturan**              | Application and user preferences management.                                                                                                                                    |
 
-## Deliberate Design Decisions
+## 🧠 Deliberate Design Decisions
 
 Several architectural choices might seem unconventional at first glance. Here is the reasoning behind them:
 
