@@ -270,7 +270,23 @@ export function ResepDetail({ initialData }: ResepDetailProps) {
                           {i + 1}
                         </td>
                         <td className="px-4 py-3 font-medium text-[#2A1711] font-[var(--font-be-vietnam)]">
-                          {d.bahanBaku.nama}
+                          <div className="flex items-center gap-3">
+                            {d.bahanBaku.fotoUrl ? (
+                              <img
+                                src={d.bahanBaku.fotoUrl}
+                                alt={d.bahanBaku.nama}
+                                className="w-9 h-9 rounded-lg object-cover shrink-0 border border-[#F5E6D8]"
+                              />
+                            ) : (
+                              <div className="w-9 h-9 rounded-lg bg-[#FFF8F6] flex items-center justify-center shrink-0 border border-[#DDC1AE]">
+                                <ChefHat
+                                  className="w-4 h-4 text-[#DDC1AE]"
+                                  strokeWidth={1.5}
+                                />
+                              </div>
+                            )}
+                            <span>{d.bahanBaku.nama}</span>
+                          </div>
                         </td>
                         <td className="px-4 py-3">
                           <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-[#FFF8F6] text-[#564334] border border-[#F5E6D8]">
