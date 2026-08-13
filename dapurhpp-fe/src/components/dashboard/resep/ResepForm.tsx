@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -119,16 +119,13 @@ export function ResepForm({
   const watchedDetails = watch("detailResep");
   const estimasiHasil = watch("estimasiHasil");
 
-  const totalModal = useMemo(() => {
-    return (watchedDetails ?? []).reduce((sum, d) => {
-      const bahan = bahanList.find((b) => b.id === d?.bahanBakuId);
-      return sum + (Number(d?.jumlah) || 0) * Number(bahan?.hargaTerakhir || 0);
-    }, 0);
-  }, [watchedDetails, bahanList]);
+  const totalModal = (watchedDetails ?? []).reduce((sum, d) => {
+    const bahan = bahanList.find((b) => b.id === d?.bahanBakuId);
+    return sum + (Number(d?.jumlah) || 0) * Number(bahan?.hargaTerakhir || 0);
+  }, 0);
 
-  const hppPerPcs = useMemo(() => {
-    return estimasiHasil > 0 ? totalModal / Number(estimasiHasil) : 0;
-  }, [totalModal, estimasiHasil]);
+  const hppPerPcs =
+    estimasiHasil > 0 ? totalModal / Number(estimasiHasil) : 0;
 
   const handleBahanChange = (index: number, bahanId: number) => {
     const bahan = bahanList.find((b) => b.id === bahanId);
