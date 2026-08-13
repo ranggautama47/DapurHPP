@@ -16,6 +16,7 @@ export interface DetailResep {
     nama: string;
     hargaTerakhir: number;
     satuan: Satuan;
+    fotoUrl?: string | null;
   };
   subtotal: number;
 }

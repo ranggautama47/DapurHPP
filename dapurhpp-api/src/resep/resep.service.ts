@@ -97,6 +97,7 @@ export class ResepService {
           nama: detail.bahanBaku.nama,
           hargaTerakhir: detail.bahanBaku.hargaTerakhir,
           satuan: detail.bahanBaku.satuan,
+          fotoUrl: detail.bahanBaku.fotoUrl,
         },
         subtotal:
           Number(detail.jumlah) * Number(detail.bahanBaku.hargaTerakhir),
