@@ -6,9 +6,14 @@ import { randomUUID } from 'crypto';
 
 export const UPLOAD_DIR = join(process.cwd(), 'uploads', 'bahan-baku');
 
-// Ensure directory exists
-if (!existsSync(UPLOAD_DIR)) {
-  mkdirSync(UPLOAD_DIR, { recursive: true });
+// Ensure directory exists (skipped gracefully on read-only filesystems such as Vercel)
+try {
+  if (!existsSync(UPLOAD_DIR)) {
+    mkdirSync(UPLOAD_DIR, { recursive: true });
+  }
+} catch (_e) {
+  // On Vercel the filesystem is read-only; directory creation is not possible at startup.
+  // Upload requests will fail at request-time rather than crashing the process at boot.
 }
 
 const imageFilter = (
