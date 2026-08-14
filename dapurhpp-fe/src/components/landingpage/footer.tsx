@@ -2,6 +2,7 @@
 
 import { Mail, Phone, MapPin } from "lucide-react";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useTranslation } from "@/context/language-context";
 
 export function Footer() {
@@ -105,12 +106,12 @@ export function Footer() {
             <ul className="space-y-2">
               {footerLinks.produk.map((link, idx) => (
                 <li key={idx}>
-                  <a
+                  <Link
                     href={link.href}
                     className="text-sm text-[#FFEDE8]/70 hover:text-[#FF8A00] focus-visible:text-[#E2B6CF] transition-colors outline-none"
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -122,12 +123,12 @@ export function Footer() {
             <ul className="space-y-2">
               {footerLinks.perusahaan.map((link, idx) => (
                 <li key={idx}>
-                  <a
+                  <Link
                     href={link.href}
                     className="text-sm text-[#FFEDE8]/70 hover:text-[#FF8A00] focus-visible:text-[#E2B6CF] transition-colors outline-none"
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -139,12 +140,12 @@ export function Footer() {
             <ul className="space-y-2">
               {footerLinks.bantuan.map((link, idx) => (
                 <li key={idx}>
-                  <a
+                  <Link
                     href={link.href}
                     className="text-sm text-[#FFEDE8]/70 hover:text-[#FF8A00] focus-visible:text-[#E2B6CF] transition-colors outline-none"
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -174,18 +175,18 @@ export function Footer() {
               {t("footer.copyright").replace("{year}", currentYear)}
             </p>
             <div className="flex flex-wrap items-center gap-6">
-               <a
+               <Link
                  href="/privacy"
                  className="text-sm text-[#FFEDE8]/60 hover:text-[#FF8A00] transition-colors"
                >
                  {t("footer.links.privacy")}
-               </a>
-               <a
+               </Link>
+               <Link
                  href="/terms"
                  className="text-sm text-[#FFEDE8]/60 hover:text-[#FF8A00] transition-colors"
                >
                  {t("footer.links.terms")}
-               </a>
+               </Link>
             </div>
           </div>
         </div>
