@@ -29,7 +29,7 @@ export default function DashboardLoading() {
         {/* Ganti SVG jadi Image dari public/loading/loading.png */}
         <div className="mb-8">
           <Image
-            src="/loading/loading.png"
+            src="/Loading/Loading.png"
             alt="Memuat dapur..."
             width={120}
             height={120}
