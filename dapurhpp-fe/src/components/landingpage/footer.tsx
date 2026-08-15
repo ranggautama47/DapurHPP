@@ -106,12 +106,12 @@ export function Footer() {
             <ul className="space-y-2">
               {footerLinks.produk.map((link, idx) => (
                 <li key={idx}>
-                  <Link
+                  <a
                     href={link.href}
                     className="text-sm text-[#FFEDE8]/70 hover:text-[#FF8A00] focus-visible:text-[#E2B6CF] transition-colors outline-none"
                   >
                     {link.label}
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>
@@ -123,12 +123,12 @@ export function Footer() {
             <ul className="space-y-2">
               {footerLinks.perusahaan.map((link, idx) => (
                 <li key={idx}>
-                  <Link
+                  <a
                     href={link.href}
                     className="text-sm text-[#FFEDE8]/70 hover:text-[#FF8A00] focus-visible:text-[#E2B6CF] transition-colors outline-none"
                   >
                     {link.label}
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>
@@ -140,12 +140,12 @@ export function Footer() {
             <ul className="space-y-2">
               {footerLinks.bantuan.map((link, idx) => (
                 <li key={idx}>
-                  <Link
+                  <a
                     href={link.href}
                     className="text-sm text-[#FFEDE8]/70 hover:text-[#FF8A00] focus-visible:text-[#E2B6CF] transition-colors outline-none"
                   >
                     {link.label}
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>
