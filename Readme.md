@@ -12,9 +12,6 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 
 <div className="flex gap-4 mt-6">
-  <a href="https://youtube.com/..." className="btn-primary">
-    🎬 90-sec Overview
-  </a>
   <a href="https://dapurhpp.vercel.app" className="btn-secondary">
     🔗 Live Demo
   </a>
@@ -57,7 +54,6 @@ Every production batch saves a **snapshot of the COGS** at that exact moment. If
     <td width="50%" align="center">
       <h3>📦 Ingredients / Suppliers</h3>
       <img src="./assets/screenshots/ingredients.png" width="105%" />
-      <h3>📦 Ingredients / Suppliers</h3>
       <img src="./assets/screenshots/Suppliers.png" width="105%" />
       <p><em>Full CRUD with soft-delete, historical price tracking, image uploads</em></p>
     </td>
@@ -99,14 +95,14 @@ Every production batch saves a **snapshot of the COGS** at that exact moment. If
 ### Backend (`dapurhpp-api`)
 
 - **Framework:** NestJS 11 + TypeScript (Strict Mode)
-- **Database:** Prisma ORM + MySQL 8 (Dockerized)
+- **Database:** Prisma ORM + MySQL 8 (local development) + TiDB Cloud Serverless (production/demo)
 - **Authentication:** JWT (Access token + HTTP-only Refresh Cookie)
 - **Email Service:** Nodemailer + Gmail SMTP for transactional emails
 - **Security & Rate Limiting:** `@nestjs/throttler` configured globally (`ttl: 60000, limit: 120`) to prevent brute-force and DDoS attacks while maintaining a smooth experience during frontend integration testing.
 
 ### Frontend (`dapurhpp-fe`)
 
-- **Framework:** Next.js 15 (App Router) + React 19 + TypeScript
+- **Framework:** Next.js 16 (App Router) + React + TypeScript
 - **Styling:** Tailwind CSS v4 + shadcn/ui
 - **State Management:** Zustand (Client state) + TanStack Query pattern
 - **HTTP Client:** Axios with centralized global error handling
@@ -142,7 +138,7 @@ Several architectural choices might seem unconventional at first glance. Here is
 
 ## Project Structure
 
-This project uses a Polyrepo approach with two independent directories:
+This project uses a monorepo approach, with the frontend and backend maintained in the same Git repository:
 
 ```text
 dapurhpp-api/          # Backend (NestJS)
@@ -206,9 +202,22 @@ npm run dev                  # Runs on http://localhost:3000
 
 ## Development Status
 
-The project is actively developed using a strict phase-by-phase workflow with Git checkpoints at each milestone. Current focus areas include hardening security (email systems, auth flows) and optimizing the bundle size for the Reports & Activity modules.
+DapurHPP has completed its main frontend and backend development and is now in the finalization stage.
 
-Detailed roadmaps and technical decision histories are documented in AI_context/PHASES.md.
+Current status:
+- ✅ Frontend completed and deployed
+- ✅ Backend completed and deployed
+- ✅ Database schema and production database configured
+- ✅ Authentication and email verification completed
+- ✅ Security hardening completed
+- ✅ Dashboard, CRUD modules, reports, and exports completed
+- ✅ Responsive mobile navigation refined
+- 🔄 Production E2E validation and final documentation
+- 🔜 Portfolio presentation and recruiter demo
+
+The project is intentionally no longer focused on adding new features. The remaining work is validation, documentation, and preparing the application as a professional portfolio project.
+
+Detailed roadmaps and technical decision histories are documented in `AI_context/PHASES.md`.
 
 ## 📄License
 
