@@ -46,10 +46,12 @@ export function RegisterForm() {
         name: data.namaLengkap,
         email: data.email,
         password: data.password,
+        ...(data.namaBisnis?.trim() ? { namaBisnis: data.namaBisnis.trim() } : {}),
       };
 
       await api.post("/auth/register", payload);
-      router.push("/login?registered=true");
+      const registeredEmail = encodeURIComponent(data.email);
+      router.push(`/login?registered=true&email=${registeredEmail}`);
     } catch (err: any) {
       const message =
         err.response?.data?.message || t("register.errors.generic");

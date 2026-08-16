@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "@/lib/axios";
 import { AlertCircle, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -24,6 +24,16 @@ export function VerificationBanner({ user }: { user: {
   const { t } = useTranslation("dashboard");
   const [isSending, setIsSending] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setInterval(() => {
+        setCooldown((c) => c - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [cooldown]);
 
   if (!user || user.emailVerified || dismissed) return null;
 
@@ -32,6 +42,7 @@ export function VerificationBanner({ user }: { user: {
     try {
       await api.post("/auth/resend-verification", { email: user.email });
       toast.success(t("verification.success"));
+      setCooldown(60); // 60 detik cooldown
     } catch {
       toast.error(t("verification.error"));
     } finally {
@@ -51,7 +62,7 @@ export function VerificationBanner({ user }: { user: {
         <div className="flex items-center gap-2">
           <button
             onClick={handleResend}
-            disabled={isSending}
+            disabled={isSending || cooldown > 0}
             className="text-xs font-semibold text-[#BF360C] hover:text-[#9A2B00] underline underline-offset-2 transition-colors disabled:opacity-50"
           >
             {isSending ? (
@@ -59,6 +70,8 @@ export function VerificationBanner({ user }: { user: {
                 <Loader2 className="w-3 h-3 animate-spin" />
                 {t("verification.sending")}
               </span>
+            ) : cooldown > 0 ? (
+              `Tunggu (${cooldown}s) ${t("verification.resend")}`
             ) : (
               t("verification.resend")
             )}

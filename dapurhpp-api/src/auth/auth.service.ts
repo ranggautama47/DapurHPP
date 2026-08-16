@@ -47,6 +47,7 @@ export class AuthService {
       name: dto.name,
       email: dto.email,
       password: hashedPassword,
+      namaBisnis: dto.namaBisnis,
     });
 
     // Generate email verification token

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,6 +21,16 @@ export default function ResendVerificationPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [serverMessage, setServerMessage] = useState<string | null>(null);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setInterval(() => {
+        setCooldown((c) => c - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [cooldown]);
 
   const {
     register,
@@ -40,6 +50,7 @@ export default function ResendVerificationPage() {
       const message = response.data?.message || "Jika email terdaftar dan belum diverifikasi, link verifikasi baru telah dikirim.";
       setServerMessage(message);
       setIsSubmitted(true);
+      setCooldown(60); // 60 detik cooldown
       reset();
     } catch {
       setServerMessage("Terjadi kesalahan. Silakan coba lagi.");
@@ -109,11 +120,11 @@ export default function ResendVerificationPage() {
 
                           <button
                             type="submit"
-                            disabled={isLoading}
+                            disabled={isLoading || cooldown > 0}
                             className="group w-full flex items-center justify-between pl-8 pr-2 py-2 mt-4 rounded-full bg-[#BF360C] text-white font-[var(--font-be-vietnam)] font-semibold text-lg transition-all duration-500 hover:bg-[#9A2B00] active:scale-[0.98] disabled:bg-[#BF360C]/50 disabled:cursor-not-allowed shadow-lg shadow-[#BF360C]/20"
                           >
                             <span className="flex-1 text-center tracking-wide">
-                              {isLoading ? "Mengirim..." : "Kirim Ulang"}
+                              {isLoading ? "Mengirim..." : cooldown > 0 ? `Tunggu (${cooldown}s) sebelum mengirim ulang` : "Kirim Ulang"}
                             </span>
                             <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-[#2A1711] transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105 group-hover:translate-x-1 group-hover:-translate-y-[1px]">
                               <ArrowUpRight strokeWidth={2.5} className="w-5 h-5 text-white" />

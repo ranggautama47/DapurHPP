@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore, setTokenCookie } from "@/lib/auth-store";
 import { api } from "@/lib/axios";
-import { AlertCircle, Eye, Mail, EyeOff, ArrowUpRight, CheckCircle2 } from "lucide-react";
+import { AlertCircle, Eye, Mail, EyeOff, ArrowUpRight, CheckCircle2, Info } from "lucide-react";
 import { SocialButton } from "@/components/auth/social-button";
 import { useTranslation } from "@/context/language-context";
 import { createLoginSchema, type LoginFormData, loginDefaultValues } from "@/components/auth/login.schema";
@@ -23,6 +23,8 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  const registered = searchParams.get("registered") === "true";
+  const registeredEmail = searchParams.get("email") || "";
   const redirectTo = searchParams.get("redirect") || "/dashboard";
 
   const loginSchema = createLoginSchema(t);
@@ -32,10 +34,21 @@ export function LoginForm() {
     handleSubmit,
     formState: { errors },
     setError: setFormError,
+    setValue,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    defaultValues: loginDefaultValues,
+    defaultValues: {
+      ...loginDefaultValues,
+      email: registeredEmail,
+    },
   });
+
+  // Set email from URL param after form is initialized (for pre-fill)
+  useEffect(() => {
+    if (registeredEmail) {
+      setValue("email", registeredEmail, { shouldValidate: true });
+    }
+  }, [registeredEmail, setValue]);
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
@@ -77,9 +90,38 @@ export function LoginForm() {
               </h2>
 
               {error && (
-                <div className="mb-4 p-4 bg-[#FFEBEE] border border-[#EF9A9A] rounded-lg text-[#C62828] text-sm flex items-center">
-                  <AlertCircle className="w-5 h-5 mr-3 flex-shrink-0" />
-                  <span>{error}</span>
+                <div className="mb-4 p-4 bg-[#FFEBEE] border border-[#EF9A9A] rounded-lg text-[#C62828] text-sm">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p>{error}</p>
+                      {error.includes("belum diverifikasi") && (
+                        <div className="mt-3">
+                          <Link
+                            href="/resend-verification"
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#BF360C] hover:text-[#9A2B00] underline underline-offset-2 transition-colors"
+                          >
+                            Kirim Ulang Email Verifikasi
+                            <ArrowUpRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {registered && (
+                <div className="mb-4 p-4 bg-[#FFF8F0] border border-[#FFB74D]/40 rounded-lg text-[#BF360C] text-sm flex items-start gap-3">
+                  <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold">Registrasi Berhasil!</p>
+                    <p className="mt-1">
+                      Silakan cek inbox email Anda (
+                      <span className="font-medium">{registeredEmail}</span>
+                      ) untuk melakukan verifikasi sebelum masuk.
+                    </p>
+                  </div>
                 </div>
               )}
 

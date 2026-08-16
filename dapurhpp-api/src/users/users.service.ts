@@ -23,6 +23,7 @@ export interface CreateUserInput {
   name: string;
   email: string;
   password: string;
+  namaBisnis?: string;
 }
 
 const EMAIL_THROTTLE_MS = 15 * 60 * 1000; // 15 menit
@@ -72,7 +73,12 @@ export class UsersService {
 
   async create(data: CreateUserInput) {
     return this.prisma.user.create({
-      data,
+      data: {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        ...(data.namaBisnis !== undefined && { namaUsaha: data.namaBisnis }),
+      },
     });
   }
 
