@@ -59,23 +59,20 @@ export class LaporanService {
   async getRingkasan(userId: number, query: LaporanQueryDto) {
     const { startDate, endDate, prevStartDate } = this.batasiTanggal(query);
 
+    // 8 queries -> 6: gabungkan aggregate _sum { totalPendapatan, terjual }
+    // per periode (sebelumnya dua query terpisah per periode). Matematika
+    // HPP/profit tetap identik.
     const [
-      totalPendapatan,
-      totalTerjual,
-      totalModal,
+      penjualan,
+      penjualanModal,
       pengeluaranLain,
-      pendapatanLalu,
-      terjualLalu,
-      modalLalu,
+      penjualanLalu,
+      penjualanModalLalu,
       pengeluaranLalu,
     ] = await Promise.all([
       this.prisma.penjualan.aggregate({
         where: { userId, tanggal: { gte: startDate, lte: endDate } },
-        _sum: { totalPendapatan: true },
-      }),
-      this.prisma.penjualan.aggregate({
-        where: { userId, tanggal: { gte: startDate, lte: endDate } },
-        _sum: { terjual: true },
+        _sum: { totalPendapatan: true, terjual: true },
       }),
       this.prisma.penjualan.findMany({
         where: { userId, tanggal: { gte: startDate, lte: endDate } },
@@ -87,11 +84,7 @@ export class LaporanService {
       }),
       this.prisma.penjualan.aggregate({
         where: { userId, tanggal: { gte: prevStartDate, lt: startDate } },
-        _sum: { totalPendapatan: true },
-      }),
-      this.prisma.penjualan.aggregate({
-        where: { userId, tanggal: { gte: prevStartDate, lt: startDate } },
-        _sum: { terjual: true },
+        _sum: { totalPendapatan: true, terjual: true },
       }),
       this.prisma.penjualan.findMany({
         where: { userId, tanggal: { gte: prevStartDate, lt: startDate } },
@@ -105,11 +98,11 @@ export class LaporanService {
 
     // Menghitung data periode sekarang
     const totalPendapatanValue = Number(
-      totalPendapatan._sum.totalPendapatan ?? 0,
+      penjualan._sum.totalPendapatan ?? 0,
     );
-    const totalTerjualValue = totalTerjual._sum.terjual ?? 0;
+    const totalTerjualValue = penjualan._sum.terjual ?? 0;
     let totalModalValue = 0;
-    for (const p of totalModal) {
+    for (const p of penjualanModal) {
       const hpp = p.produksi?.hppPerPcs ?? 0;
       totalModalValue += Number(hpp) * p.terjual;
     }
@@ -120,9 +113,9 @@ export class LaporanService {
       totalPendapatanValue > 0 ? (labaBersih / totalPendapatanValue) * 100 : 0;
 
     // Menghitung data periode lalu
-    const pendapatanLaluVal = Number(pendapatanLalu._sum.totalPendapatan ?? 0);
+    const pendapatanLaluVal = Number(penjualanLalu._sum.totalPendapatan ?? 0);
     let modalLaluVal = 0;
-    for (const p of modalLalu) {
+    for (const p of penjualanModalLalu) {
       const hpp = p.produksi?.hppPerPcs ?? 0;
       modalLaluVal += Number(hpp) * p.terjual;
     }

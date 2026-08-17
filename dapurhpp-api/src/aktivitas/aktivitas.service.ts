@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { QueryAktivitasDto } from './dto/query-aktivitas.dto';
 
@@ -120,70 +121,62 @@ export class AktivitasService {
     const { startOfWeek, endOfWeek } = this.getWeekRange();
     const { startOfMonth, endOfMonth } = this.getMonthRange();
 
-    const [
-      penjualanHariIni,
-      belanjaHariIni,
-      produksiHariIni,
-      pengeluaranHariIni,
-      penjualanMinggu,
-      belanjaMinggu,
-      produksiMinggu,
-      pengeluaranMinggu,
-      penjualanBulan,
-      belanjaBulan,
-      produksiBulan,
-      pengeluaranBulan,
-    ] = await Promise.all([
-      this.prisma.penjualan.count({
-        where: { userId, createdAt: { gte: todayStart, lte: todayEnd } },
-      }),
-      this.prisma.belanja.count({
-        where: { userId, createdAt: { gte: todayStart, lte: todayEnd } },
-      }),
-      this.prisma.produksi.count({
-        where: { userId, createdAt: { gte: todayStart, lte: todayEnd } },
-      }),
-      this.prisma.pengeluaranLain.count({
-        where: { userId, createdAt: { gte: todayStart, lte: todayEnd } },
-      }),
-      this.prisma.penjualan.count({
-        where: { userId, createdAt: { gte: startOfWeek, lte: endOfWeek } },
-      }),
-      this.prisma.belanja.count({
-        where: { userId, createdAt: { gte: startOfWeek, lte: endOfWeek } },
-      }),
-      this.prisma.produksi.count({
-        where: { userId, createdAt: { gte: startOfWeek, lte: endOfWeek } },
-      }),
-      this.prisma.pengeluaranLain.count({
-        where: { userId, createdAt: { gte: startOfWeek, lte: endOfWeek } },
-      }),
-      this.prisma.penjualan.count({
-        where: { userId, createdAt: { gte: startOfMonth, lte: endOfMonth } },
-      }),
-      this.prisma.belanja.count({
-        where: { userId, createdAt: { gte: startOfMonth, lte: endOfMonth } },
-      }),
-      this.prisma.produksi.count({
-        where: { userId, createdAt: { gte: startOfMonth, lte: endOfMonth } },
-      }),
-      this.prisma.pengeluaranLain.count({
-        where: { userId, createdAt: { gte: startOfMonth, lte: endOfMonth } },
-      }),
-    ]);
+    // 12 COUNT queries -> 1 query (scalar subqueries). Menggunakan Prisma.sql
+    // (tagged template) agar ter-parameterisasi dengan aman.
+    const rows = await this.prisma.$queryRaw<
+      Array<{
+        penjualan_hari_ini: bigint;
+        belanja_hari_ini: bigint;
+        produksi_hari_ini: bigint;
+        pengeluaran_hari_ini: bigint;
+        penjualan_minggu: bigint;
+        belanja_minggu: bigint;
+        produksi_minggu: bigint;
+        pengeluaran_minggu: bigint;
+        penjualan_bulan: bigint;
+        belanja_bulan: bigint;
+        produksi_bulan: bigint;
+        pengeluaran_bulan: bigint;
+      }>
+    >(Prisma.sql`
+      SELECT
+        (SELECT COUNT(*) FROM penjualan WHERE user_id = ${userId} AND created_at >= ${todayStart} AND created_at <= ${todayEnd}) AS penjualan_hari_ini,
+        (SELECT COUNT(*) FROM belanja WHERE user_id = ${userId} AND created_at >= ${todayStart} AND created_at <= ${todayEnd}) AS belanja_hari_ini,
+        (SELECT COUNT(*) FROM produksi WHERE user_id = ${userId} AND created_at >= ${todayStart} AND created_at <= ${todayEnd}) AS produksi_hari_ini,
+        (SELECT COUNT(*) FROM pengeluaran_lain WHERE user_id = ${userId} AND created_at >= ${todayStart} AND created_at <= ${todayEnd}) AS pengeluaran_hari_ini,
+        (SELECT COUNT(*) FROM penjualan WHERE user_id = ${userId} AND created_at >= ${startOfWeek} AND created_at <= ${endOfWeek}) AS penjualan_minggu,
+        (SELECT COUNT(*) FROM belanja WHERE user_id = ${userId} AND created_at >= ${startOfWeek} AND created_at <= ${endOfWeek}) AS belanja_minggu,
+        (SELECT COUNT(*) FROM produksi WHERE user_id = ${userId} AND created_at >= ${startOfWeek} AND created_at <= ${endOfWeek}) AS produksi_minggu,
+        (SELECT COUNT(*) FROM pengeluaran_lain WHERE user_id = ${userId} AND created_at >= ${startOfWeek} AND created_at <= ${endOfWeek}) AS pengeluaran_minggu,
+        (SELECT COUNT(*) FROM penjualan WHERE user_id = ${userId} AND created_at >= ${startOfMonth} AND created_at <= ${endOfMonth}) AS penjualan_bulan,
+        (SELECT COUNT(*) FROM belanja WHERE user_id = ${userId} AND created_at >= ${startOfMonth} AND created_at <= ${endOfMonth}) AS belanja_bulan,
+        (SELECT COUNT(*) FROM produksi WHERE user_id = ${userId} AND created_at >= ${startOfMonth} AND created_at <= ${endOfMonth}) AS produksi_bulan,
+        (SELECT COUNT(*) FROM pengeluaran_lain WHERE user_id = ${userId} AND created_at >= ${startOfMonth} AND created_at <= ${endOfMonth}) AS pengeluaran_bulan
+    `);
+
+    const r = rows[0];
 
     const today =
-      penjualanHariIni + belanjaHariIni + produksiHariIni + pengeluaranHariIni;
+      Number(r.penjualan_hari_ini) +
+      Number(r.belanja_hari_ini) +
+      Number(r.produksi_hari_ini) +
+      Number(r.pengeluaran_hari_ini);
     const thisWeek =
-      penjualanMinggu + belanjaMinggu + produksiMinggu + pengeluaranMinggu;
+      Number(r.penjualan_minggu) +
+      Number(r.belanja_minggu) +
+      Number(r.produksi_minggu) +
+      Number(r.pengeluaran_minggu);
     const thisMonth =
-      penjualanBulan + belanjaBulan + produksiBulan + pengeluaranBulan;
+      Number(r.penjualan_bulan) +
+      Number(r.belanja_bulan) +
+      Number(r.produksi_bulan) +
+      Number(r.pengeluaran_bulan);
 
     const typeCounts = [
-      { type: 'penjualan' as const, count: penjualanBulan },
-      { type: 'belanja' as const, count: belanjaBulan },
-      { type: 'produksi' as const, count: produksiBulan },
-      { type: 'pengeluaran' as const, count: pengeluaranBulan },
+      { type: 'penjualan' as const, count: Number(r.penjualan_bulan) },
+      { type: 'belanja' as const, count: Number(r.belanja_bulan) },
+      { type: 'produksi' as const, count: Number(r.produksi_bulan) },
+      { type: 'pengeluaran' as const, count: Number(r.pengeluaran_bulan) },
     ];
     typeCounts.sort((a, b) => b.count - a.count);
     const topType = typeCounts[0];
