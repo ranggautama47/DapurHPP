@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { ConfigModule } from '@nestjs/config';
@@ -18,6 +18,7 @@ import { LaporanModule } from './laporan/laporan.module';
 import { AktivitasModule } from './aktivitas/aktivitas.module';
 import { NotifikasiModule } from './notifikasi/notifikasi.module';
 import { EmailModule } from './email/email.module';
+import { PerformanceInterceptor } from './common/interceptors/performance.interceptor';
 
 @Module({
   imports: [
@@ -46,6 +47,10 @@ import { EmailModule } from './email/email.module';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: PerformanceInterceptor,
     },
   ],
 })

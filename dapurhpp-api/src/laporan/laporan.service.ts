@@ -97,9 +97,7 @@ export class LaporanService {
     ]);
 
     // Menghitung data periode sekarang
-    const totalPendapatanValue = Number(
-      penjualan._sum.totalPendapatan ?? 0,
-    );
+    const totalPendapatanValue = Number(penjualan._sum.totalPendapatan ?? 0);
     const totalTerjualValue = penjualan._sum.terjual ?? 0;
     let totalModalValue = 0;
     for (const p of penjualanModal) {
@@ -156,20 +154,21 @@ export class LaporanService {
   async getGrafikLaba(userId: number, query: LaporanQueryDto) {
     const { startDate, endDate, effectiveDays } = this.batasiTanggal(query);
 
-    const penjualan = await this.prisma.penjualan.findMany({
-      where: { userId, tanggal: { gte: startDate, lte: endDate } },
-      select: {
-        tanggal: true,
-        totalPendapatan: true,
-        produksi: { select: { hppPerPcs: true } },
-        terjual: true,
-      },
-    });
-
-    const pengeluaranLain = await this.prisma.pengeluaranLain.findMany({
-      where: { userId, tanggal: { gte: startDate, lte: endDate } },
-      select: { tanggal: true, jumlah: true },
-    });
+    const [penjualan, pengeluaranLain] = await Promise.all([
+      this.prisma.penjualan.findMany({
+        where: { userId, tanggal: { gte: startDate, lte: endDate } },
+        select: {
+          tanggal: true,
+          totalPendapatan: true,
+          produksi: { select: { hppPerPcs: true } },
+          terjual: true,
+        },
+      }),
+      this.prisma.pengeluaranLain.findMany({
+        where: { userId, tanggal: { gte: startDate, lte: endDate } },
+        select: { tanggal: true, jumlah: true },
+      }),
+    ]);
 
     const isMonthly = effectiveDays > 30;
     const aggregated = new Map<

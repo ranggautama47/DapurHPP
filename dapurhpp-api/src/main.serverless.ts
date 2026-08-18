@@ -1,5 +1,8 @@
 import { NestFactory } from '@nestjs/core';
-import { ExpressAdapter, NestExpressApplication } from '@nestjs/platform-express';
+import {
+  ExpressAdapter,
+  NestExpressApplication,
+} from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import express from 'express';
@@ -14,7 +17,10 @@ export async function createHandler(): Promise<express.Express> {
 
   const expressApp = express();
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, new ExpressAdapter(expressApp));
+  const app = await NestFactory.create<NestExpressApplication>(
+    AppModule,
+    new ExpressAdapter(expressApp),
+  );
 
   app.enableCors({
     origin: process.env.FRONTEND_URL,

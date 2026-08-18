@@ -47,36 +47,46 @@ export class NotifikasiService {
     const weekEnd = new Date(now);
     weekEnd.setHours(23, 59, 59, 999);
 
-    // === STALE CLEANUP ===
-    const belanjaAda = await this.prisma.belanja.findFirst({
-      where: { userId, tanggal: { gte: weekStart, lte: weekEnd } },
-      select: { id: true },
-    });
+    // === STALE CLEANUP (parallel where possible) ===
+    const [belanjaAda, penjualanAda] = await Promise.all([
+      this.prisma.belanja.findFirst({
+        where: { userId, tanggal: { gte: weekStart, lte: weekEnd } },
+        select: { id: true },
+      }),
+      this.prisma.penjualan.findFirst({
+        where: { userId, tanggal: { gte: todayStart, lte: todayEnd } },
+        select: { id: true },
+      }),
+    ]);
+
+    const staleDeletes: Promise<any>[] = [];
     if (belanjaAda) {
-      await this.prisma.notifikasi.deleteMany({
-        where: { userId, tipe: 'reminder_belanja' },
-      });
+      staleDeletes.push(
+        this.prisma.notifikasi.deleteMany({
+          where: { userId, tipe: 'reminder_belanja' },
+        }),
+      );
     }
-
-    const penjualanAda = await this.prisma.penjualan.findFirst({
-      where: { userId, tanggal: { gte: todayStart, lte: todayEnd } },
-      select: { id: true },
-    });
     if (penjualanAda) {
-      await this.prisma.notifikasi.deleteMany({
-        where: { userId, tipe: 'reminder_penjualan' },
-      });
+      staleDeletes.push(
+        this.prisma.notifikasi.deleteMany({
+          where: { userId, tipe: 'reminder_penjualan' },
+        }),
+      );
     }
-
-    await this.prisma.notifikasi.deleteMany({
-      where: {
-        userId,
-        tipe: {
-          in: ['penjualan_hari_ini', 'omzet_hari_ini', 'produksi_selesai'],
+    // always delete old daily notifs
+    staleDeletes.push(
+      this.prisma.notifikasi.deleteMany({
+        where: {
+          userId,
+          tipe: {
+            in: ['penjualan_hari_ini', 'omzet_hari_ini', 'produksi_selesai'],
+          },
+          createdAt: { lt: todayStart },
         },
-        createdAt: { lt: todayStart },
-      },
-    });
+      }),
+    );
+    await Promise.all(staleDeletes);
 
     const candidates: {
       tipe: string;
@@ -140,9 +150,10 @@ export class NotifikasiService {
       }),
     ]);
 
-    // Critical: stok habis
+    // Build candidates: combine stok loops
     for (const b of bahanBakuList) {
-      if (Number(b.stok) === 0) {
+      const stokNum = Number(b.stok);
+      if (stokNum === 0) {
         const hash = this.makeHash(`stok-habis-${b.id}`);
         candidates.push({
           tipe: 'stok_habis',
@@ -153,13 +164,7 @@ export class NotifikasiService {
           relatedId: b.id,
           hash,
         });
-      }
-    }
-
-    // Warning: stok hampir habis
-    for (const b of bahanBakuList) {
-      const stokNum = Number(b.stok);
-      if (stokNum > 0 && stokNum <= Number(b.stokMinimal)) {
+      } else if (stokNum <= Number(b.stokMinimal)) {
         const hash = this.makeHash(`stok-hampir-habis-${b.id}`);
         candidates.push({
           tipe: 'stok_hampir_habis',
