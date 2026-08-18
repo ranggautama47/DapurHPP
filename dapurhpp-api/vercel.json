@@ -4,12 +4,11 @@
   "outputDirectory": "dist",
   "framework": null,
   "functions": {
-    "api/index.ts": {
-      "runtime": "nodejs20.x",
-      "maxDuration": 30,
-      "memory": 1024
-    }
-  },
+  "api/index.ts": {
+    "maxDuration": 30,
+    "memory": 1024
+  }
+},
   "regions": ["sin1"],
   "rewrites": [
     {
