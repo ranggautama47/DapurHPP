@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Be_Vietnam_Pro, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { LoadingProvider } from "@/components/provider/loading-provider";
 import { LanguageProvider } from "@/context/language-context";
 import { GlobalErrorDialog } from "@/components/ui/global-error-dialog";
@@ -56,6 +57,7 @@ export default function RootLayout({
           />
           <GlobalErrorDialog />
         </LanguageProvider>
+        {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />}
       </body>
     </html>
   );
